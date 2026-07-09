@@ -3,30 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <title>Keswick Discos Wedding Brochure</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/blasten/turn.js@master/turn.min.js"></script>
 
   <style>
     body {
       margin: 0;
-      background: #111;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #333, #050505);
       color: white;
       font-family: Arial, sans-serif;
       text-align: center;
     }
 
     h1 {
-      margin: 20px 0;
+      margin: 25px 10px 10px;
+      font-size: 28px;
+      letter-spacing: 1px;
+    }
+
+    .subtitle {
+      color: #d6b56d;
+      margin-bottom: 20px;
+      font-size: 15px;
+    }
+
+    .book-wrap {
+      padding: 20px;
     }
 
     #flipbook {
       width: 900px;
       height: 600px;
-      margin: 20px auto;
+      margin: 0 auto;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.75);
     }
 
     #flipbook .page {
       background: white;
+      box-shadow: inset 0 0 25px rgba(0,0,0,0.18);
     }
 
     #flipbook img {
@@ -35,18 +52,45 @@
       object-fit: cover;
     }
 
+    .controls {
+      margin: 22px 0;
+    }
+
     button {
-      padding: 12px 20px;
-      margin: 10px;
+      background: linear-gradient(135deg, #d6b56d, #9c7835);
+      color: white;
+      padding: 12px 22px;
+      margin: 6px;
       border: none;
-      border-radius: 6px;
+      border-radius: 30px;
       cursor: pointer;
+      font-size: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+    }
+
+    #pageNumber {
+      color: #ddd;
+      font-size: 14px;
+      margin-bottom: 20px;
     }
 
     @media (max-width: 768px) {
+      h1 {
+        font-size: 21px;
+      }
+
       #flipbook {
-        width: 95vw;
+        width: 94vw;
         height: 65vw;
+      }
+
+      button {
+        padding: 10px 16px;
+        font-size: 14px;
       }
     }
   </style>
@@ -55,25 +99,47 @@
 <body>
 
   <h1>Keswick Discos Wedding Brochure</h1>
+  <div class="subtitle">Wedding DJ Entertainment • Cumbria & The Lake District</div>
 
- <div id="flipbook">
-  <div class="page"><img src="pages/page1.jpg"></div>
-  <div class="page"><img src="pages/page2.jpg"></div>
-  <div class="page"><img src="pages/page3.jpg"></div>
-  <div class="page"><img src="pages/page4.jpg"></div>
-  <div class="page"><img src="pages/page5.jpg"></div>
-  <div class="page"><img src="pages/page6.jpg"></div>
-</div>
+  <div class="book-wrap">
+    <div id="flipbook">
+      <div class="page"><img src="pages/page1.jpg"></div>
+      <div class="page"><img src="pages/page2.jpg"></div>
+      <div class="page"><img src="pages/page3.jpg"></div>
+      <div class="page"><img src="pages/page4.jpg"></div>
+      <div class="page"><img src="pages/page5.jpg"></div>
+      <div class="page"><img src="pages/page6.jpg"></div>
+    </div>
+  </div>
 
-  <button onclick="$('#flipbook').turn('previous')">Previous</button>
-  <button onclick="$('#flipbook').turn('next')">Next</button>
+  <div class="controls">
+    <button onclick="$('#flipbook').turn('previous')">Previous</button>
+    <button onclick="$('#flipbook').turn('next')">Next</button>
+    <button onclick="openFullscreen()">Full Screen</button>
+  </div>
+
+  <div id="pageNumber">Page 1 of 6</div>
 
   <script>
     $("#flipbook").turn({
       width: 900,
       height: 600,
-      autoCenter: true
+      autoCenter: true,
+      gradients: true,
+      elevation: 60,
+      when: {
+        turned: function(event, page) {
+          $("#pageNumber").text("Page " + page + " of 6");
+        }
+      }
     });
+
+    function openFullscreen() {
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      }
+    }
   </script>
 
 </body>
