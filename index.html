@@ -21,19 +21,17 @@
     h1 {
       margin: 24px 10px 5px;
       font-size: 32px;
-      letter-spacing: 1px;
     }
 
     .subtitle {
       color: #d6b56d;
       margin-bottom: 18px;
-      font-size: 16px;
     }
 
     .book-area {
       width: 100%;
       overflow-x: auto;
-      padding: 10px 0 5px;
+      padding: 10px 0;
     }
 
     #book {
@@ -52,7 +50,7 @@
       object-fit: contain;
       display: block;
       background: white;
-     }
+    }
 
     .controls {
       margin: 22px 0 10px;
@@ -69,12 +67,6 @@
       font-size: 14px;
       text-decoration: none;
       display: inline-block;
-      box-shadow: 0 8px 22px rgba(0,0,0,0.45);
-    }
-
-    button:hover, .link-btn:hover {
-      transform: translateY(-2px);
-      background: linear-gradient(135deg, #e3c57c, #a8833f);
     }
 
     #pageNumber {
@@ -95,7 +87,8 @@
     .thumbnails img {
       width: 70px;
       height: 95px;
-      object-fit: cover;
+      object-fit: contain;
+      background: white;
       cursor: pointer;
       border-radius: 5px;
       opacity: 0.75;
@@ -118,12 +111,8 @@
         font-size: 22px;
       }
 
-      .subtitle {
-        font-size: 14px;
-      }
-
       button, .link-btn {
-        padding: 10px 15px;
+        padding: 10px 14px;
         font-size: 13px;
       }
 
@@ -150,21 +139,26 @@
     <button onclick="zoomIn()">Zoom In</button>
     <button onclick="zoomOut()">Zoom Out</button>
     <button onclick="openFullscreen()">Full Screen</button>
+    <button onclick="toggleSound()" id="soundButton">🔊 Sound On</button>
     <a class="link-btn" href="https://www.keswickdiscos.co.uk/wedding-dj-entertainment" target="_blank">Enquire Now</a>
   </div>
 
   <div id="pageNumber">Page 1 of 18</div>
-
   <div class="thumbnails" id="thumbnails"></div>
-
   <div class="footer">www.keswickdiscos.co.uk</div>
+
+  <audio id="flipSound" preload="auto">
+    <source src="assets/page-flip.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
     const totalPages = 18;
     let zoomLevel = 1;
+    let soundEnabled = true;
 
     const book = document.getElementById("book");
     const thumbnails = document.getElementById("thumbnails");
+    const flipSound = document.getElementById("flipSound");
 
     for (let i = 1; i <= totalPages; i++) {
       const page = document.createElement("div");
@@ -197,15 +191,15 @@
 
     pageFlip.loadFromHTML(document.querySelectorAll(".page"));
 
-    const flipSound = document.getElementById("flipSound");
-
-pageFlip.on("flip", (e) => {
-    document.getElementById("pageNumber").innerText =
+    pageFlip.on("flip", (e) => {
+      document.getElementById("pageNumber").innerText =
         "Page " + (e.data + 1) + " of " + totalPages;
 
-    flipSound.currentTime = 0;
-    flipSound.play().catch(() => {});
-});
+      if (soundEnabled) {
+        flipSound.currentTime = 0;
+        flipSound.play().catch(() => {});
+      }
+    });
 
     function zoomIn() {
       zoomLevel += 0.1;
@@ -222,6 +216,12 @@ pageFlip.on("flip", (e) => {
     function openFullscreen() {
       const elem = document.documentElement;
       if (elem.requestFullscreen) elem.requestFullscreen();
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById("soundButton").innerText =
+        soundEnabled ? "🔊 Sound On" : "🔇 Sound Off";
     }
 
     document.addEventListener("keydown", function(event) {
