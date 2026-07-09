@@ -197,10 +197,15 @@
 
     pageFlip.loadFromHTML(document.querySelectorAll(".page"));
 
-    pageFlip.on("flip", (e) => {
-      document.getElementById("pageNumber").innerText =
+    const flipSound = document.getElementById("flipSound");
+
+pageFlip.on("flip", (e) => {
+    document.getElementById("pageNumber").innerText =
         "Page " + (e.data + 1) + " of " + totalPages;
-    });
+
+    flipSound.currentTime = 0;
+    flipSound.play().catch(() => {});
+});
 
     function zoomIn() {
       zoomLevel += 0.1;
