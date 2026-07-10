@@ -16,15 +16,13 @@
   <title>Keswick Discos Wedding Brochure</title>
 
   <!-- StPageFlip -->
-  <script
-    src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js">
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
 
   <style>
     :root {
       --gold: #d6b56d;
       --gold-dark: #9c7835;
-      --page-ratio: 1.4142857;
+      --background-dark: #070707;
     }
 
     * {
@@ -32,21 +30,28 @@
     }
 
     html {
-      background: #070707;
+      background: var(--background-dark);
     }
 
     body {
       margin: 0;
       min-height: 100vh;
       overflow-x: hidden;
+
       background:
         radial-gradient(
           circle at 50% 0%,
           rgba(104, 104, 104, 0.42),
           transparent 42%
         ),
-        linear-gradient(145deg, #202020 0%, #080808 55%, #000 100%);
-      color: #fff;
+        linear-gradient(
+          145deg,
+          #202020 0%,
+          #080808 55%,
+          #000000 100%
+        );
+
+      color: white;
       font-family: Arial, Helvetica, sans-serif;
       text-align: center;
     }
@@ -68,13 +73,18 @@
       letter-spacing: 0.03em;
     }
 
+    /* Loading screen */
+
     #loadingScreen {
       position: fixed;
       inset: 0;
       z-index: 9999;
+
       display: grid;
       place-items: center;
+
       background: #080808;
+
       transition:
         opacity 0.4s ease,
         visibility 0.4s ease;
@@ -83,6 +93,7 @@
     #loadingScreen.hidden {
       opacity: 0;
       visibility: hidden;
+      pointer-events: none;
     }
 
     .loading-content {
@@ -99,15 +110,24 @@
       height: 5px;
       overflow: hidden;
       border-radius: 10px;
-      background: #333;
+      background: #333333;
     }
 
     .loading-progress {
       width: 0%;
       height: 100%;
-      background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+
+      background:
+        linear-gradient(
+          90deg,
+          var(--gold-dark),
+          var(--gold)
+        );
+
       transition: width 0.2s ease;
     }
+
+    /* Main viewer */
 
     .viewer-shell {
       width: 100%;
@@ -116,68 +136,116 @@
 
     .book-stage {
       position: relative;
+
       display: flex;
       align-items: center;
       justify-content: center;
+
       width: min(1220px, 100%);
       min-height: min(72vw, 760px);
+
       margin: 0 auto;
-      overflow: visible;
+
+      overflow: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--gold-dark) #181818;
+    }
+
+    #zoomContainer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      min-width: max-content;
+      min-height: max-content;
+
+      padding: 20px;
+
+      transition: transform 0.25s ease;
+      transform-origin: center center;
     }
 
     #book {
       margin: 0 auto;
-      filter: drop-shadow(0 30px 35px rgba(0, 0, 0, 0.72));
+
+      filter:
+        drop-shadow(
+          0 30px 35px rgba(0, 0, 0, 0.72)
+        );
     }
 
     .page {
-      background: #111;
       overflow: hidden;
+      background: #111111;
     }
 
     .page img {
       display: block;
+
       width: 100%;
       height: 100%;
+
       object-fit: contain;
-      background: #111;
+
+      background: #111111;
+
       user-select: none;
       -webkit-user-drag: none;
     }
 
     .page-cover {
-      background: #111;
+      background: #111111;
     }
 
     .page-cover img {
       object-fit: contain;
     }
 
+    /* Controls */
+
     .controls {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 9px;
-      width: min(1000px, calc(100% - 24px));
+
+      width: min(1100px, calc(100% - 24px));
+
       margin: 20px auto 10px;
     }
 
     button,
     .action-link {
       min-width: 112px;
+
       padding: 11px 18px;
+
       border: 1px solid rgba(255, 255, 255, 0.13);
       border-radius: 999px;
-      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.38);
-      color: #fff;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--gold),
+          var(--gold-dark)
+        );
+
+      box-shadow:
+        0 8px 22px rgba(0, 0, 0, 0.38);
+
+      color: white;
+
       cursor: pointer;
+
       font: inherit;
       font-size: 14px;
+
       text-decoration: none;
+
       transition:
         transform 0.18s ease,
-        filter 0.18s ease;
+        filter 0.18s ease,
+        opacity 0.18s ease;
     }
 
     button:hover,
@@ -188,21 +256,42 @@
 
     button:disabled {
       cursor: default;
-      opacity: 0.45;
+      opacity: 0.42;
       transform: none;
+      filter: none;
+    }
+
+    .zoom-status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      min-width: 82px;
+
+      padding: 11px 13px;
+
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+
+      background: rgba(20, 20, 20, 0.78);
+
+      color: #eeeeee;
+      font-size: 14px;
     }
 
     .page-status {
       margin: 12px 0 4px;
-      color: #ddd;
+      color: #dddddd;
       font-size: 14px;
     }
 
     .help-text {
       margin: 7px 12px 12px;
-      color: #999;
+      color: #999999;
       font-size: 12px;
     }
+
+    /* Thumbnails */
 
     .thumbnail-wrapper {
       width: min(1120px, calc(100% - 24px));
@@ -213,21 +302,30 @@
     .thumbnails {
       display: flex;
       gap: 9px;
+
       overflow-x: auto;
+
       padding: 10px 4px 15px;
+
       scroll-behavior: smooth;
       scrollbar-width: thin;
     }
 
     .thumbnail-button {
       flex: 0 0 auto;
+
       min-width: 0;
       padding: 0;
+
       overflow: hidden;
+
       border: 2px solid transparent;
       border-radius: 5px;
-      background: #111;
-      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.4);
+
+      background: #111111;
+
+      box-shadow:
+        0 5px 14px rgba(0, 0, 0, 0.4);
     }
 
     .thumbnail-button:hover,
@@ -238,13 +336,16 @@
 
     .thumbnail-button img {
       display: block;
+
       width: 64px;
       aspect-ratio: 210 / 297;
+
       object-fit: cover;
     }
 
     footer {
       padding: 3px 12px 30px;
+
       color: var(--gold);
       font-size: 14px;
     }
@@ -256,14 +357,21 @@
 
     .error-message {
       display: none;
+
       max-width: 680px;
+
       margin: 35px auto;
       padding: 20px;
-      border: 1px solid #805;
+
+      border: 1px solid #80505e;
       border-radius: 8px;
+
       background: #241018;
-      color: #fff;
+
+      color: white;
     }
+
+    /* Fullscreen mode */
 
     body.fullscreen-mode header,
     body.fullscreen-mode .thumbnail-wrapper,
@@ -272,9 +380,19 @@
       display: none;
     }
 
-    body.fullscreen-mode .book-stage {
-      min-height: calc(100vh - 90px);
+    body.fullscreen-mode .viewer-shell {
+      padding-top: 0;
     }
+
+    body.fullscreen-mode .book-stage {
+      min-height: calc(100vh - 100px);
+    }
+
+    body.fullscreen-mode .controls {
+      margin-top: 8px;
+    }
+
+    /* Mobile */
 
     @media (max-width: 700px) {
       header {
@@ -290,6 +408,10 @@
         min-height: min(139vw, 720px);
       }
 
+      #zoomContainer {
+        padding: 8px;
+      }
+
       .controls {
         gap: 7px;
         width: calc(100% - 12px);
@@ -303,6 +425,12 @@
         font-size: 13px;
       }
 
+      .zoom-status {
+        min-width: 74px;
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+
       .thumbnail-button img {
         width: 52px;
       }
@@ -312,15 +440,24 @@
 
 <body>
 
+  <!-- Loading screen -->
+
   <div id="loadingScreen">
     <div class="loading-content">
-      <div class="loading-title">Loading wedding brochure…</div>
+      <div class="loading-title">
+        Loading wedding brochure…
+      </div>
 
       <div class="loading-bar">
-        <div class="loading-progress" id="loadingProgress"></div>
+        <div
+          class="loading-progress"
+          id="loadingProgress"
+        ></div>
       </div>
     </div>
   </div>
+
+  <!-- Header -->
 
   <header>
     <h1>Keswick Discos Wedding Brochure</h1>
@@ -330,9 +467,14 @@
     </div>
   </header>
 
+  <!-- Main brochure -->
+
   <main class="viewer-shell">
+
     <div class="book-stage" id="bookStage">
-      <div id="book"></div>
+      <div id="zoomContainer">
+        <div id="book"></div>
+      </div>
     </div>
 
     <div class="error-message" id="errorMessage">
@@ -340,11 +482,40 @@
       named page1.jpg through page18.jpg inside the pages folder.
     </div>
 
+    <!-- Buttons -->
+
     <div class="controls">
-      <button type="button" id="previousButton">‹ Previous</button>
-      <button type="button" id="nextButton">Next ›</button>
-      <button type="button" id="firstButton">First page</button>
-      <button type="button" id="fullscreenButton">Full screen</button>
+      <button type="button" id="previousButton">
+        ‹ Previous
+      </button>
+
+      <button type="button" id="nextButton">
+        Next ›
+      </button>
+
+      <button type="button" id="firstButton">
+        First page
+      </button>
+
+      <button type="button" id="zoomOutButton">
+        Zoom out
+      </button>
+
+      <span class="zoom-status" id="zoomStatus">
+        100%
+      </span>
+
+      <button type="button" id="zoomInButton">
+        Zoom in
+      </button>
+
+      <button type="button" id="zoomResetButton">
+        Reset zoom
+      </button>
+
+      <button type="button" id="fullscreenButton">
+        Full screen
+      </button>
 
       <a
         class="action-link"
@@ -356,17 +527,27 @@
       </a>
     </div>
 
-    <div class="page-status" id="pageStatus">Page 1 of 18</div>
+    <div class="page-status" id="pageStatus">
+      Page 1 of 18
+    </div>
 
     <div class="help-text">
-      Click or swipe the page corners. You can also use the left and right
-      arrow keys.
+      Click or swipe the page corners. Use the left and right arrow keys to
+      change pages. When zoomed in, scroll around the brochure.
     </div>
 
+    <!-- Thumbnails -->
+
     <div class="thumbnail-wrapper">
-      <div class="thumbnails" id="thumbnails"></div>
+      <div
+        class="thumbnails"
+        id="thumbnails"
+      ></div>
     </div>
+
   </main>
+
+  <!-- Footer -->
 
   <footer>
     <a
@@ -381,57 +562,152 @@
   <script>
     "use strict";
 
+    /*
+      Change this number when adding more brochure pages.
+    */
+
     const totalPages = 18;
 
-    // These are A4 proportions: 210 × 297.
-    // The browser scales them automatically.
+    /*
+      Correct A4 ratio: 210 × 297.
+      These figures control the page proportions,
+      not the actual image resolution.
+    */
+
     const pageWidth = 700;
     const pageHeight = 990;
 
-    const bookElement = document.getElementById("book");
-    const bookStage = document.getElementById("bookStage");
-    const thumbnailContainer = document.getElementById("thumbnails");
-    const pageStatus = document.getElementById("pageStatus");
-    const loadingScreen = document.getElementById("loadingScreen");
-    const loadingProgress = document.getElementById("loadingProgress");
-    const errorMessage = document.getElementById("errorMessage");
+    /*
+      Zoom settings
+    */
 
-    const previousButton = document.getElementById("previousButton");
-    const nextButton = document.getElementById("nextButton");
-    const firstButton = document.getElementById("firstButton");
-    const fullscreenButton = document.getElementById("fullscreenButton");
+    let zoomLevel = 1;
+
+    const minimumZoom = 1;
+    const maximumZoom = 2.5;
+    const zoomStep = 0.25;
+
+    /*
+      Elements
+    */
+
+    const bookElement =
+      document.getElementById("book");
+
+    const bookStage =
+      document.getElementById("bookStage");
+
+    const zoomContainer =
+      document.getElementById("zoomContainer");
+
+    const thumbnailContainer =
+      document.getElementById("thumbnails");
+
+    const pageStatus =
+      document.getElementById("pageStatus");
+
+    const zoomStatus =
+      document.getElementById("zoomStatus");
+
+    const loadingScreen =
+      document.getElementById("loadingScreen");
+
+    const loadingProgress =
+      document.getElementById("loadingProgress");
+
+    const errorMessage =
+      document.getElementById("errorMessage");
+
+    const previousButton =
+      document.getElementById("previousButton");
+
+    const nextButton =
+      document.getElementById("nextButton");
+
+    const firstButton =
+      document.getElementById("firstButton");
+
+    const zoomInButton =
+      document.getElementById("zoomInButton");
+
+    const zoomOutButton =
+      document.getElementById("zoomOutButton");
+
+    const zoomResetButton =
+      document.getElementById("zoomResetButton");
+
+    const fullscreenButton =
+      document.getElementById("fullscreenButton");
 
     let pageFlip;
     let loadedImages = 0;
+
+    /*
+      Image path
+    */
 
     function imagePath(pageNumber) {
       return `pages/page${pageNumber}.jpg`;
     }
 
+    /*
+      Create the brochure pages
+    */
+
     function createPages() {
-      for (let pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
+      for (
+        let pageNumber = 1;
+        pageNumber <= totalPages;
+        pageNumber++
+      ) {
         const page = document.createElement("div");
+
         page.className = "page";
 
-        if (pageNumber === 1 || pageNumber === totalPages) {
+        /*
+          Make the first and last pages hard covers
+        */
+
+        if (
+          pageNumber === 1 ||
+          pageNumber === totalPages
+        ) {
           page.classList.add("page-cover");
           page.dataset.density = "hard";
         }
 
         const image = document.createElement("img");
-        image.src = imagePath(pageNumber);
-        image.alt = `Keswick Discos wedding brochure page ${pageNumber}`;
 
-        // The cover loads immediately; later pages are deferred by the browser.
-        image.loading = pageNumber <= 3 ? "eager" : "lazy";
+        image.src = imagePath(pageNumber);
+
+        image.alt =
+          `Keswick Discos wedding brochure page ${pageNumber}`;
+
+        /*
+          Load the first three pages quickly.
+          Let the browser defer later pages.
+        */
+
+        image.loading =
+          pageNumber <= 3 ? "eager" : "lazy";
+
         image.decoding = "async";
 
-        image.addEventListener("load", updateLoadingProgress);
+        image.addEventListener(
+          "load",
+          updateLoadingProgress
+        );
 
-        image.addEventListener("error", function () {
-          console.error(`Unable to load ${image.src}`);
-          updateLoadingProgress();
-        });
+        image.addEventListener(
+          "error",
+          function () {
+            console.error(
+              `Unable to load ${image.src}`
+            );
+
+            updateLoadingProgress();
+          }
+        );
 
         page.appendChild(image);
         bookElement.appendChild(page);
@@ -440,14 +716,28 @@
       }
     }
 
+    /*
+      Create thumbnails
+    */
+
     function createThumbnail(pageNumber) {
-      const button = document.createElement("button");
+      const button =
+        document.createElement("button");
+
       button.type = "button";
       button.className = "thumbnail-button";
-      button.setAttribute("aria-label", `Go to page ${pageNumber}`);
-      button.dataset.pageIndex = String(pageNumber - 1);
 
-      const image = document.createElement("img");
+      button.setAttribute(
+        "aria-label",
+        `Go to page ${pageNumber}`
+      );
+
+      button.dataset.pageIndex =
+        String(pageNumber - 1);
+
+      const image =
+        document.createElement("img");
+
       image.src = imagePath(pageNumber);
       image.alt = "";
       image.loading = "lazy";
@@ -455,100 +745,167 @@
 
       button.appendChild(image);
 
-      button.addEventListener("click", function () {
-        pageFlip.flip(pageNumber - 1);
-      });
+      button.addEventListener(
+        "click",
+        function () {
+          pageFlip.flip(pageNumber - 1);
+        }
+      );
 
       thumbnailContainer.appendChild(button);
     }
+
+    /*
+      Loading progress
+    */
 
     function updateLoadingProgress() {
       loadedImages++;
 
       const percentage = Math.min(
         100,
-        Math.round((loadedImages / totalPages) * 100)
+        Math.round(
+          (loadedImages / totalPages) * 100
+        )
       );
 
-      loadingProgress.style.width = `${percentage}%`;
+      loadingProgress.style.width =
+        `${percentage}%`;
 
-      // Show the brochure as soon as the first few pages are ready.
-      if (loadedImages >= Math.min(3, totalPages)) {
+      /*
+        Show the brochure once the first few pages
+        have loaded.
+      */
+
+      if (
+        loadedImages >=
+        Math.min(3, totalPages)
+      ) {
         loadingScreen.classList.add("hidden");
       }
     }
+
+    /*
+      Initialise StPageFlip
+    */
 
     function initialiseFlipbook() {
-      if (!window.St || !window.St.PageFlip) {
-        throw new Error("StPageFlip did not load.");
+      if (
+        !window.St ||
+        !window.St.PageFlip
+      ) {
+        throw new Error(
+          "StPageFlip did not load."
+        );
       }
 
-      pageFlip = new St.PageFlip(bookElement, {
-        width: pageWidth,
-        height: pageHeight,
+      pageFlip = new St.PageFlip(
+        bookElement,
+        {
+          width: pageWidth,
+          height: pageHeight,
 
-        size: "stretch",
+          size: "stretch",
 
-        // A4 proportional minimum and maximum sizes.
-        minWidth: 280,
-        maxWidth: pageWidth,
-        minHeight: 396,
-        maxHeight: pageHeight,
+          minWidth: 280,
+          maxWidth: pageWidth,
 
-        showCover: true,
-        usePortrait: true,
-        autoSize: true,
+          minHeight: 396,
+          maxHeight: pageHeight,
 
-        drawShadow: true,
-        maxShadowOpacity: 0.45,
-        flippingTime: 850,
+          showCover: true,
+          usePortrait: true,
+          autoSize: true,
 
-        mobileScrollSupport: false,
-        clickEventForward: true,
-        useMouseEvents: true,
-        swipeDistance: 30,
-        showPageCorners: true,
-        disableFlipByClick: false
-      });
+          drawShadow: true,
+          maxShadowOpacity: 0.45,
 
-      pageFlip.loadFromHTML(document.querySelectorAll(".page"));
+          flippingTime: 850,
 
-      pageFlip.on("init", function () {
-        updateInterface(0);
-        loadingScreen.classList.add("hidden");
-      });
+          mobileScrollSupport: false,
+          clickEventForward: true,
+          useMouseEvents: true,
 
-      pageFlip.on("flip", function (event) {
-        updateInterface(event.data);
-      });
+          swipeDistance: 30,
+          showPageCorners: true,
+          disableFlipByClick: false
+        }
+      );
 
-      pageFlip.on("changeOrientation", function () {
-        window.setTimeout(function () {
-          updateInterface(pageFlip.getCurrentPageIndex());
-        }, 100);
-      });
+      pageFlip.loadFromHTML(
+        document.querySelectorAll(".page")
+      );
+
+      pageFlip.on(
+        "init",
+        function () {
+          updateInterface(0);
+          applyZoom();
+
+          loadingScreen.classList.add("hidden");
+        }
+      );
+
+      pageFlip.on(
+        "flip",
+        function (event) {
+          updateInterface(event.data);
+        }
+      );
+
+      pageFlip.on(
+        "changeOrientation",
+        function () {
+          window.setTimeout(
+            function () {
+              updateInterface(
+                pageFlip.getCurrentPageIndex()
+              );
+            },
+            100
+          );
+        }
+      );
     }
 
+    /*
+      Page number and active thumbnail
+    */
+
     function updateInterface(pageIndex) {
-      const currentPage = Math.min(pageIndex + 1, totalPages);
+      const currentPage = Math.min(
+        pageIndex + 1,
+        totalPages
+      );
 
-      pageStatus.textContent = `Page ${currentPage} of ${totalPages}`;
+      pageStatus.textContent =
+        `Page ${currentPage} of ${totalPages}`;
 
-      previousButton.disabled = pageIndex <= 0;
-      nextButton.disabled = pageIndex >= totalPages - 1;
+      previousButton.disabled =
+        pageIndex <= 0;
+
+      nextButton.disabled =
+        pageIndex >= totalPages - 1;
 
       document
-        .querySelectorAll(".thumbnail-button")
-        .forEach(function (thumbnail) {
-          thumbnail.classList.toggle(
-            "active",
-            Number(thumbnail.dataset.pageIndex) === pageIndex
-          );
-        });
+        .querySelectorAll(
+          ".thumbnail-button"
+        )
+        .forEach(
+          function (thumbnail) {
+            thumbnail.classList.toggle(
+              "active",
+              Number(
+                thumbnail.dataset.pageIndex
+              ) === pageIndex
+            );
+          }
+        );
 
-      const activeThumbnail = document.querySelector(
-        `.thumbnail-button[data-page-index="${pageIndex}"]`
-      );
+      const activeThumbnail =
+        document.querySelector(
+          `.thumbnail-button[data-page-index="${pageIndex}"]`
+        );
 
       if (activeThumbnail) {
         activeThumbnail.scrollIntoView({
@@ -559,58 +916,215 @@
       }
     }
 
-    previousButton.addEventListener("click", function () {
-      pageFlip.flipPrev();
-    });
+    /*
+      Zoom
+    */
 
-    nextButton.addEventListener("click", function () {
-      pageFlip.flipNext();
-    });
+    function applyZoom() {
+      zoomContainer.style.transform =
+        `scale(${zoomLevel})`;
 
-    firstButton.addEventListener("click", function () {
-      pageFlip.turnToPage(0);
-    });
+      zoomContainer.style.transformOrigin =
+        "center center";
 
-    fullscreenButton.addEventListener("click", async function () {
-      try {
-        if (!document.fullscreenElement) {
-          await document.documentElement.requestFullscreen();
-        } else {
-          await document.exitFullscreen();
-        }
-      } catch (error) {
-        console.error("Fullscreen failed:", error);
-      }
-    });
+      zoomStatus.textContent =
+        `${Math.round(zoomLevel * 100)}%`;
 
-    document.addEventListener("fullscreenchange", function () {
-      const fullscreenActive = Boolean(document.fullscreenElement);
+      zoomOutButton.disabled =
+        zoomLevel <= minimumZoom;
 
-      document.body.classList.toggle(
-        "fullscreen-mode",
-        fullscreenActive
+      zoomInButton.disabled =
+        zoomLevel >= maximumZoom;
+
+      zoomResetButton.disabled =
+        zoomLevel === 1;
+
+      /*
+        Scroll towards the centre after zooming.
+      */
+
+      window.setTimeout(
+        function () {
+          bookStage.scrollTo({
+            left:
+              (
+                bookStage.scrollWidth -
+                bookStage.clientWidth
+              ) / 2,
+
+            top:
+              (
+                bookStage.scrollHeight -
+                bookStage.clientHeight
+              ) / 2,
+
+            behavior: "smooth"
+          });
+        },
+        50
       );
+    }
 
-      fullscreenButton.textContent = fullscreenActive
-        ? "Exit full screen"
-        : "Full screen";
-    });
+    zoomInButton.addEventListener(
+      "click",
+      function () {
+        zoomLevel = Math.min(
+          maximumZoom,
+          zoomLevel + zoomStep
+        );
 
-    document.addEventListener("keydown", function (event) {
-      if (!pageFlip) return;
+        applyZoom();
+      }
+    );
 
-      if (event.key === "ArrowLeft") {
+    zoomOutButton.addEventListener(
+      "click",
+      function () {
+        zoomLevel = Math.max(
+          minimumZoom,
+          zoomLevel - zoomStep
+        );
+
+        applyZoom();
+      }
+    );
+
+    zoomResetButton.addEventListener(
+      "click",
+      function () {
+        zoomLevel = 1;
+        applyZoom();
+
+        bookStage.scrollTo({
+          left: 0,
+          top: 0,
+          behavior: "smooth"
+        });
+      }
+    );
+
+    /*
+      Navigation buttons
+    */
+
+    previousButton.addEventListener(
+      "click",
+      function () {
         pageFlip.flipPrev();
       }
+    );
 
-      if (event.key === "ArrowRight") {
+    nextButton.addEventListener(
+      "click",
+      function () {
         pageFlip.flipNext();
       }
+    );
 
-      if (event.key === "Home") {
+    firstButton.addEventListener(
+      "click",
+      function () {
         pageFlip.turnToPage(0);
       }
-    });
+    );
+
+    /*
+      Fullscreen
+    */
+
+    fullscreenButton.addEventListener(
+      "click",
+      async function () {
+        try {
+          if (!document.fullscreenElement) {
+            await document.documentElement
+              .requestFullscreen();
+          } else {
+            await document.exitFullscreen();
+          }
+        } catch (error) {
+          console.error(
+            "Fullscreen failed:",
+            error
+          );
+        }
+      }
+    );
+
+    document.addEventListener(
+      "fullscreenchange",
+      function () {
+        const fullscreenActive =
+          Boolean(
+            document.fullscreenElement
+          );
+
+        document.body.classList.toggle(
+          "fullscreen-mode",
+          fullscreenActive
+        );
+
+        fullscreenButton.textContent =
+          fullscreenActive
+            ? "Exit full screen"
+            : "Full screen";
+      }
+    );
+
+    /*
+      Keyboard controls
+    */
+
+    document.addEventListener(
+      "keydown",
+      function (event) {
+        if (!pageFlip) {
+          return;
+        }
+
+        if (event.key === "ArrowLeft") {
+          pageFlip.flipPrev();
+        }
+
+        if (event.key === "ArrowRight") {
+          pageFlip.flipNext();
+        }
+
+        if (event.key === "Home") {
+          pageFlip.turnToPage(0);
+        }
+
+        if (
+          event.key === "+" ||
+          event.key === "="
+        ) {
+          zoomLevel = Math.min(
+            maximumZoom,
+            zoomLevel + zoomStep
+          );
+
+          applyZoom();
+        }
+
+        if (event.key === "-") {
+          zoomLevel = Math.max(
+            minimumZoom,
+            zoomLevel - zoomStep
+          );
+
+          applyZoom();
+        }
+
+        if (event.key === "0") {
+          zoomLevel = 1;
+          applyZoom();
+        }
+      }
+    );
+
+    /*
+      Start everything
+    */
 
     try {
       createPages();
