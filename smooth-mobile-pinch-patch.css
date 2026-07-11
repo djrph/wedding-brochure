@@ -1,0 +1,21 @@
+/* Add to the bottom of style.css */
+.zoom-container {
+  will-change: transform;
+  transform-origin: center center;
+}
+
+@media (max-width: 700px) {
+  .book-stage {
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+  }
+
+  .book-stage.is-zoomed {
+    touch-action: none;
+    overflow: hidden;
+  }
+
+  .book-stage.is-zoomed .zoom-container {
+    cursor: grab;
+  }
+}
