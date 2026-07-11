@@ -1,0 +1,7 @@
+/* Add to the bottom of style.css */
+@media (max-width: 700px) {
+  .book-stage {
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+  }
+}
