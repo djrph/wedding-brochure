@@ -1,6 +1,7 @@
 "use strict";
 
-const totalPages = 18;
+let totalPages = 0;
+const maximumPagesToCheck = 100;
 const pageWidth = 600;
 const pageHeight = 848;
 
@@ -259,12 +260,59 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-try {
-  createPages();
-  initialiseFlipbook();
-} catch (error) {
-  console.error(error);
-  loadingScreen.classList.add("hidden");
-  bookStage.style.display = "none";
-  errorMessage.hidden = false;
+async function imageExists(pageNumber) {
+  try {
+    const response = await fetch(imagePath(pageNumber), {
+      method: "HEAD",
+      cache: "no-store"
+    });
+
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
 }
+
+async function detectTotalPages() {
+  let detectedPages = 0;
+
+  for (
+    let pageNumber = 1;
+    pageNumber <= maximumPagesToCheck;
+    pageNumber++
+  ) {
+    const exists = await imageExists(pageNumber);
+
+    if (!exists) {
+      break;
+    }
+
+    detectedPages = pageNumber;
+  }
+
+  return detectedPages;
+}
+
+async function startBrochure() {
+  try {
+    totalPages = await detectTotalPages();
+
+    if (totalPages === 0) {
+      throw new Error("No brochure pages were found.");
+    }
+
+    pageStatus.textContent =
+      `Page 1 of ${totalPages}`;
+
+    createPages();
+    initialiseFlipbook();
+  } catch (error) {
+    console.error(error);
+
+    loadingScreen.classList.add("hidden");
+    bookStage.style.display = "none";
+    errorMessage.hidden = false;
+  }
+}
+
+startBrochure();
