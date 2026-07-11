@@ -136,10 +136,40 @@ function updateInterface(pageIndex) {
     thumbnail.classList.toggle("active", Number(thumbnail.dataset.pageIndex) === pageIndex);
   });
 
-  const activeThumbnail = document.querySelector(`.thumbnail-button[data-page-index="${pageIndex}"]`);
-  if (activeThumbnail) {
-    activeThumbnail.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-  }
+  const activeThumbnail = document.querySelector(
+  `.thumbnail-button[data-page-index="${pageIndex}"]`
+);
+
+if (activeThumbnail) {
+  const thumbnailLeft =
+    activeThumbnail.offsetLeft -
+    thumbnailContainer.clientWidth / 2 +
+    activeThumbnail.clientWidth / 2;
+
+  thumbnailContainer.scrollTo({
+    left: thumbnailLeft,
+    behavior: "smooth"
+  });
+}
+
+This will:
+
+Keep the main mobile screen in the same position.
+Scroll only the thumbnail strip sideways.
+Keep the current thumbnail centred.
+Stop the brochure jumping down towards the buttons.
+
+You can also add this to the bottom of style.css for extra protection:
+
+html {
+  overflow-anchor: none;
+}
+
+.thumbnail-button {
+  scroll-margin: 0;
+}
+
+The most important change is removing activeThumbnail.scrollIntoView(). Your current page-turn event calls updateInterface() after every flip, which is why the downward movement happens every time.
 }
 
 function applyZoom() {
