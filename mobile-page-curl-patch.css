@@ -1,0 +1,10 @@
+/* Mobile page-curl and pinch zoom */
+@media (max-width: 700px) {
+  .book-stage {
+    touch-action: pan-y;
+  }
+
+  .book-stage.is-zoomed {
+    touch-action: none;
+  }
+}
