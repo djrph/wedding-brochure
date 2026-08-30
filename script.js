@@ -2,7 +2,7 @@
 
 const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
 
-const totalPages = 19;
+const totalPages = 20;
 const pageWidth = 600;
 const pageHeight = 848;
 
