@@ -88,6 +88,7 @@ function closeContactModal() {
 function imagePath(pageNumber) {
   return `pages/page${pageNumber}.jpg?v=${brochureVersion}`;
 }
+}
 
 function createPages() {
   for (let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1) {
