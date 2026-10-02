@@ -3,7 +3,7 @@
 const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
 
 // Number of pages currently in the brochure
-const totalPages = 24;
+const totalPages = 26;
 
 // Change this whenever brochure pages are updated.
 // This forces browsers to load the newest JPGs instead of cached copies.
