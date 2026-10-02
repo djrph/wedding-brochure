@@ -7,7 +7,7 @@ const totalPages = 26;
 
 // Change this whenever brochure pages are updated.
 // This forces browsers to load the newest JPGs instead of cached copies.
-const brochureVersion = "20260918-1";
+const brochureVersion = "20261002-1";
 
 const pageWidth = 600;
 const pageHeight = 848;
