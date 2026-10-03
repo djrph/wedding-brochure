@@ -18,12 +18,40 @@ const preloadAhead = 6;
 
 const pageTurnLockTime = 950;
 
+
+/* =========================================================
+   PAGE TITLES
+   ========================================================= */
+
 const pageTitles = {
   1: "Cover",
   2: "About Me",
   3: "Why Couples Choose Keswick Discos",
-  4: "Your Wedding Entertainment Journey"
+  4: "Your Wedding Entertainment Journey",
+  5: "Creating the Perfect Party Atmosphere",
+  6: "Your Special First Dance",
+  7: "Wedding DJ Booth Options",
+  8: "DJ Setup Styles",
+  9: "Rustic & Modern DJ Booths",
+  10: "Wedding Entertainment Packages",
+  11: "Evening Wedding Package",
+  12: "All Day Wedding Package",
+  13: "Wedding Ceremony Package",
+  14: "How Could Your Wedding Flow?",
+  15: "Wedding Entertainment Extras",
+  16: "DJ & Sax",
+  17: "Live Entertainment",
+  18: "Cold Spark Experience",
+  19: "Wedding Karaoke",
+  20: "Personalised LED Foam Sticks",
+  21: "Bespoke Wedding Lighting",
+  22: "Mood Uplighting",
+  23: "Wedding Lighting Options",
+  24: "What Couples Say",
+  25: "Create Your Wedding Package",
+  26: "Let's Plan Your Wedding"
 };
+
 
 let pageFlip;
 
@@ -405,10 +433,6 @@ function closeContactModal() {
 
 /* =========================================================
    CREATE BROCHURE PAGES
-
-   The important bit:
-   we create the page elements here but DO NOT
-   immediately download all 26 full-size images.
    ========================================================= */
 
 function createPages() {
@@ -463,8 +487,6 @@ function createPages() {
       "lazy";
 
 
-    // Store the image address without
-    // actually downloading it yet.
     image.dataset.src =
       imagePath(
         pageNumber
@@ -579,14 +601,6 @@ function ensurePageLoaded(pageNumber) {
 
           async () => {
 
-            /*
-              Wait for the browser to decode the JPG
-              before considering the page ready.
-
-              This greatly reduces brief blank flashes
-              during a page turn.
-            */
-
             try {
 
               if (
@@ -599,9 +613,9 @@ function ensurePageLoaded(pageNumber) {
 
             } catch (error) {
 
-              // The JPG has already loaded.
-              // Continue even when decode() isn't
-              // supported perfectly by the browser.
+              // Image has already loaded.
+              // Continue even if decode()
+              // is not fully supported.
             }
 
 
@@ -637,10 +651,6 @@ function ensurePageLoaded(pageNumber) {
           }
         );
 
-
-        /*
-          The image request only begins here.
-        */
 
         image.src =
           image.dataset.src;
@@ -727,11 +737,6 @@ function preloadForwardFrom(pageNumber) {
 
 /* =========================================================
    STARTUP LOADING
-
-   Load + decode the essential opening pages BEFORE
-   revealing the flipbook.
-
-   This makes initial rendering much more stable.
    ========================================================= */
 
 async function loadStartupPages(
@@ -1252,14 +1257,6 @@ function playPageTurnSound() {
 
 /* =========================================================
    DIRECT PAGE NAVIGATION
-
-   Used for:
-   - Contents
-   - Thumbnails
-   - First page
-
-   Direct jumps use turnToPage rather than trying
-   to animate through many pages.
    ========================================================= */
 
 async function goToPage(pageNumber) {
@@ -1404,11 +1401,6 @@ async function goPrevious() {
     );
 
 
-    /*
-      Also prepare the next page in the spread
-      before beginning the animation.
-    */
-
     await ensurePageLoaded(
       targetPage - 1
     );
@@ -1495,11 +1487,6 @@ async function goNext() {
       targetPage
     );
 
-
-    /*
-      Also prepare the following page before
-      the turn begins.
-    */
 
     await ensurePageLoaded(
       targetPage + 1
@@ -1678,12 +1665,6 @@ function initialiseFlipbook(
             actualPage
           );
 
-
-          /*
-            Only reveal the brochure once PageFlip
-            is fully initialised and the essential
-            page images have already loaded.
-          */
 
           if (loadingScreen) {
 
@@ -2394,10 +2375,6 @@ if (soundButton) {
 
 /* =========================================================
    OLD SAVED PAGE CLEANUP
-
-   The brochure now intentionally starts on page 1,
-   but this button clears any old stored position
-   left over from earlier versions.
    ========================================================= */
 
 if (resetReadingButton) {
@@ -2685,11 +2662,9 @@ async function startBrochure() {
 
 
     /*
-      Because the new JPGs are only roughly
-      0.2–0.5 MB each, wait for the essential
-      opening pages to fully load and decode.
-
-      Only then initialise and reveal PageFlip.
+      Wait for the essential opening pages
+      to load and decode before initialising
+      the flipbook.
     */
 
     await loadStartupPages(
