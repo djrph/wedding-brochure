@@ -2,28 +2,17 @@
   --gold: #d7b66f;
   --gold-light: #f1d99b;
   --gold-dark: #9a7436;
-
   --black: #050505;
   --black-soft: #0c0c0d;
-
   --panel: rgba(18, 18, 19, 0.94);
   --panel-light: rgba(34, 34, 36, 0.94);
-
   --text: #ffffff;
   --text-soft: #d4d4d4;
   --text-muted: #999999;
-
   --line: rgba(255, 255, 255, 0.11);
   --gold-line: rgba(215, 182, 111, 0.38);
-
-  --safe-bottom:
-    env(safe-area-inset-bottom, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
-
-
-/* =========================================================
-   RESET / BASE
-   ========================================================= */
 
 * {
   box-sizing: border-box;
@@ -37,6 +26,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: hidden;
 
   background:
@@ -80,7 +70,7 @@ a:focus-visible {
 
 
 /* =========================================================
-   LOADING SCREEN
+   LOADING
    ========================================================= */
 
 .loading-screen {
@@ -121,7 +111,8 @@ a:focus-visible {
 }
 
 .loading-brand {
-  color: var(--gold);
+  color:
+    var(--gold);
 
   font-size: 16px;
   font-weight: 800;
@@ -134,9 +125,11 @@ a:focus-visible {
   margin:
     14px 0 22px;
 
-  color: #dddddd;
+  color:
+    #dddddd;
 
   font-size: 14px;
+
   line-height: 1.5;
 }
 
@@ -154,6 +147,15 @@ a:focus-visible {
       255,
       255,
       0.09
+    );
+
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(
+      255,
+      255,
+      255,
+      0.04
     );
 }
 
@@ -217,7 +219,8 @@ a:focus-visible {
   margin:
     3px 0 0;
 
-  color: #ffffff;
+  color:
+    #ffffff;
 
   font-size:
     clamp(
@@ -226,7 +229,8 @@ a:focus-visible {
       33px
     );
 
-  font-weight: 700;
+  font-weight:
+    700;
 
   letter-spacing:
     -0.025em;
@@ -238,19 +242,28 @@ a:focus-visible {
   color:
     var(--gold);
 
-  font-size: 10px;
-  font-weight: 800;
+  font-size:
+    10px;
+
+  font-weight:
+    800;
 
   letter-spacing:
     0.19em;
 }
 
 .header-enquire {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display:
+    inline-flex;
 
-  min-height: 46px;
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  min-height:
+    46px;
 
   padding:
     0 21px;
@@ -274,7 +287,8 @@ a:focus-visible {
       #a47d3c
     );
 
-  color: #ffffff;
+  color:
+    #ffffff;
 
   box-shadow:
     0 10px 30px
@@ -288,8 +302,11 @@ a:focus-visible {
   text-decoration:
     none;
 
-  font-size: 13px;
-  font-weight: 800;
+  font-size:
+    13px;
+
+  font-weight:
+    800;
 
   transition:
     transform 0.18s ease,
@@ -303,6 +320,15 @@ a:focus-visible {
 
   filter:
     brightness(1.05);
+
+  box-shadow:
+    0 14px 36px
+    rgba(
+      0,
+      0,
+      0,
+      0.4
+    );
 }
 
 
@@ -311,20 +337,28 @@ a:focus-visible {
    ========================================================= */
 
 .viewer-shell {
-  width: 100%;
+  width:
+    100%;
 
   padding:
     0 14px 96px;
 }
 
 .book-stage {
-  position: relative;
+  position:
+    relative;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display:
+    flex;
 
-  width: 100%;
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  width:
+    100%;
 
   max-width:
     1500px;
@@ -335,19 +369,25 @@ a:focus-visible {
   margin:
     0 auto;
 
-  overflow: hidden;
+  overflow:
+    hidden;
 
   border-radius:
     26px;
 }
 
 .book-stage::before {
-  content: "";
+  content:
+    "";
 
-  position: absolute;
+  position:
+    absolute;
 
-  left: 50%;
-  top: 48%;
+  left:
+    50%;
+
+  top:
+    48%;
 
   width:
     min(
@@ -364,7 +404,8 @@ a:focus-visible {
       -50%
     );
 
-  pointer-events: none;
+  pointer-events:
+    none;
 
   background:
     radial-gradient(
@@ -389,18 +430,29 @@ a:focus-visible {
 }
 
 .zoom-container {
-  position: relative;
-  z-index: 2;
+  position:
+    relative;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  z-index:
+    2;
 
-  min-width: 100%;
-  min-height: 100%;
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
 
   width:
     max-content;
+
+  min-width:
+    100%;
+
+  min-height:
+    100%;
 
   transform-origin:
     center center;
@@ -410,9 +462,11 @@ a:focus-visible {
 }
 
 #book {
-  position: relative;
+  position:
+    relative;
 
-  max-width: 100%;
+  max-width:
+    100%;
 
   filter:
     drop-shadow(
@@ -426,23 +480,23 @@ a:focus-visible {
     );
 }
 
-
-/* =========================================================
-   BROCHURE PAGES
-   ========================================================= */
-
 .page {
-  overflow: hidden;
+  overflow:
+    hidden;
 
   background:
     #101010;
 }
 
 .page img {
-  display: block;
+  display:
+    block;
 
-  width: 100%;
-  height: 100%;
+  width:
+    100%;
+
+  height:
+    100%;
 
   object-fit:
     contain;
@@ -450,7 +504,8 @@ a:focus-visible {
   background:
     #101010;
 
-  user-select: none;
+  user-select:
+    none;
 
   -webkit-user-drag:
     none;
@@ -462,19 +517,29 @@ a:focus-visible {
    ========================================================= */
 
 .edge-button {
-  position: absolute;
+  position:
+    absolute;
 
-  top: 50%;
+  top:
+    50%;
 
-  z-index: 25;
+  z-index:
+    25;
 
-  display: grid;
-  place-items: center;
+  display:
+    grid;
 
-  width: 52px;
-  height: 76px;
+  place-items:
+    center;
 
-  padding: 0;
+  width:
+    52px;
+
+  height:
+    76px;
+
+  padding:
+    0;
 
   border:
     1px solid
@@ -496,7 +561,8 @@ a:focus-visible {
       0.68
     );
 
-  color: #ffffff;
+  color:
+    #ffffff;
 
   box-shadow:
     0 12px 32px
@@ -513,18 +579,22 @@ a:focus-visible {
   -webkit-backdrop-filter:
     blur(14px);
 
-  font-size: 39px;
+  font-size:
+    39px;
 
-  line-height: 1;
+  line-height:
+    1;
 
-  cursor: pointer;
+  cursor:
+    pointer;
 
   transform:
     translateY(-50%);
 
   transition:
     background 0.18s ease,
-    border-color 0.18s ease;
+    border-color 0.18s ease,
+    transform 0.18s ease;
 }
 
 .edge-button:hover:not(:disabled) {
@@ -546,17 +616,21 @@ a:focus-visible {
 }
 
 .edge-previous {
-  left: 16px;
+  left:
+    16px;
 }
 
 .edge-next {
-  right: 16px;
+  right:
+    16px;
 }
 
 .edge-button:disabled {
-  opacity: 0.22;
+  opacity:
+    0.22;
 
-  cursor: default;
+  cursor:
+    default;
 }
 
 
@@ -571,12 +645,14 @@ a:focus-visible {
       72%
     );
 
-  height: 2px;
+  height:
+    2px;
 
   margin:
     4px auto 14px;
 
-  overflow: hidden;
+  overflow:
+    hidden;
 
   border-radius:
     999px;
@@ -591,8 +667,11 @@ a:focus-visible {
 }
 
 .page-progress {
-  width: 0;
-  height: 100%;
+  width:
+    0;
+
+  height:
+    100%;
 
   border-radius:
     inherit;
@@ -623,7 +702,8 @@ a:focus-visible {
    ========================================================= */
 
 .control-bar {
-  position: sticky;
+  position:
+    sticky;
 
   bottom:
     calc(
@@ -631,13 +711,20 @@ a:focus-visible {
       var(--safe-bottom)
     );
 
-  z-index: 120;
+  z-index:
+    120;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display:
+    flex;
 
-  gap: 5px;
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    5px;
 
   width:
     fit-content;
@@ -699,10 +786,12 @@ a:focus-visible {
 }
 
 .control-bar button {
-  min-height: 43px;
+  min-height:
+    43px;
 
   border:
-    1px solid transparent;
+    1px solid
+    transparent;
 
   border-radius:
     999px;
@@ -716,8 +805,11 @@ a:focus-visible {
   color:
     #e8e8e8;
 
-  font-size: 13px;
-  font-weight: 700;
+  font-size:
+    13px;
+
+  font-weight:
+    700;
 
   cursor:
     pointer;
@@ -725,6 +817,7 @@ a:focus-visible {
   transition:
     background 0.16s ease,
     color 0.16s ease,
+    border-color 0.16s ease,
     transform 0.16s ease;
 }
 
@@ -742,13 +835,20 @@ a:focus-visible {
 }
 
 .control-bar .primary-nav {
-  display: grid;
-  place-items: center;
+  display:
+    grid;
 
-  width: 45px;
-  min-width: 45px;
+  place-items:
+    center;
 
-  padding: 0;
+  width:
+    45px;
+
+  min-width:
+    45px;
+
+  padding:
+    0;
 
   background:
     linear-gradient(
@@ -769,19 +869,31 @@ a:focus-visible {
       0.26
     );
 
-  font-size: 28px;
-  font-weight: 400;
+  font-size:
+    28px;
+
+  font-weight:
+    400;
 }
 
 .control-bar .primary-nav:hover:not(:disabled) {
+  background:
+    linear-gradient(
+      135deg,
+      #f5dda2,
+      #ab8240
+    );
+
   transform:
     translateY(-1px);
 }
 
 .control-bar button:disabled {
-  opacity: 0.28;
+  opacity:
+    0.28;
 
-  cursor: default;
+  cursor:
+    default;
 }
 
 .page-status {
@@ -794,10 +906,17 @@ a:focus-visible {
   color:
     var(--gold-light);
 
-  text-align: center;
+  text-align:
+    center;
 
-  font-size: 12px;
-  font-weight: 800;
+  font-size:
+    12px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.02em;
 }
 
 
@@ -806,9 +925,11 @@ a:focus-visible {
    ========================================================= */
 
 .drawer {
-  position: fixed;
+  position:
+    fixed;
 
-  left: 50%;
+  left:
+    50%;
 
   bottom:
     calc(
@@ -816,7 +937,8 @@ a:focus-visible {
       var(--safe-bottom)
     );
 
-  z-index: 220;
+  z-index:
+    220;
 
   width:
     min(
@@ -829,7 +951,8 @@ a:focus-visible {
   max-height:
     68vh;
 
-  overflow: auto;
+  overflow:
+    auto;
 
   transform:
     translateX(-50%);
@@ -880,19 +1003,41 @@ a:focus-visible {
 
   -webkit-backdrop-filter:
     blur(20px);
+
+  overscroll-behavior:
+    contain;
+
+  -webkit-overflow-scrolling:
+    touch;
 }
 
 .drawer[hidden],
 .modal[hidden] {
-  display: none;
+  display:
+    none;
 }
 
 .drawer-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  position:
+    sticky;
 
-  gap: 15px;
+  top:
+    0;
+
+  z-index:
+    2;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    15px;
 
   margin-bottom:
     14px;
@@ -908,10 +1053,25 @@ a:focus-visible {
       255,
       0.08
     );
+
+  background:
+    rgba(
+      22,
+      22,
+      23,
+      0.94
+    );
+
+  backdrop-filter:
+    blur(12px);
+
+  -webkit-backdrop-filter:
+    blur(12px);
 }
 
 .drawer-heading strong {
-  font-size: 15px;
+  font-size:
+    15px;
 
   letter-spacing:
     0.01em;
@@ -919,13 +1079,20 @@ a:focus-visible {
 
 .drawer-heading > button,
 .modal-close {
-  display: grid;
-  place-items: center;
+  display:
+    grid;
 
-  width: 38px;
-  height: 38px;
+  place-items:
+    center;
 
-  padding: 0;
+  width:
+    38px;
+
+  height:
+    38px;
+
+  padding:
+    0;
 
   border:
     1px solid
@@ -950,9 +1117,28 @@ a:focus-visible {
   color:
     #ffffff;
 
-  font-size: 24px;
+  font-size:
+    24px;
 
-  cursor: pointer;
+  line-height:
+    1;
+
+  cursor:
+    pointer;
+
+  transition:
+    background 0.16s ease;
+}
+
+.drawer-heading > button:hover,
+.modal-close:hover {
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.14
+    );
 }
 
 
@@ -961,11 +1147,14 @@ a:focus-visible {
    ========================================================= */
 
 .thumbnails {
-  display: flex;
+  display:
+    flex;
 
-  gap: 13px;
+  gap:
+    13px;
 
-  overflow-x: auto;
+  overflow-x:
+    auto;
 
   padding:
     7px 4px 15px;
@@ -987,12 +1176,14 @@ a:focus-visible {
 }
 
 .thumbnail-button {
-  position: relative;
+  position:
+    relative;
 
   flex:
     0 0 auto;
 
-  padding: 3px;
+  padding:
+    3px;
 
   border:
     1px solid
@@ -1006,7 +1197,8 @@ a:focus-visible {
   border-radius:
     10px;
 
-  overflow: hidden;
+  overflow:
+    hidden;
 
   background:
     #101010;
@@ -1020,7 +1212,11 @@ a:focus-visible {
       0.32
     );
 
-  cursor: pointer;
+  cursor:
+    pointer;
+
+  scroll-margin:
+    0;
 
   transition:
     transform 0.18s ease,
@@ -1031,6 +1227,14 @@ a:focus-visible {
 .thumbnail-button:hover {
   transform:
     translateY(-2px);
+
+  border-color:
+    rgba(
+      215,
+      182,
+      111,
+      0.48
+    );
 }
 
 .thumbnail-button.active {
@@ -1055,9 +1259,11 @@ a:focus-visible {
 }
 
 .thumbnail-button img {
-  display: block;
+  display:
+    block;
 
-  width: 76px;
+  width:
+    76px;
 
   aspect-ratio:
     210 / 297;
@@ -1078,7 +1284,8 @@ a:focus-visible {
    ========================================================= */
 
 .option-grid {
-  display: grid;
+  display:
+    grid;
 
   grid-template-columns:
     repeat(
@@ -1086,7 +1293,8 @@ a:focus-visible {
       1fr
     );
 
-  gap: 9px;
+  gap:
+    9px;
 }
 
 .option-grid button {
@@ -1118,10 +1326,14 @@ a:focus-visible {
   color:
     #ffffff;
 
-  font-size: 13px;
-  font-weight: 700;
+  font-size:
+    13px;
 
-  cursor: pointer;
+  font-weight:
+    700;
+
+  cursor:
+    pointer;
 
   transition:
     background 0.16s ease,
@@ -1164,9 +1376,11 @@ a:focus-visible {
 }
 
 .contents-list {
-  display: block;
+  display:
+    block;
 
-  width: 100%;
+  width:
+    100%;
 }
 
 .contents-home {
@@ -1176,7 +1390,8 @@ a:focus-visible {
 
 .contents-list
 .contents-cover-button {
-  width: 100%;
+  width:
+    100%;
 
   min-height:
     59px;
@@ -1208,7 +1423,8 @@ a:focus-visible {
 }
 
 .contents-section {
-  padding-top: 4px;
+  padding-top:
+    4px;
 }
 
 .contents-section +
@@ -1230,24 +1446,34 @@ a:focus-visible {
 }
 
 .contents-section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display:
+    flex;
 
-  gap: 12px;
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    12px;
 
   margin:
     0 3px 9px;
 }
 
 .contents-section-title {
-  margin: 0;
+  margin:
+    0;
 
   color:
     var(--gold);
 
-  font-size: 11px;
-  font-weight: 800;
+  font-size:
+    11px;
+
+  font-weight:
+    800;
 
   letter-spacing:
     0.14em;
@@ -1260,12 +1486,19 @@ a:focus-visible {
   color:
     var(--text-muted);
 
-  font-size: 10px;
-  font-weight: 700;
+  font-size:
+    10px;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    0.03em;
 }
 
 .contents-section-grid {
-  display: grid;
+  display:
+    grid;
 
   grid-template-columns:
     repeat(
@@ -1276,18 +1509,26 @@ a:focus-visible {
       )
     );
 
-  gap: 8px;
+  gap:
+    8px;
 }
 
 .contents-list
 .contents-button {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display:
+    flex;
 
-  gap: 12px;
+  align-items:
+    center;
 
-  width: 100%;
+  justify-content:
+    space-between;
+
+  gap:
+    12px;
+
+  width:
+    100%;
 
   min-height:
     62px;
@@ -1327,9 +1568,11 @@ a:focus-visible {
   color:
     #ffffff;
 
-  text-align: left;
+  text-align:
+    left;
 
-  cursor: pointer;
+  cursor:
+    pointer;
 
   transition:
     transform 0.16s ease,
@@ -1393,25 +1636,33 @@ a:focus-visible {
 }
 
 .contents-item-copy {
-  display: block;
+  display:
+    block;
 
-  min-width: 0;
+  min-width:
+    0;
 }
 
 .contents-item-copy strong {
-  display: block;
+  display:
+    block;
 
   color:
     #ffffff;
 
-  font-size: 13px;
-  font-weight: 700;
+  font-size:
+    13px;
 
-  line-height: 1.3;
+  font-weight:
+    700;
+
+  line-height:
+    1.3;
 }
 
 .contents-item-copy small {
-  display: block;
+  display:
+    block;
 
   margin-top:
     4px;
@@ -1419,12 +1670,19 @@ a:focus-visible {
   color:
     var(--gold);
 
-  font-size: 10px;
-  font-weight: 700;
+  font-size:
+    10px;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    0.04em;
 }
 
 .contents-item-arrow {
-  display: block;
+  display:
+    block;
 
   flex:
     0 0 auto;
@@ -1437,9 +1695,14 @@ a:focus-visible {
       0.72
     );
 
-  font-size: 25px;
+  font-size:
+    25px;
 
-  line-height: 1;
+  font-weight:
+    400;
+
+  line-height:
+    1;
 }
 
 
@@ -1448,9 +1711,11 @@ a:focus-visible {
    ========================================================= */
 
 .floating-enquire {
-  position: fixed;
+  position:
+    fixed;
 
-  right: 19px;
+  right:
+    19px;
 
   bottom:
     calc(
@@ -1458,7 +1723,8 @@ a:focus-visible {
       var(--safe-bottom)
     );
 
-  z-index: 160;
+  z-index:
+    160;
 
   min-height:
     48px;
@@ -1497,13 +1763,18 @@ a:focus-visible {
       0.56
     );
 
-  font-size: 13px;
-  font-weight: 800;
+  font-size:
+    13px;
 
-  cursor: pointer;
+  font-weight:
+    800;
+
+  cursor:
+    pointer;
 
   transition:
     transform 0.18s ease,
+    box-shadow 0.18s ease,
     filter 0.18s ease;
 }
 
@@ -1513,6 +1784,15 @@ a:focus-visible {
 
   filter:
     brightness(1.06);
+
+  box-shadow:
+    0 18px 44px
+    rgba(
+      0,
+      0,
+      0,
+      0.68
+    );
 }
 
 
@@ -1521,23 +1801,31 @@ a:focus-visible {
    ========================================================= */
 
 .modal {
-  position: fixed;
+  position:
+    fixed;
 
-  inset: 0;
+  inset:
+    0;
 
-  z-index: 500;
+  z-index:
+    500;
 
-  display: grid;
-  place-items: center;
+  display:
+    grid;
+
+  place-items:
+    center;
 
   padding:
     20px;
 }
 
 .modal-backdrop {
-  position: absolute;
+  position:
+    absolute;
 
-  inset: 0;
+  inset:
+    0;
 
   background:
     rgba(
@@ -1555,9 +1843,11 @@ a:focus-visible {
 }
 
 .modal-card {
-  position: relative;
+  position:
+    relative;
 
-  z-index: 1;
+  z-index:
+    1;
 
   width:
     min(
@@ -1593,14 +1883,17 @@ a:focus-visible {
 }
 
 .modal-card::before {
-  content: "";
+  content:
+    "";
 
-  position: absolute;
+  position:
+    absolute;
 
   inset:
     0 30px auto;
 
-  height: 1px;
+  height:
+    1px;
 
   background:
     linear-gradient(
@@ -1610,7 +1903,8 @@ a:focus-visible {
       transparent
     );
 
-  opacity: 0.55;
+  opacity:
+    0.55;
 }
 
 .modal-card h2 {
@@ -1619,28 +1913,39 @@ a:focus-visible {
 
   font-size:
     29px;
+
+  letter-spacing:
+    -0.025em;
 }
 
 .modal-card > p:not(.eyebrow) {
-  margin-top: 0;
+  margin-top:
+    0;
 
   color:
     #bbbbbb;
 
-  line-height: 1.55;
+  line-height:
+    1.55;
 }
 
 .modal-close {
-  position: absolute;
+  position:
+    absolute;
 
-  top: 13px;
-  right: 13px;
+  top:
+    13px;
+
+  right:
+    13px;
 }
 
 .contact-actions {
-  display: grid;
+  display:
+    grid;
 
-  gap: 9px;
+  gap:
+    9px;
 
   margin-top:
     23px;
@@ -1648,11 +1953,17 @@ a:focus-visible {
 
 .contact-actions a,
 .contact-actions button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display:
+    flex;
 
-  width: 100%;
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  width:
+    100%;
 
   min-height:
     49px;
@@ -1685,14 +1996,25 @@ a:focus-visible {
   text-decoration:
     none;
 
-  font-size: 13px;
-  font-weight: 800;
+  font-size:
+    13px;
+
+  font-weight:
+    800;
 
   cursor:
     pointer;
 }
 
 .contact-actions button {
+  border-color:
+    rgba(
+      255,
+      255,
+      255,
+      0.12
+    );
+
   background:
     #2a2a2a;
 }
@@ -1727,7 +2049,8 @@ a:focus-visible {
   background:
     #281318;
 
-  line-height: 1.5;
+  line-height:
+    1.5;
 }
 
 
@@ -1764,12 +2087,14 @@ body.fullscreen-mode
 
 body.fullscreen-mode
 .site-footer {
-  display: none;
+  display:
+    none;
 }
 
 body.fullscreen-mode
 .viewer-shell {
-  padding-top: 4px;
+  padding-top:
+    4px;
 }
 
 body.fullscreen-mode
@@ -1777,6 +2102,11 @@ body.fullscreen-mode
   min-height:
     calc(
       100vh - 84px
+    );
+
+  min-height:
+    calc(
+      100dvh - 84px
     );
 }
 
@@ -1786,24 +2116,30 @@ body.fullscreen-mode
    ========================================================= */
 
 .image-zoom-viewer {
-  position: fixed;
+  position:
+    fixed;
 
-  inset: 0;
+  inset:
+    0;
 
-  z-index: 10000;
+  z-index:
+    10000;
 
-  display: block;
+  display:
+    block;
 
   background:
     #030303;
 }
 
 .image-zoom-viewer[hidden] {
-  display: none;
+  display:
+    none;
 }
 
 .image-zoom-toolbar {
-  position: fixed;
+  position:
+    fixed;
 
   inset:
     0 0 auto;
@@ -1811,9 +2147,14 @@ body.fullscreen-mode
   z-index:
     10002;
 
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
 
   min-height:
     58px;
@@ -1856,16 +2197,25 @@ body.fullscreen-mode
   color:
     var(--gold-light);
 
-  font-size: 13px;
-  font-weight: 800;
+  font-size:
+    13px;
+
+  font-weight:
+    800;
 }
 
 .image-zoom-toolbar button {
-  display: grid;
-  place-items: center;
+  display:
+    grid;
 
-  width: 44px;
-  height: 44px;
+  place-items:
+    center;
+
+  width:
+    44px;
+
+  height:
+    44px;
 
   border:
     1px solid
@@ -1895,10 +2245,14 @@ body.fullscreen-mode
 }
 
 .image-zoom-scroll {
-  width: 100%;
-  height: 100%;
+  width:
+    100%;
 
-  overflow: auto;
+  height:
+    100%;
+
+  overflow:
+    auto;
 
   padding:
     calc(
@@ -1928,11 +2282,17 @@ body.fullscreen-mode
 }
 
 .image-zoom-scroll img {
-  display: block;
+  display:
+    block;
 
-  width: 100%;
-  min-width: 100%;
-  height: auto;
+  width:
+    100%;
+
+  min-width:
+    100%;
+
+  height:
+    auto;
 
   margin:
     0 auto;
@@ -1945,9 +2305,11 @@ body.fullscreen-mode
 }
 
 .image-zoom-help {
-  position: fixed;
+  position:
+    fixed;
 
-  left: 50%;
+  left:
+    50%;
 
   bottom:
     calc(
@@ -1972,7 +2334,8 @@ body.fullscreen-mode
       100% - 28px
     );
 
-  margin: 0;
+  margin:
+    0;
 
   padding:
     8px 13px;
@@ -2008,10 +2371,17 @@ body.fullscreen-mode
 
   pointer-events:
     none;
+
+  backdrop-filter:
+    blur(10px);
+
+  -webkit-backdrop-filter:
+    blur(10px);
 }
 
 body.zoom-viewer-open {
-  overflow: hidden;
+  overflow:
+    hidden;
 }
 
 
@@ -2044,17 +2414,19 @@ body.zoom-viewer-open {
   }
 
   .edge-previous {
-    left: 5px;
+    left:
+      5px;
   }
 
   .edge-next {
-    right: 5px;
+    right:
+      5px;
   }
 }
 
 
 /* =========================================================
-   MOBILE
+   MOBILE - PRIMARY LAYOUT
    ========================================================= */
 
 @media
@@ -2071,46 +2443,83 @@ body.zoom-viewer-open {
 
 
   .site-header {
+    min-height:
+      44px;
+
     padding:
-      12px 14px 5px;
+      10px 12px 4px;
   }
 
 
   .site-header h1 {
-    margin: 0;
+    margin:
+      0;
 
     font-size:
-      18px;
+      17px;
+
+    line-height:
+      1.2;
   }
 
 
   .site-header .eyebrow,
   .header-enquire {
-    display: none;
+    display:
+      none;
   }
 
 
   .viewer-shell {
     padding:
-      0 3px 100px;
+      0 4px
+      calc(
+        82px +
+        var(--safe-bottom)
+      );
   }
 
 
   .book-stage {
+    width:
+      100%;
+
     min-height:
-      min(
-        132vw,
-        690px
-      );
+      0;
 
     max-height:
-      calc(
-        100vh - 142px
+      none;
+
+    height:
+      min(
+        141.4vw,
+        calc(
+          100vh - 116px
+        )
       );
 
-    padding: 0;
+    height:
+      min(
+        141.4vw,
+        calc(
+          100dvh - 116px
+        )
+      );
 
-    border-radius: 0;
+    margin:
+      0 auto;
+
+    padding:
+      0;
+
+    overflow:
+      visible;
+
+    border-radius:
+      0;
+
+    touch-action:
+      pan-y;
   }
 
 
@@ -2119,31 +2528,51 @@ body.zoom-viewer-open {
       100vw;
 
     height:
-      85%;
+      88%;
   }
 
 
   .zoom-container {
-    padding: 0;
-  }
+    width:
+      100%;
 
+    min-width:
+      0;
 
-  .edge-button {
-    display: none;
+    min-height:
+      0;
+
+    height:
+      100%;
+
+    padding:
+      0;
   }
 
 
   #book {
+    max-width:
+      100%;
+
+    max-height:
+      100%;
+
     filter:
       drop-shadow(
-        0 20px 25px
+        0 18px 24px
         rgba(
           0,
           0,
           0,
-          0.72
+          0.7
         )
       );
+  }
+
+
+  .edge-button {
+    display:
+      none;
   }
 
 
@@ -2152,14 +2581,16 @@ body.zoom-viewer-open {
       62%;
 
     margin:
-      4px auto 7px;
+      5px auto 7px;
   }
 
 
   .control-bar {
-    position: fixed;
+    position:
+      fixed;
 
-    left: 50%;
+    left:
+      50%;
 
     bottom:
       calc(
@@ -2167,15 +2598,25 @@ body.zoom-viewer-open {
         var(--safe-bottom)
       );
 
-    display: grid;
+    display:
+      grid;
 
     grid-template-columns:
-      42px
-      1fr
-      auto
-      1fr
-      1fr
-      42px;
+      40px
+      minmax(
+        46px,
+        1fr
+      )
+      68px
+      minmax(
+        44px,
+        1fr
+      )
+      minmax(
+        44px,
+        1fr
+      )
+      40px;
 
     width:
       calc(
@@ -2185,9 +2626,11 @@ body.zoom-viewer-open {
     max-width:
       620px;
 
-    gap: 2px;
+    gap:
+      2px;
 
-    padding: 5px;
+    padding:
+      5px;
 
     transform:
       translateX(-50%);
@@ -2198,13 +2641,14 @@ body.zoom-viewer-open {
 
 
   .control-bar button {
-    min-width: 0;
+    min-width:
+      0;
 
     min-height:
       42px;
 
     padding:
-      0 6px;
+      0 5px;
 
     font-size:
       11px;
@@ -2213,10 +2657,10 @@ body.zoom-viewer-open {
 
   .control-bar .primary-nav {
     width:
-      42px;
+      40px;
 
     min-width:
-      42px;
+      40px;
 
     font-size:
       25px;
@@ -2225,30 +2669,37 @@ body.zoom-viewer-open {
 
   .page-status {
     min-width:
-      68px;
+      0;
 
     padding:
-      0 3px;
+      0 2px;
 
     font-size:
-      11px;
+      10px;
+
+    line-height:
+      1.15;
+
+    white-space:
+      normal;
   }
 
 
   .floating-enquire {
-    right: 10px;
+    right:
+      10px;
 
     bottom:
       calc(
-        65px +
+        64px +
         var(--safe-bottom)
       );
 
     min-height:
-      42px;
+      40px;
 
     padding:
-      0 16px;
+      0 15px;
 
     font-size:
       12px;
@@ -2268,19 +2719,35 @@ body.zoom-viewer-open {
       );
 
     max-height:
-      64vh;
+      calc(
+        100vh - 112px
+      );
+
+    max-height:
+      calc(
+        100dvh - 112px
+      );
 
     padding:
-      13px;
+      12px;
 
     border-radius:
       19px;
   }
 
 
+  .drawer-heading {
+    margin:
+      -1px -1px 12px;
+
+    padding:
+      3px 3px 10px;
+  }
+
+
   .thumbnail-button img {
     width:
-      64px;
+      66px;
   }
 
 
@@ -2295,7 +2762,14 @@ body.zoom-viewer-open {
 
   .contents-panel {
     max-height:
-      70vh;
+      calc(
+        100vh - 112px
+      );
+
+    max-height:
+      calc(
+        100dvh - 112px
+      );
   }
 
 
@@ -2331,7 +2805,26 @@ body.zoom-viewer-open {
   }
 
 
+  .modal {
+    padding:
+      12px;
+  }
+
+
   .modal-card {
+    max-height:
+      calc(
+        100vh - 24px
+      );
+
+    max-height:
+      calc(
+        100dvh - 24px
+      );
+
+    overflow:
+      auto;
+
     padding:
       27px 20px 22px;
   }
@@ -2344,7 +2837,8 @@ body.zoom-viewer-open {
 
 
   .site-footer {
-    display: none;
+    display:
+      none;
   }
 }
 
@@ -2356,38 +2850,97 @@ body.zoom-viewer-open {
 @media
   (max-width: 390px) {
 
+  .site-header h1 {
+    font-size:
+      16px;
+  }
+
+
   .control-bar {
     grid-template-columns:
-      40px
-      1fr
-      auto
-      1fr
-      1fr
-      40px;
+      38px
+      minmax(
+        42px,
+        1fr
+      )
+      62px
+      minmax(
+        40px,
+        1fr
+      )
+      minmax(
+        40px,
+        1fr
+      )
+      38px;
   }
 
 
   .control-bar button {
     padding:
-      0 4px;
+      0 3px;
 
     font-size:
       10px;
   }
 
 
-  .page-status {
-    min-width:
-      62px;
+  .control-bar .primary-nav {
+    width:
+      38px;
 
+    min-width:
+      38px;
+  }
+
+
+  .page-status {
     font-size:
-      10px;
+      9px;
   }
 
 
   .floating-enquire {
     padding:
-      0 13px;
+      0 12px;
+  }
+}
+
+
+/* =========================================================
+   SHORT MOBILE SCREENS
+   ========================================================= */
+
+@media
+  (max-height: 620px)
+  and
+  (max-width: 700px) {
+
+  .site-header {
+    min-height:
+      38px;
+
+    padding-top:
+      7px;
+  }
+
+
+  .site-header h1 {
+    font-size:
+      15px;
+  }
+
+
+  .book-stage {
+    height:
+      calc(
+        100vh - 108px
+      );
+
+    height:
+      calc(
+        100dvh - 108px
+      );
   }
 }
 
