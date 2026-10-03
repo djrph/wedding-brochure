@@ -1,18 +1,22 @@
 "use strict";
 
-const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+const isTouchDevice =
+  window.matchMedia("(pointer: coarse)").matches;
 
 const totalPages = 26;
 
-// Change this ONLY when the actual brochure JPG artwork changes.
+// Change this ONLY when the actual JPG brochure pages change.
 const brochureVersion = "20261003-1";
 
 const pageWidth = 600;
 const pageHeight = 848;
 
-// Keep a few pages ready either side of the reader.
+// Images are now very small, so keeping six pages ahead
+// gives smoother page turns without a large download.
 const preloadBehind = 2;
-const preloadAhead = 4;
+const preloadAhead = 6;
+
+const pageTurnLockTime = 950;
 
 const pageTitles = {
   1: "Cover",
@@ -22,57 +26,121 @@ const pageTitles = {
 };
 
 let pageFlip;
+
 let mobileSwipeLocked = false;
+let navigationLocked = false;
 let soundEnabled = false;
 let thumbnailObserver = null;
 
 const pageImages = new Map();
 const pageLoadPromises = new Map();
 
-const bookElement = document.getElementById("book");
-const bookStage = document.getElementById("bookStage");
-const zoomContainer = document.getElementById("zoomContainer");
 
-const thumbnailContainer = document.getElementById("thumbnails");
-const contentsList = document.getElementById("contentsList");
+/* =========================================================
+   ELEMENTS
+   ========================================================= */
 
-const pageStatus = document.getElementById("pageStatus");
-const loadingScreen = document.getElementById("loadingScreen");
-const loadingProgress = document.getElementById("loadingProgress");
-const errorMessage = document.getElementById("errorMessage");
-const pageProgress = document.getElementById("pageProgress");
+const bookElement =
+  document.getElementById("book");
 
-const previousButton = document.getElementById("previousButton");
-const nextButton = document.getElementById("nextButton");
-const firstButton = document.getElementById("firstButton");
+const bookStage =
+  document.getElementById("bookStage");
 
-const fullscreenButton = document.getElementById("fullscreenButton");
-const shareButton = document.getElementById("shareButton");
-const soundButton = document.getElementById("soundButton");
-const resetReadingButton = document.getElementById("resetReadingButton");
+const zoomContainer =
+  document.getElementById("zoomContainer");
 
-const edgePrevious = document.getElementById("edgePrevious");
-const edgeNext = document.getElementById("edgeNext");
+const thumbnailContainer =
+  document.getElementById("thumbnails");
 
-const pagesButton = document.getElementById("pagesButton");
-const moreButton = document.getElementById("moreButton");
-const contentsButton = document.getElementById("contentsButton");
+const contentsList =
+  document.getElementById("contentsList");
 
-const floatingEnquire = document.getElementById("floatingEnquire");
-const contactModal = document.getElementById("contactModal");
+const pageStatus =
+  document.getElementById("pageStatus");
 
-const thumbnailPanel = document.getElementById("thumbnailPanel");
-const morePanel = document.getElementById("morePanel");
-const contentsPanel = document.getElementById("contentsPanel");
+const loadingScreen =
+  document.getElementById("loadingScreen");
 
-const copyLinkButton = document.getElementById("copyLinkButton");
-const pageSound = document.getElementById("pageSound");
+const loadingProgress =
+  document.getElementById("loadingProgress");
 
-const imageZoomViewer = document.getElementById("imageZoomViewer");
-const zoomPageImage = document.getElementById("zoomPageImage");
-const closeImageZoomButton = document.getElementById("closeImageZoom");
-const zoomViewerStatus = document.getElementById("zoomViewerStatus");
-const zoomButton = document.getElementById("zoomButton");
+const errorMessage =
+  document.getElementById("errorMessage");
+
+const pageProgress =
+  document.getElementById("pageProgress");
+
+const previousButton =
+  document.getElementById("previousButton");
+
+const nextButton =
+  document.getElementById("nextButton");
+
+const firstButton =
+  document.getElementById("firstButton");
+
+const fullscreenButton =
+  document.getElementById("fullscreenButton");
+
+const shareButton =
+  document.getElementById("shareButton");
+
+const soundButton =
+  document.getElementById("soundButton");
+
+const resetReadingButton =
+  document.getElementById("resetReadingButton");
+
+const edgePrevious =
+  document.getElementById("edgePrevious");
+
+const edgeNext =
+  document.getElementById("edgeNext");
+
+const pagesButton =
+  document.getElementById("pagesButton");
+
+const moreButton =
+  document.getElementById("moreButton");
+
+const contentsButton =
+  document.getElementById("contentsButton");
+
+const floatingEnquire =
+  document.getElementById("floatingEnquire");
+
+const contactModal =
+  document.getElementById("contactModal");
+
+const thumbnailPanel =
+  document.getElementById("thumbnailPanel");
+
+const morePanel =
+  document.getElementById("morePanel");
+
+const contentsPanel =
+  document.getElementById("contentsPanel");
+
+const copyLinkButton =
+  document.getElementById("copyLinkButton");
+
+const pageSound =
+  document.getElementById("pageSound");
+
+const imageZoomViewer =
+  document.getElementById("imageZoomViewer");
+
+const zoomPageImage =
+  document.getElementById("zoomPageImage");
+
+const closeImageZoomButton =
+  document.getElementById("closeImageZoom");
+
+const zoomViewerStatus =
+  document.getElementById("zoomViewerStatus");
+
+const zoomButton =
+  document.getElementById("zoomButton");
 
 
 /* =========================================================
@@ -80,7 +148,12 @@ const zoomButton = document.getElementById("zoomButton");
    ========================================================= */
 
 function clampPageNumber(pageNumber) {
-  const parsed = Number.parseInt(pageNumber, 10);
+
+  const parsed =
+    Number.parseInt(
+      pageNumber,
+      10
+    );
 
   if (!Number.isFinite(parsed)) {
     return 1;
@@ -88,12 +161,16 @@ function clampPageNumber(pageNumber) {
 
   return Math.min(
     totalPages,
-    Math.max(1, parsed)
+    Math.max(
+      1,
+      parsed
+    )
   );
 }
 
 
 function validPageNumber(pageNumber) {
+
   return (
     Number.isInteger(pageNumber) &&
     pageNumber >= 1 &&
@@ -103,16 +180,25 @@ function validPageNumber(pageNumber) {
 
 
 function imagePath(pageNumber) {
-  return `pages/page${pageNumber}.jpg?v=${brochureVersion}`;
+
+  return (
+    `pages/page${pageNumber}.jpg` +
+    `?v=${brochureVersion}`
+  );
 }
 
 
 function getPageTitle(pageNumber) {
-  return pageTitles[pageNumber] || `Page ${pageNumber}`;
+
+  return (
+    pageTitles[pageNumber] ||
+    `Page ${pageNumber}`
+  );
 }
 
 
 function getCurrentPageNumber() {
+
   if (!pageFlip) {
     return 1;
   }
@@ -124,12 +210,20 @@ function getCurrentPageNumber() {
 
 
 function scheduleIdle(callback) {
-  if ("requestIdleCallback" in window) {
+
+  if (
+    "requestIdleCallback" in window
+  ) {
+
     window.requestIdleCallback(
       callback,
-      { timeout: 1500 }
+      {
+        timeout: 1500
+      }
     );
+
   } else {
+
     window.setTimeout(
       callback,
       250
@@ -143,36 +237,56 @@ function scheduleIdle(callback) {
    ========================================================= */
 
 function getPageFromUrl() {
-  const params =
-    new URLSearchParams(window.location.search);
 
-  const page = params.get("page");
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  const page =
+    params.get("page");
 
   if (!page) {
     return null;
   }
 
-  return clampPageNumber(page);
+  return clampPageNumber(
+    page
+  );
 }
 
 
 function getStartingPage() {
-  const pageFromUrl = getPageFromUrl();
 
-  // Normal visits always begin at the cover.
-  // Direct ?page= links still work.
+  const pageFromUrl =
+    getPageFromUrl();
+
+  // Normal brochure visits always start
+  // on the cover.
+  //
+  // A deliberate ?page= link still opens
+  // directly on that page.
   return pageFromUrl ?? 1;
 }
 
 
 function updateUrlPage(pageNumber) {
+
   try {
+
     const url =
-      new URL(window.location.href);
+      new URL(
+        window.location.href
+      );
 
     if (pageNumber <= 1) {
-      url.searchParams.delete("page");
+
+      url.searchParams.delete(
+        "page"
+      );
+
     } else {
+
       url.searchParams.set(
         "page",
         String(pageNumber)
@@ -186,6 +300,7 @@ function updateUrlPage(pageNumber) {
     );
 
   } catch (error) {
+
     console.warn(
       "Unable to update brochure URL:",
       error
@@ -195,15 +310,23 @@ function updateUrlPage(pageNumber) {
 
 
 function getShareUrl() {
+
   const url =
-    new URL(window.location.href);
+    new URL(
+      window.location.href
+    );
 
   const currentPage =
     getCurrentPageNumber();
 
   if (currentPage <= 1) {
-    url.searchParams.delete("page");
+
+    url.searchParams.delete(
+      "page"
+    );
+
   } else {
+
     url.searchParams.set(
       "page",
       String(currentPage)
@@ -219,6 +342,7 @@ function getShareUrl() {
    ========================================================= */
 
 function closeAllPanels() {
+
   if (thumbnailPanel) {
     thumbnailPanel.hidden = true;
   }
@@ -234,15 +358,18 @@ function closeAllPanels() {
 
 
 function togglePanel(panel) {
+
   if (!panel) {
     return;
   }
 
-  const shouldOpen = panel.hidden;
+  const shouldOpen =
+    panel.hidden;
 
   closeAllPanels();
 
-  panel.hidden = !shouldOpen;
+  panel.hidden =
+    !shouldOpen;
 }
 
 
@@ -251,6 +378,7 @@ function togglePanel(panel) {
    ========================================================= */
 
 function openContactModal() {
+
   if (!contactModal) {
     return;
   }
@@ -263,6 +391,7 @@ function openContactModal() {
 
 
 function closeContactModal() {
+
   if (!contactModal) {
     return;
   }
@@ -276,8 +405,10 @@ function closeContactModal() {
 
 /* =========================================================
    CREATE BROCHURE PAGES
-   IMPORTANT:
-   No full-size JPG is loaded here.
+
+   The important bit:
+   we create the page elements here but DO NOT
+   immediately download all 26 full-size images.
    ========================================================= */
 
 function createPages() {
@@ -289,9 +420,12 @@ function createPages() {
   ) {
 
     const page =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
-    page.className = "page";
+    page.className =
+      "page";
 
     page.dataset.pageNumber =
       String(pageNumber);
@@ -312,7 +446,9 @@ function createPages() {
 
 
     const image =
-      document.createElement("img");
+      document.createElement(
+        "img"
+      );
 
 
     image.alt =
@@ -320,15 +456,19 @@ function createPages() {
       `Keswick Discos Wedding Brochure`;
 
 
-    image.decoding = "async";
+    image.decoding =
+      "async";
 
-    image.loading = "lazy";
+    image.loading =
+      "lazy";
 
 
-    // Store the real image URL here.
-    // It is NOT downloaded yet.
+    // Store the image address without
+    // actually downloading it yet.
     image.dataset.src =
-      imagePath(pageNumber);
+      imagePath(
+        pageNumber
+      );
 
 
     image.dataset.loadState =
@@ -341,32 +481,45 @@ function createPages() {
     );
 
 
-    page.appendChild(image);
+    page.appendChild(
+      image
+    );
 
-    bookElement.appendChild(page);
+
+    bookElement.appendChild(
+      page
+    );
 
 
-    createThumbnail(pageNumber);
+    createThumbnail(
+      pageNumber
+    );
   }
 }
 
 
 /* =========================================================
-   LOAD ONE FULL-SIZE PAGE ONLY WHEN REQUIRED
+   LOAD AND DECODE A PAGE
    ========================================================= */
 
 function ensurePageLoaded(pageNumber) {
 
-  if (!validPageNumber(pageNumber)) {
+  if (
+    !validPageNumber(pageNumber)
+  ) {
+
     return Promise.resolve();
   }
 
 
   const image =
-    pageImages.get(pageNumber);
+    pageImages.get(
+      pageNumber
+    );
 
 
   if (!image) {
+
     return Promise.resolve();
   }
 
@@ -375,12 +528,15 @@ function ensurePageLoaded(pageNumber) {
     image.dataset.loadState ===
     "loaded"
   ) {
+
     return Promise.resolve();
   }
 
 
   if (
-    pageLoadPromises.has(pageNumber)
+    pageLoadPromises.has(
+      pageNumber
+    )
   ) {
 
     return pageLoadPromises.get(
@@ -390,60 +546,106 @@ function ensurePageLoaded(pageNumber) {
 
 
   const promise =
-    new Promise((resolve) => {
+    new Promise(
+      (resolve) => {
 
-      const finish = (state) => {
+        const finish =
+          (state) => {
+
+            image.dataset.loadState =
+              state;
+
+
+            pageLoadPromises.delete(
+              pageNumber
+            );
+
+
+            resolve();
+          };
+
 
         image.dataset.loadState =
-          state;
+          "loading";
 
 
-        pageLoadPromises.delete(
-          pageNumber
+        image.loading =
+          "eager";
+
+
+        image.addEventListener(
+
+          "load",
+
+          async () => {
+
+            /*
+              Wait for the browser to decode the JPG
+              before considering the page ready.
+
+              This greatly reduces brief blank flashes
+              during a page turn.
+            */
+
+            try {
+
+              if (
+                typeof image.decode ===
+                "function"
+              ) {
+
+                await image.decode();
+              }
+
+            } catch (error) {
+
+              // The JPG has already loaded.
+              // Continue even when decode() isn't
+              // supported perfectly by the browser.
+            }
+
+
+            finish(
+              "loaded"
+            );
+          },
+
+          {
+            once: true
+          }
         );
 
 
-        resolve();
-      };
+        image.addEventListener(
+
+          "error",
+
+          () => {
+
+            console.error(
+              `Unable to load ${image.dataset.src}`
+            );
 
 
-      image.dataset.loadState =
-        "loading";
+            finish(
+              "error"
+            );
+          },
+
+          {
+            once: true
+          }
+        );
 
 
-      image.loading =
-        "eager";
+        /*
+          The image request only begins here.
+        */
 
-
-      image.addEventListener(
-        "load",
-        () => {
-          finish("loaded");
-        },
-        { once: true }
-      );
-
-
-      image.addEventListener(
-        "error",
-        () => {
-
-          console.error(
-            `Unable to load ${image.dataset.src}`
-          );
-
-
-          finish("error");
-        },
-        { once: true }
-      );
-
-
-      // This is the moment the image
-      // is actually requested.
-      image.src =
-        image.dataset.src;
-    });
+        image.src =
+          image.dataset.src;
+      }
+    );
 
 
   pageLoadPromises.set(
@@ -457,13 +659,15 @@ function ensurePageLoaded(pageNumber) {
 
 
 /* =========================================================
-   KEEP NEARBY PAGES READY
+   PRELOAD NEARBY PAGES
    ========================================================= */
 
 function preloadAround(pageNumber) {
 
   const current =
-    clampPageNumber(pageNumber);
+    clampPageNumber(
+      pageNumber
+    );
 
 
   for (
@@ -477,7 +681,9 @@ function preloadAround(pageNumber) {
 
 
     if (
-      validPageNumber(candidate)
+      validPageNumber(
+        candidate
+      )
     ) {
 
       ensurePageLoaded(
@@ -490,34 +696,42 @@ function preloadAround(pageNumber) {
 
 function preloadForwardFrom(pageNumber) {
 
-  scheduleIdle(() => {
+  scheduleIdle(
+    () => {
 
-    for (
-      let offset = 1;
-      offset <= preloadAhead;
-      offset += 1
-    ) {
-
-      const candidate =
-        pageNumber + offset;
-
-
-      if (
-        validPageNumber(candidate)
+      for (
+        let offset = 1;
+        offset <= preloadAhead;
+        offset += 1
       ) {
 
-        ensurePageLoaded(
-          candidate
-        );
+        const candidate =
+          pageNumber + offset;
+
+
+        if (
+          validPageNumber(
+            candidate
+          )
+        ) {
+
+          ensurePageLoaded(
+            candidate
+          );
+        }
       }
     }
-  });
+  );
 }
 
 
 /* =========================================================
    STARTUP LOADING
-   Only loads the pages required to begin reading.
+
+   Load + decode the essential opening pages BEFORE
+   revealing the flipbook.
+
+   This makes initial rendering much more stable.
    ========================================================= */
 
 async function loadStartupPages(
@@ -532,8 +746,13 @@ async function loadStartupPages(
     ]);
 
 
-  if (startingPage === 1) {
-    criticalPages.add(2);
+  if (
+    startingPage === 1
+  ) {
+
+    criticalPages.add(
+      2
+    );
   }
 
 
@@ -547,6 +766,7 @@ async function loadStartupPages(
 
 
   if (loadingProgress) {
+
     loadingProgress.style.width =
       "8%";
   }
@@ -555,6 +775,7 @@ async function loadStartupPages(
   await Promise.all(
 
     pages.map(
+
       async (pageNumber) => {
 
         await ensurePageLoaded(
@@ -569,11 +790,14 @@ async function loadStartupPages(
 
           const percentage =
             Math.round(
+
               8 +
+
               (
                 completed /
                 pages.length
               ) *
+
               92
             );
 
@@ -590,30 +814,15 @@ async function loadStartupPages(
 
 
   if (loadingProgress) {
+
     loadingProgress.style.width =
       "100%";
   }
-
-
-  if (loadingScreen) {
-
-    loadingScreen.classList.add(
-      "hidden"
-    );
-  }
-
-
-  // Once the brochure is visible,
-  // quietly prepare a few pages ahead.
-  preloadForwardFrom(
-    startingPage
-  );
 }
 
 
 /* =========================================================
    THUMBNAILS
-   These are also progressively loaded.
    ========================================================= */
 
 function createThumbnail(pageNumber) {
@@ -624,46 +833,65 @@ function createThumbnail(pageNumber) {
 
 
   const button =
-    document.createElement("button");
+    document.createElement(
+      "button"
+    );
 
 
-  button.type = "button";
+  button.type =
+    "button";
+
 
   button.className =
     "thumbnail-button";
 
 
   button.dataset.pageIndex =
-    String(pageNumber - 1);
+    String(
+      pageNumber - 1
+    );
 
 
   button.setAttribute(
+
     "aria-label",
+
     `Go to ${getPageTitle(pageNumber)}, ` +
     `page ${pageNumber}`
   );
 
 
   const image =
-    document.createElement("img");
+    document.createElement(
+      "img"
+    );
 
 
   image.dataset.src =
-    imagePath(pageNumber);
+    imagePath(
+      pageNumber
+    );
 
 
-  image.alt = "";
+  image.alt =
+    "";
 
-  image.loading = "lazy";
+  image.loading =
+    "lazy";
 
-  image.decoding = "async";
+  image.decoding =
+    "async";
 
 
-  button.appendChild(image);
+  button.appendChild(
+    image
+  );
 
 
   button.addEventListener(
+
     "click",
+
     async () => {
 
       await goToPage(
@@ -689,6 +917,7 @@ function loadThumbnailImage(image) {
     !image.dataset.src ||
     image.hasAttribute("src")
   ) {
+
     return;
   }
 
@@ -699,7 +928,7 @@ function loadThumbnailImage(image) {
 
 
 /* =========================================================
-   THUMBNAIL INTERSECTION OBSERVER
+   THUMBNAIL LAZY LOADING
    ========================================================= */
 
 function initialiseThumbnailLoading() {
@@ -716,14 +945,22 @@ function initialiseThumbnailLoading() {
 
 
   if (
-    !("IntersectionObserver" in window)
+    !(
+      "IntersectionObserver" in
+      window
+    )
   ) {
 
     images.forEach(
       (image, index) => {
 
-        if (index < 8) {
-          loadThumbnailImage(image);
+        if (
+          index < 8
+        ) {
+
+          loadThumbnailImage(
+            image
+          );
         }
       }
     );
@@ -749,6 +986,7 @@ function initialiseThumbnailLoading() {
             if (
               !entry.isIntersecting
             ) {
+
               return;
             }
 
@@ -795,6 +1033,7 @@ function loadNearbyThumbnails() {
     !thumbnailContainer ||
     !pageFlip
   ) {
+
     return;
   }
 
@@ -819,6 +1058,7 @@ function loadNearbyThumbnails() {
       ) {
 
         loadThumbnailImage(
+
           button.querySelector(
             "img[data-src]"
           )
@@ -858,17 +1098,18 @@ function centreActiveThumbnail(
     activeThumbnail.clientWidth / 2;
 
 
-  thumbnailContainer.scrollTo({
+  thumbnailContainer.scrollTo(
+    {
+      left:
+        Math.max(
+          0,
+          thumbnailLeft
+        ),
 
-    left:
-      Math.max(
-        0,
-        thumbnailLeft
-      ),
-
-    behavior:
-      "smooth"
-  });
+      behavior:
+        "smooth"
+    }
+  );
 }
 
 
@@ -899,7 +1140,9 @@ function buildContents() {
       );
 
 
-    button.type = "button";
+    button.type =
+      "button";
+
 
     button.className =
       "contents-button";
@@ -934,7 +1177,9 @@ function buildContents() {
 
 
     button.addEventListener(
+
       "click",
+
       async () => {
 
         await goToPage(
@@ -964,6 +1209,7 @@ function playPageTurnSound() {
     !soundEnabled ||
     !pageSound
   ) {
+
     return;
   }
 
@@ -972,9 +1218,11 @@ function playPageTurnSound() {
 
     pageSound.pause();
 
-    pageSound.currentTime = 0;
+    pageSound.currentTime =
+      0;
 
-    pageSound.volume = 0.28;
+    pageSound.volume =
+      0.28;
 
 
     const playPromise =
@@ -1003,14 +1251,30 @@ function playPageTurnSound() {
 
 
 /* =========================================================
-   NAVIGATION
+   DIRECT PAGE NAVIGATION
+
+   Used for:
+   - Contents
+   - Thumbnails
+   - First page
+
+   Direct jumps use turnToPage rather than trying
+   to animate through many pages.
    ========================================================= */
 
 async function goToPage(pageNumber) {
 
-  if (!pageFlip) {
+  if (
+    !pageFlip ||
+    navigationLocked
+  ) {
+
     return;
   }
+
+
+  navigationLocked =
+    true;
 
 
   const safePage =
@@ -1026,42 +1290,79 @@ async function goToPage(pageNumber) {
   }
 
 
-  await Promise.all([
+  try {
 
-    ensurePageLoaded(
-      safePage
-    ),
+    await Promise.all(
+      [
+        ensurePageLoaded(
+          safePage
+        ),
 
-    ensurePageLoaded(
+        ensurePageLoaded(
+          safePage - 1
+        ),
+
+        ensurePageLoaded(
+          safePage + 1
+        )
+      ]
+    );
+
+
+    pageFlip.turnToPage(
       safePage - 1
-    ),
-
-    ensurePageLoaded(
-      safePage + 1
-    )
-  ]);
+    );
 
 
-  pageFlip.flip(
-    safePage - 1
-  );
+    const actualIndex =
+      pageFlip.getCurrentPageIndex();
 
 
-  preloadAround(
-    safePage
-  );
+    updateInterface(
+      actualIndex
+    );
+
+
+    updateUrlPage(
+      actualIndex + 1
+    );
+
+
+    preloadAround(
+      safePage
+    );
+
+
+  } finally {
+
+    window.setTimeout(
+      () => {
+
+        navigationLocked =
+          false;
+
+      },
+      180
+    );
+  }
 }
 
+
+/* =========================================================
+   PREVIOUS PAGE
+   ========================================================= */
 
 async function goPrevious() {
 
   if (
     !pageFlip ||
+    navigationLocked ||
     (
       isTouchDevice &&
       mobileSwipeLocked
     )
   ) {
+
     return;
   }
 
@@ -1077,10 +1378,16 @@ async function goPrevious() {
 
 
   if (
-    targetPage === currentPage
+    targetPage ===
+    currentPage
   ) {
+
     return;
   }
+
+
+  navigationLocked =
+    true;
 
 
   if (isTouchDevice) {
@@ -1090,35 +1397,64 @@ async function goPrevious() {
   }
 
 
-  await ensurePageLoaded(
-    targetPage
-  );
+  try {
+
+    await ensurePageLoaded(
+      targetPage
+    );
 
 
-  pageFlip.flipPrev();
+    /*
+      Also prepare the next page in the spread
+      before beginning the animation.
+    */
+
+    await ensurePageLoaded(
+      targetPage - 1
+    );
 
 
-  preloadAround(
-    targetPage
-  );
+    pageFlip.flipPrev();
 
 
-  if (isTouchDevice) {
+    preloadAround(
+      targetPage
+    );
 
-    unlockMobileSwipe();
+
+  } finally {
+
+    window.setTimeout(
+      () => {
+
+        navigationLocked =
+          false;
+
+        mobileSwipeLocked =
+          false;
+
+      },
+      pageTurnLockTime
+    );
   }
 }
 
+
+/* =========================================================
+   NEXT PAGE
+   ========================================================= */
 
 async function goNext() {
 
   if (
     !pageFlip ||
+    navigationLocked ||
     (
       isTouchDevice &&
       mobileSwipeLocked
     )
   ) {
+
     return;
   }
 
@@ -1134,10 +1470,16 @@ async function goNext() {
 
 
   if (
-    targetPage === currentPage
+    targetPage ===
+    currentPage
   ) {
+
     return;
   }
+
+
+  navigationLocked =
+    true;
 
 
   if (isTouchDevice) {
@@ -1147,22 +1489,45 @@ async function goNext() {
   }
 
 
-  await ensurePageLoaded(
-    targetPage
-  );
+  try {
+
+    await ensurePageLoaded(
+      targetPage
+    );
 
 
-  pageFlip.flipNext();
+    /*
+      Also prepare the following page before
+      the turn begins.
+    */
+
+    await ensurePageLoaded(
+      targetPage + 1
+    );
 
 
-  preloadAround(
-    targetPage
-  );
+    pageFlip.flipNext();
 
 
-  if (isTouchDevice) {
+    preloadAround(
+      targetPage
+    );
 
-    unlockMobileSwipe();
+
+  } finally {
+
+    window.setTimeout(
+      () => {
+
+        navigationLocked =
+          false;
+
+        mobileSwipeLocked =
+          false;
+
+      },
+      pageTurnLockTime
+    );
   }
 }
 
@@ -1259,11 +1624,10 @@ function initialiseFlipbook(
 
 
   pageFlip.on(
+
     "init",
+
     () => {
-
-      updateInterface(0);
-
 
       if (zoomContainer) {
 
@@ -1276,28 +1640,76 @@ function initialiseFlipbook(
         startingPage > 1
       ) {
 
-        window.setTimeout(
-          () => {
-
-            pageFlip.turnToPage(
-              startingPage - 1
-            );
-
-
-            updateInterface(
-              startingPage - 1
-            );
-
-          },
-          100
+        pageFlip.turnToPage(
+          startingPage - 1
         );
       }
+
+
+      window.setTimeout(
+        () => {
+
+          const actualIndex =
+            pageFlip.getCurrentPageIndex();
+
+
+          const actualPage =
+            clampPageNumber(
+              actualIndex + 1
+            );
+
+
+          updateInterface(
+            actualIndex
+          );
+
+
+          updateUrlPage(
+            actualPage
+          );
+
+
+          preloadAround(
+            actualPage
+          );
+
+
+          preloadForwardFrom(
+            actualPage
+          );
+
+
+          /*
+            Only reveal the brochure once PageFlip
+            is fully initialised and the essential
+            page images have already loaded.
+          */
+
+          if (loadingScreen) {
+
+            window.requestAnimationFrame(
+              () => {
+
+                loadingScreen.classList.add(
+                  "hidden"
+                );
+              }
+            );
+          }
+
+        },
+        startingPage > 1
+          ? 80
+          : 20
+      );
     }
   );
 
 
   pageFlip.on(
+
     "flip",
+
     (event) => {
 
       const pageIndex =
@@ -1331,7 +1743,9 @@ function initialiseFlipbook(
 
 
   pageFlip.on(
+
     "changeOrientation",
+
     () => {
 
       window.setTimeout(
@@ -1424,6 +1838,7 @@ function updateInterface(
       ".thumbnail-button"
     )
     .forEach(
+
       (thumbnail) => {
 
         thumbnail.classList.toggle(
@@ -1444,6 +1859,7 @@ function updateInterface(
   ) {
 
     loadNearbyThumbnails();
+
 
     centreActiveThumbnail(
       pageIndex
@@ -1495,10 +1911,15 @@ if (edgeNext) {
 if (firstButton) {
 
   firstButton.addEventListener(
+
     "click",
+
     async () => {
 
-      await goToPage(1);
+      await goToPage(
+        1
+      );
+
 
       closeAllPanels();
     }
@@ -1517,6 +1938,7 @@ async function openImageZoomViewer() {
     !imageZoomViewer ||
     !zoomPageImage
   ) {
+
     return;
   }
 
@@ -1537,7 +1959,8 @@ async function openImageZoomViewer() {
 
 
   zoomPageImage.alt =
-    `${getPageTitle(currentPage)} — enlarged brochure page`;
+    `${getPageTitle(currentPage)} — ` +
+    `enlarged brochure page`;
 
 
   if (zoomViewerStatus) {
@@ -1563,6 +1986,7 @@ function closeImageZoomViewer() {
     !imageZoomViewer ||
     !zoomPageImage
   ) {
+
     return;
   }
 
@@ -1606,7 +2030,9 @@ if (closeImageZoomButton) {
 if (fullscreenButton) {
 
   fullscreenButton.addEventListener(
+
     "click",
+
     async () => {
 
       try {
@@ -1638,7 +2064,9 @@ if (fullscreenButton) {
 
 
 document.addEventListener(
+
   "fullscreenchange",
+
   () => {
 
     const fullscreenActive =
@@ -1671,7 +2099,9 @@ document.addEventListener(
 if (shareButton) {
 
   shareButton.addEventListener(
+
     "click",
+
     async () => {
 
       const currentPage =
@@ -1697,7 +2127,9 @@ if (shareButton) {
 
       try {
 
-        if (navigator.share) {
+        if (
+          navigator.share
+        ) {
 
           await navigator.share(
             shareData
@@ -1752,7 +2184,9 @@ if (shareButton) {
 if (pagesButton) {
 
   pagesButton.addEventListener(
+
     "click",
+
     () => {
 
       togglePanel(
@@ -1792,7 +2226,9 @@ if (pagesButton) {
 if (moreButton) {
 
   moreButton.addEventListener(
+
     "click",
+
     () => {
 
       togglePanel(
@@ -1806,7 +2242,9 @@ if (moreButton) {
 if (contentsButton) {
 
   contentsButton.addEventListener(
+
     "click",
+
     () => {
 
       togglePanel(
@@ -1839,10 +2277,13 @@ document
     "[data-close]"
   )
   .forEach(
+
     (button) => {
 
       button.addEventListener(
+
         "click",
+
         () => {
 
           const targetId =
@@ -1880,7 +2321,9 @@ document
 if (copyLinkButton) {
 
   copyLinkButton.addEventListener(
+
     "click",
+
     async () => {
 
       try {
@@ -1929,7 +2372,9 @@ if (soundButton) {
 
 
   soundButton.addEventListener(
+
     "click",
+
     () => {
 
       soundEnabled =
@@ -1949,12 +2394,18 @@ if (soundButton) {
 
 /* =========================================================
    OLD SAVED PAGE CLEANUP
+
+   The brochure now intentionally starts on page 1,
+   but this button clears any old stored position
+   left over from earlier versions.
    ========================================================= */
 
 if (resetReadingButton) {
 
   resetReadingButton.addEventListener(
+
     "click",
+
     () => {
 
       try {
@@ -1965,7 +2416,9 @@ if (resetReadingButton) {
 
       } catch (error) {
 
-        console.warn(error);
+        console.warn(
+          error
+        );
       }
 
 
@@ -1996,20 +2449,6 @@ let swipeStartY = 0;
 let swipeStartTime = 0;
 
 
-function unlockMobileSwipe() {
-
-  window.setTimeout(
-    () => {
-
-      mobileSwipeLocked =
-        false;
-
-    },
-    100
-  );
-}
-
-
 if (
   isTouchDevice &&
   bookStage
@@ -2023,8 +2462,10 @@ if (
 
       if (
         event.touches.length !== 1 ||
-        mobileSwipeLocked
+        mobileSwipeLocked ||
+        navigationLocked
       ) {
+
         return;
       }
 
@@ -2056,8 +2497,10 @@ if (
       if (
         !pageFlip ||
         mobileSwipeLocked ||
+        navigationLocked ||
         event.changedTouches.length !== 1
       ) {
+
         return;
       }
 
@@ -2071,11 +2514,13 @@ if (
 
 
       const deltaX =
-        endX - swipeStartX;
+        endX -
+        swipeStartX;
 
 
       const deltaY =
-        endY - swipeStartY;
+        endY -
+        swipeStartY;
 
 
       const elapsed =
@@ -2085,20 +2530,33 @@ if (
 
       const horizontalSwipe =
 
-        Math.abs(deltaX) >= 45 &&
+        Math.abs(
+          deltaX
+        ) >= 45 &&
 
-        Math.abs(deltaX) >
-          Math.abs(deltaY) * 1.25 &&
+        Math.abs(
+          deltaX
+        ) >
 
-        elapsed <= 800;
+        Math.abs(
+          deltaY
+        ) * 1.25 &&
+
+        elapsed <=
+        800;
 
 
-      if (!horizontalSwipe) {
+      if (
+        !horizontalSwipe
+      ) {
+
         return;
       }
 
 
-      if (deltaX < 0) {
+      if (
+        deltaX < 0
+      ) {
 
         await goNext();
 
@@ -2125,14 +2583,20 @@ document.addEventListener(
 
   async (event) => {
 
-    if (!pageFlip) {
+    if (
+      !pageFlip
+    ) {
+
       return;
     }
 
 
     if (
-      event.key === "Escape" &&
+      event.key ===
+        "Escape" &&
+
       imageZoomViewer &&
+
       !imageZoomViewer.hidden
     ) {
 
@@ -2143,7 +2607,8 @@ document.addEventListener(
 
 
     if (
-      event.key === "Escape"
+      event.key ===
+      "Escape"
     ) {
 
       closeAllPanels();
@@ -2155,7 +2620,16 @@ document.addEventListener(
 
 
     if (
-      event.key === "ArrowLeft"
+      navigationLocked
+    ) {
+
+      return;
+    }
+
+
+    if (
+      event.key ===
+      "ArrowLeft"
     ) {
 
       await goPrevious();
@@ -2163,7 +2637,8 @@ document.addEventListener(
 
 
     if (
-      event.key === "ArrowRight"
+      event.key ===
+      "ArrowRight"
     ) {
 
       await goNext();
@@ -2171,10 +2646,13 @@ document.addEventListener(
 
 
     if (
-      event.key === "Home"
+      event.key ===
+      "Home"
     ) {
 
-      await goToPage(1);
+      await goToPage(
+        1
+      );
     }
 
 
@@ -2206,27 +2684,29 @@ async function startBrochure() {
     createPages();
 
 
-    // Start only the essential
-    // image downloads.
-    const startupLoad =
-      loadStartupPages(
-        startingPage
-      );
+    /*
+      Because the new JPGs are only roughly
+      0.2–0.5 MB each, wait for the essential
+      opening pages to fully load and decode.
+
+      Only then initialise and reveal PageFlip.
+    */
+
+    await loadStartupPages(
+      startingPage
+    );
 
 
-    // Initialise PageFlip while
-    // those few pages download.
     initialiseFlipbook(
       startingPage
     );
 
 
-    await startupLoad;
-
-
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
 
 
     if (loadingScreen) {
