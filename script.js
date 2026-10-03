@@ -7,18 +7,14 @@ const isMobileViewer =
   window.matchMedia("(max-width: 700px)").matches;
 
 const totalPages = 26;
-
-const brochureVersion =
-  "20261003-1";
+const brochureVersion = "20261003-1";
 
 const pageWidth = 600;
 const pageHeight = 848;
 
 const preloadBehind = 2;
 const preloadAhead = 6;
-
 const pageTurnLockTime = 950;
-
 
 const pageTitles = {
   1: "Cover",
@@ -49,7 +45,6 @@ const pageTitles = {
   26: "Let's Plan Your Wedding"
 };
 
-
 const contentsSections = [
   {
     title: "Getting Started",
@@ -73,37 +68,22 @@ const contentsSections = [
   }
 ];
 
-
 let pageFlip = null;
-
 let mobileCurrentPage = 1;
-
 let mobileMainImage = null;
 
 let navigationLocked = false;
-
 let mobileSwipeLocked = false;
-
 let soundEnabled = false;
 
 let thumbnailObserver = null;
-
 let mobileThumbnailObserver = null;
-
 let mobileThumbnailScrollFrame = null;
-
 let drawerThumbnailScrollFrame = null;
 
-
-const desktopPageImages =
-  new Map();
-
-const desktopPageLoadPromises =
-  new Map();
-
-const mobilePreloadedPages =
-  new Set();
-
+const desktopPageImages = new Map();
+const desktopPageLoadPromises = new Map();
+const mobilePreloadedPages = new Set();
 
 const bookElement =
   document.getElementById("book");
@@ -118,14 +98,10 @@ const thumbnailContainer =
   document.getElementById("thumbnails");
 
 const mobileThumbnailStrip =
-  document.getElementById(
-    "mobileThumbnailStrip"
-  );
+  document.getElementById("mobileThumbnailStrip");
 
 const mobileThumbnailContainer =
-  document.getElementById(
-    "mobileThumbnails"
-  );
+  document.getElementById("mobileThumbnails");
 
 const contentsList =
   document.getElementById("contentsList");
@@ -205,11 +181,17 @@ const pageSound =
 const imageZoomViewer =
   document.getElementById("imageZoomViewer");
 
+const imageZoomScroll =
+  document.getElementById("imageZoomScroll");
+
 const zoomPageImage =
   document.getElementById("zoomPageImage");
 
 const closeImageZoomButton =
   document.getElementById("closeImageZoom");
+
+const resetImageZoomButton =
+  document.getElementById("resetImageZoom");
 
 const zoomViewerStatus =
   document.getElementById("zoomViewerStatus");
@@ -217,6 +199,24 @@ const zoomViewerStatus =
 const zoomButton =
   document.getElementById("zoomButton");
 
+
+/* =========================================================
+   BASIC HELPERS
+   ========================================================= */
+
+function clamp(
+  value,
+  minimum,
+  maximum
+) {
+  return Math.min(
+    maximum,
+    Math.max(
+      minimum,
+      value
+    )
+  );
+}
 
 function clampPageNumber(value) {
 
@@ -226,9 +226,7 @@ function clampPageNumber(value) {
       10
     );
 
-  if (
-    !Number.isFinite(page)
-  ) {
+  if (!Number.isFinite(page)) {
     return 1;
   }
 
@@ -241,11 +239,9 @@ function clampPageNumber(value) {
   );
 }
 
-
 function validPageNumber(
   pageNumber
 ) {
-
   return (
     Number.isInteger(pageNumber) &&
     pageNumber >= 1 &&
@@ -253,56 +249,45 @@ function validPageNumber(
   );
 }
 
-
 function imagePath(
   pageNumber
 ) {
-
   return (
     `pages/page${pageNumber}.jpg` +
     `?v=${brochureVersion}`
   );
 }
 
-
 function getPageTitle(
   pageNumber
 ) {
-
   return (
     pageTitles[pageNumber] ||
     `Page ${pageNumber}`
   );
 }
 
-
 function getCurrentPageNumber() {
 
   if (isMobileViewer) {
-
     return mobileCurrentPage;
   }
 
-
   if (!pageFlip) {
-
     return 1;
   }
-
 
   return clampPageNumber(
     pageFlip.getCurrentPageIndex() + 1
   );
 }
 
-
 function scheduleIdle(
   callback
 ) {
 
   if (
-    "requestIdleCallback" in
-    window
+    "requestIdleCallback" in window
   ) {
 
     window.requestIdleCallback(
@@ -321,13 +306,11 @@ function scheduleIdle(
   }
 }
 
-
 function hideLoadingScreen() {
 
   if (!loadingScreen) {
     return;
   }
-
 
   window.requestAnimationFrame(
     () => {
@@ -340,6 +323,10 @@ function hideLoadingScreen() {
 }
 
 
+/* =========================================================
+   DIRECT PAGE LINKS
+   ========================================================= */
+
 function getPageFromUrl() {
 
   const page =
@@ -349,12 +336,10 @@ function getPageFromUrl() {
       "page"
     );
 
-
   return page
     ? clampPageNumber(page)
     : null;
 }
-
 
 function getStartingPage() {
 
@@ -363,7 +348,6 @@ function getStartingPage() {
     1
   );
 }
-
 
 function updateUrlPage(
   pageNumber
@@ -375,7 +359,6 @@ function updateUrlPage(
       new URL(
         window.location.href
       );
-
 
     if (
       pageNumber <= 1
@@ -393,7 +376,6 @@ function updateUrlPage(
       );
     }
 
-
     window.history.replaceState(
       {},
       "",
@@ -409,7 +391,6 @@ function updateUrlPage(
   }
 }
 
-
 function getShareUrl() {
 
   const url =
@@ -417,10 +398,8 @@ function getShareUrl() {
       window.location.href
     );
 
-
   const currentPage =
     getCurrentPageNumber();
-
 
   if (
     currentPage <= 1
@@ -438,31 +417,28 @@ function getShareUrl() {
     );
   }
 
-
   return url.toString();
 }
 
 
+/* =========================================================
+   PANELS
+   ========================================================= */
+
 function closeAllPanels() {
 
   if (thumbnailPanel) {
-    thumbnailPanel.hidden =
-      true;
+    thumbnailPanel.hidden = true;
   }
-
 
   if (morePanel) {
-    morePanel.hidden =
-      true;
+    morePanel.hidden = true;
   }
-
 
   if (contentsPanel) {
-    contentsPanel.hidden =
-      true;
+    contentsPanel.hidden = true;
   }
 }
-
 
 function togglePanel(
   panel
@@ -472,18 +448,19 @@ function togglePanel(
     return;
   }
 
-
   const shouldOpen =
     panel.hidden;
 
-
   closeAllPanels();
-
 
   panel.hidden =
     !shouldOpen;
 }
 
+
+/* =========================================================
+   ENQUIRY
+   ========================================================= */
 
 function openContactModal() {
 
@@ -491,15 +468,12 @@ function openContactModal() {
     return;
   }
 
-
   contactModal.hidden =
     false;
-
 
   document.body.style.overflow =
     "hidden";
 }
-
 
 function closeContactModal() {
 
@@ -507,10 +481,8 @@ function closeContactModal() {
     return;
   }
 
-
   contactModal.hidden =
     true;
-
 
   document.body.style.overflow =
     "";
@@ -518,7 +490,7 @@ function closeContactModal() {
 
 
 /* =========================================================
-   THUMBNAIL BUTTON
+   THUMBNAILS
    ========================================================= */
 
 function createThumbnailButton(
@@ -531,61 +503,49 @@ function createThumbnailButton(
       "button"
     );
 
-
   button.type =
     "button";
 
-
   button.className =
     className;
-
 
   button.dataset.pageIndex =
     String(
       pageNumber - 1
     );
 
-
   button.dataset.pageNumber =
     String(
       pageNumber
     );
-
 
   button.setAttribute(
     "aria-label",
     `Go to ${getPageTitle(pageNumber)}, page ${pageNumber}`
   );
 
-
   const image =
     document.createElement(
       "img"
     );
-
 
   image.dataset.src =
     imagePath(
       pageNumber
     );
 
-
   image.alt =
     "";
-
 
   image.decoding =
     "async";
 
-
   image.loading =
     "lazy";
-
 
   button.appendChild(
     image
   );
-
 
   if (
     className ===
@@ -597,46 +557,33 @@ function createThumbnailButton(
         "span"
       );
 
-
     number.className =
       "mobile-thumbnail-number";
-
 
     number.textContent =
       String(
         pageNumber
       );
 
-
     button.appendChild(
       number
     );
   }
 
-
   button.addEventListener(
-
     "click",
-
     async () => {
 
       await goToPage(
         pageNumber
       );
 
-
       closeAllPanels();
     }
   );
 
-
   return button;
 }
-
-
-/* =========================================================
-   DRAWER THUMBNAILS
-   ========================================================= */
 
 function createDrawerThumbnails() {
 
@@ -644,10 +591,8 @@ function createDrawerThumbnails() {
     return;
   }
 
-
   thumbnailContainer.innerHTML =
     "";
-
 
   for (
     let pageNumber = 1;
@@ -656,7 +601,6 @@ function createDrawerThumbnails() {
   ) {
 
     thumbnailContainer.appendChild(
-
       createThumbnailButton(
         pageNumber,
         "thumbnail-button"
@@ -665,25 +609,17 @@ function createDrawerThumbnails() {
   }
 }
 
-
-/* =========================================================
-   MOBILE BOTTOM THUMBNAILS
-   ========================================================= */
-
 function createMobileThumbnails() {
 
   if (
     !mobileThumbnailContainer ||
     !mobileThumbnailStrip
   ) {
-
     return;
   }
 
-
   mobileThumbnailContainer.innerHTML =
     "";
-
 
   for (
     let pageNumber = 1;
@@ -692,7 +628,6 @@ function createMobileThumbnails() {
   ) {
 
     mobileThumbnailContainer.appendChild(
-
       createThumbnailButton(
         pageNumber,
         "mobile-thumbnail-button"
@@ -700,11 +635,9 @@ function createMobileThumbnails() {
     );
   }
 
-
   mobileThumbnailStrip.hidden =
     false;
 }
-
 
 function loadThumbnailImage(
   image
@@ -715,15 +648,12 @@ function loadThumbnailImage(
     !image.dataset.src ||
     image.hasAttribute("src")
   ) {
-
     return;
   }
-
 
   image.src =
     image.dataset.src;
 }
-
 
 function unloadThumbnailImage(
   image
@@ -733,16 +663,13 @@ function unloadThumbnailImage(
     !image ||
     !image.hasAttribute("src")
   ) {
-
     return;
   }
-
 
   image.removeAttribute(
     "src"
   );
 }
-
 
 function isButtonNearVisible(
   container,
@@ -754,32 +681,22 @@ function isButtonNearVisible(
     !container ||
     !button
   ) {
-
     return false;
   }
-
 
   const containerRect =
     container.getBoundingClientRect();
 
-
   const buttonRect =
     button.getBoundingClientRect();
 
-
   return (
-
     buttonRect.right >=
-    containerRect.left -
-    margin &&
-
+      containerRect.left - margin &&
     buttonRect.left <=
-    containerRect.right +
-    margin
-
+      containerRect.right + margin
   );
 }
-
 
 function trimThumbnailMemory(
   container,
@@ -791,12 +708,10 @@ function trimThumbnailMemory(
     return;
   }
 
-
   const buttons =
     container.querySelectorAll(
       buttonSelector
     );
-
 
   buttons.forEach(
     (button) => {
@@ -806,12 +721,10 @@ function trimThumbnailMemory(
           button.dataset.pageNumber
         );
 
-
       const image =
         button.querySelector(
           "img[data-src]"
         );
-
 
       const nearCurrent =
         Math.abs(
@@ -819,14 +732,12 @@ function trimThumbnailMemory(
           centrePage
         ) <= 3;
 
-
       const nearVisible =
         isButtonNearVisible(
           container,
           button,
           120
         );
-
 
       if (
         nearCurrent ||
@@ -849,175 +760,27 @@ function trimThumbnailMemory(
   );
 }
 
-
-/* =========================================================
-   DRAWER THUMBNAIL LOADING
-   ========================================================= */
-
 function initialiseDrawerThumbnailLoading() {
 
   if (!thumbnailContainer) {
     return;
   }
 
-
   const images =
     thumbnailContainer.querySelectorAll(
       "img[data-src]"
     );
 
-
   if (
-    !(
-      "IntersectionObserver" in
-      window
-    )
+    "IntersectionObserver" in window
   ) {
 
-    trimThumbnailMemory(
-      thumbnailContainer,
-      ".thumbnail-button",
-      getCurrentPageNumber()
-    );
-
-    return;
-  }
-
-
-  if (thumbnailObserver) {
-
-    thumbnailObserver.disconnect();
-  }
-
-
-  thumbnailObserver =
-    new IntersectionObserver(
-
-      (entries) => {
-
-        entries.forEach(
-          (entry) => {
-
-            if (
-              entry.isIntersecting
-            ) {
-
-              loadThumbnailImage(
-                entry.target
-              );
-            }
-          }
-        );
-      },
-
-      {
-        root:
-          thumbnailContainer,
-
-        rootMargin:
-          "0px 120px",
-
-        threshold:
-          0.01
-      }
-    );
-
-
-  images.forEach(
-    (image) => {
-
-      thumbnailObserver.observe(
-        image
-      );
-    }
-  );
-
-
-  if (
-    !thumbnailContainer
-      .dataset
-      .memoryHandlerAttached
-  ) {
-
-    thumbnailContainer.addEventListener(
-
-      "scroll",
-
-      () => {
-
-        if (
-          drawerThumbnailScrollFrame
-        ) {
-
-          return;
-        }
-
-
-        drawerThumbnailScrollFrame =
-          window.requestAnimationFrame(
-
-            () => {
-
-              drawerThumbnailScrollFrame =
-                null;
-
-
-              trimThumbnailMemory(
-                thumbnailContainer,
-                ".thumbnail-button",
-                getCurrentPageNumber()
-              );
-            }
-          );
-      },
-
-      {
-        passive: true
-      }
-    );
-
-
-    thumbnailContainer
-      .dataset
-      .memoryHandlerAttached =
-        "true";
-  }
-}
-
-
-/* =========================================================
-   MOBILE THUMBNAIL LOADING
-   ========================================================= */
-
-function initialiseMobileThumbnailLoading() {
-
-  if (!mobileThumbnailContainer) {
-    return;
-  }
-
-
-  const images =
-    mobileThumbnailContainer.querySelectorAll(
-      "img[data-src]"
-    );
-
-
-  if (
-    "IntersectionObserver" in
-    window
-  ) {
-
-    if (
-      mobileThumbnailObserver
-    ) {
-
-      mobileThumbnailObserver.disconnect();
+    if (thumbnailObserver) {
+      thumbnailObserver.disconnect();
     }
 
-
-    mobileThumbnailObserver =
+    thumbnailObserver =
       new IntersectionObserver(
-
         (entries) => {
 
           entries.forEach(
@@ -1034,7 +797,110 @@ function initialiseMobileThumbnailLoading() {
             }
           );
         },
+        {
+          root:
+            thumbnailContainer,
 
+          rootMargin:
+            "0px 120px",
+
+          threshold:
+            0.01
+        }
+      );
+
+    images.forEach(
+      (image) => {
+
+        thumbnailObserver.observe(
+          image
+        );
+      }
+    );
+  }
+
+  if (
+    !thumbnailContainer
+      .dataset
+      .memoryHandlerAttached
+  ) {
+
+    thumbnailContainer.addEventListener(
+      "scroll",
+      () => {
+
+        if (
+          drawerThumbnailScrollFrame
+        ) {
+          return;
+        }
+
+        drawerThumbnailScrollFrame =
+          window.requestAnimationFrame(
+            () => {
+
+              drawerThumbnailScrollFrame =
+                null;
+
+              trimThumbnailMemory(
+                thumbnailContainer,
+                ".thumbnail-button",
+                getCurrentPageNumber()
+              );
+            }
+          );
+      },
+      {
+        passive: true
+      }
+    );
+
+    thumbnailContainer
+      .dataset
+      .memoryHandlerAttached =
+        "true";
+  }
+}
+
+function initialiseMobileThumbnailLoading() {
+
+  if (!mobileThumbnailContainer) {
+    return;
+  }
+
+  const images =
+    mobileThumbnailContainer.querySelectorAll(
+      "img[data-src]"
+    );
+
+  if (
+    "IntersectionObserver" in window
+  ) {
+
+    if (
+      mobileThumbnailObserver
+    ) {
+      mobileThumbnailObserver.disconnect();
+    }
+
+    mobileThumbnailObserver =
+      new IntersectionObserver(
+        (entries) => {
+
+          entries.forEach(
+            (entry) => {
+
+              if (
+                entry.isIntersecting
+              ) {
+
+                loadThumbnailImage(
+                  entry.target
+                );
+              }
+            }
+          );
+        },
         {
           root:
             mobileThumbnailContainer,
@@ -1047,7 +913,6 @@ function initialiseMobileThumbnailLoading() {
         }
       );
 
-
     images.forEach(
       (image) => {
 
@@ -1058,7 +923,6 @@ function initialiseMobileThumbnailLoading() {
     );
   }
 
-
   if (
     !mobileThumbnailContainer
       .dataset
@@ -1066,27 +930,21 @@ function initialiseMobileThumbnailLoading() {
   ) {
 
     mobileThumbnailContainer.addEventListener(
-
       "scroll",
-
       () => {
 
         if (
           mobileThumbnailScrollFrame
         ) {
-
           return;
         }
 
-
         mobileThumbnailScrollFrame =
           window.requestAnimationFrame(
-
             () => {
 
               mobileThumbnailScrollFrame =
                 null;
-
 
               trimThumbnailMemory(
                 mobileThumbnailContainer,
@@ -1096,12 +954,10 @@ function initialiseMobileThumbnailLoading() {
             }
           );
       },
-
       {
         passive: true
       }
     );
-
 
     mobileThumbnailContainer
       .dataset
@@ -1109,18 +965,12 @@ function initialiseMobileThumbnailLoading() {
         "true";
   }
 
-
   trimThumbnailMemory(
     mobileThumbnailContainer,
     ".mobile-thumbnail-button",
     mobileCurrentPage
   );
 }
-
-
-/* =========================================================
-   CENTRE ACTIVE THUMBNAIL
-   ========================================================= */
 
 function centreThumbnail(
   container,
@@ -1133,30 +983,19 @@ function centreThumbnail(
     return;
   }
 
-
   const activeButton =
     container.querySelector(
-
       `${selector}[data-page-index="${pageIndex}"]`
-
     );
-
 
   if (!activeButton) {
     return;
   }
 
-
   const left =
-
     activeButton.offsetLeft -
-
-    container.clientWidth /
-    2 +
-
-    activeButton.clientWidth /
-    2;
-
+    container.clientWidth / 2 +
+    activeButton.clientWidth / 2;
 
   container.scrollTo(
     {
@@ -1166,8 +1005,7 @@ function centreThumbnail(
           left
         ),
 
-      behavior:
-        behavior
+      behavior
     }
   );
 }
@@ -1187,110 +1025,88 @@ function createContentsButton(
       "button"
     );
 
-
   button.type =
     "button";
 
-
   button.className =
     `contents-button ${extraClass}`.trim();
-
 
   button.dataset.pageIndex =
     String(
       pageNumber - 1
     );
 
-
   button.setAttribute(
     "aria-label",
     `Go to ${getPageTitle(pageNumber)}, page ${pageNumber}`
   );
-
 
   const copy =
     document.createElement(
       "span"
     );
 
-
   copy.className =
     "contents-item-copy";
-
 
   const title =
     document.createElement(
       "strong"
     );
 
-
   title.textContent =
     getPageTitle(
       pageNumber
     );
-
 
   const pageLabel =
     document.createElement(
       "small"
     );
 
-
   pageLabel.textContent =
     `Page ${pageNumber}`;
-
 
   copy.append(
     title,
     pageLabel
   );
 
-
   const arrow =
     document.createElement(
       "span"
     );
 
-
   arrow.className =
     "contents-item-arrow";
-
 
   arrow.setAttribute(
     "aria-hidden",
     "true"
   );
 
-
   arrow.textContent =
     "›";
-
 
   button.append(
     copy,
     arrow
   );
 
-
   button.addEventListener(
-
     "click",
-
     async () => {
 
       await goToPage(
         pageNumber
       );
 
-
       closeAllPanels();
     }
   );
 
-
   return button;
 }
-
 
 function buildContents() {
 
@@ -1298,34 +1114,27 @@ function buildContents() {
     return;
   }
 
-
   contentsList.innerHTML =
     "";
-
 
   const coverArea =
     document.createElement(
       "div"
     );
 
-
   coverArea.className =
     "contents-home";
 
-
   coverArea.appendChild(
-
     createContentsButton(
       1,
       "contents-cover-button"
     )
   );
 
-
   contentsList.appendChild(
     coverArea
   );
-
 
   contentsSections.forEach(
     (section) => {
@@ -1335,83 +1144,66 @@ function buildContents() {
           "section"
         );
 
-
       sectionElement.className =
         "contents-section";
-
 
       const heading =
         document.createElement(
           "div"
         );
 
-
       heading.className =
         "contents-section-heading";
-
 
       const headingTitle =
         document.createElement(
           "h3"
         );
 
-
       headingTitle.className =
         "contents-section-title";
 
-
       headingTitle.textContent =
         section.title;
-
 
       const pageRange =
         document.createElement(
           "span"
         );
 
-
       pageRange.className =
         "contents-section-range";
-
 
       const firstPage =
         section.pages[0];
 
-
       const lastPage =
         section.pages[
-          section.pages.length -
-          1
+          section.pages.length - 1
         ];
-
 
       pageRange.textContent =
         firstPage === lastPage
           ? `Page ${firstPage}`
           : `Pages ${firstPage}–${lastPage}`;
 
-
       heading.append(
         headingTitle,
         pageRange
       );
-
 
       const grid =
         document.createElement(
           "div"
         );
 
-
       grid.className =
         "contents-section-grid";
-
 
       section.pages.forEach(
         (pageNumber) => {
 
           grid.appendChild(
-
             createContentsButton(
               pageNumber
             )
@@ -1419,12 +1211,10 @@ function buildContents() {
         }
       );
 
-
       sectionElement.append(
         heading,
         grid
       );
-
 
       contentsList.appendChild(
         sectionElement
@@ -1444,10 +1234,8 @@ function playPageTurnSound() {
     !soundEnabled ||
     !pageSound
   ) {
-
     return;
   }
-
 
   try {
 
@@ -1459,10 +1247,8 @@ function playPageTurnSound() {
     pageSound.volume =
       0.28;
 
-
     const playPromise =
       pageSound.play();
-
 
     if (
       playPromise &&
@@ -1495,13 +1281,10 @@ function createDesktopPages() {
     return;
   }
 
-
   bookElement.innerHTML =
     "";
 
-
   desktopPageImages.clear();
-
 
   for (
     let pageNumber = 1;
@@ -1514,16 +1297,13 @@ function createDesktopPages() {
         "div"
       );
 
-
     page.className =
       "page";
-
 
     page.dataset.pageNumber =
       String(
         pageNumber
       );
-
 
     if (
       pageNumber === 1 ||
@@ -1534,74 +1314,57 @@ function createDesktopPages() {
         "page-cover"
       );
 
-
       page.dataset.density =
         "hard";
     }
-
 
     const image =
       document.createElement(
         "img"
       );
 
-
     image.alt =
       `${getPageTitle(pageNumber)} — ` +
       `Keswick Discos Wedding Brochure`;
 
-
     image.decoding =
       "async";
-
 
     image.loading =
       pageNumber <= 4
         ? "eager"
         : "lazy";
 
-
     image.fetchPriority =
       pageNumber === 1
         ? "high"
         : "auto";
-
 
     image.dataset.src =
       imagePath(
         pageNumber
       );
 
-
     image.dataset.loadState =
       "waiting";
 
-
     image.src =
       image.dataset.src;
-
 
     desktopPageImages.set(
       pageNumber,
       image
     );
 
-
     page.appendChild(
       image
     );
-
 
     bookElement.appendChild(
       page
     );
   }
 }
-
-
-/* =========================================================
-   DESKTOP PAGE LOADING
-   ========================================================= */
 
 function ensureDesktopPageLoaded(
   pageNumber
@@ -1612,31 +1375,24 @@ function ensureDesktopPageLoaded(
       pageNumber
     )
   ) {
-
     return Promise.resolve();
   }
-
 
   const image =
     desktopPageImages.get(
       pageNumber
     );
 
-
   if (!image) {
-
     return Promise.resolve();
   }
-
 
   if (
     image.dataset.loadState ===
     "loaded"
   ) {
-
     return Promise.resolve();
   }
-
 
   if (
     desktopPageLoadPromises.has(
@@ -1649,14 +1405,12 @@ function ensureDesktopPageLoaded(
     );
   }
 
-
   const promise =
     new Promise(
       (resolve) => {
 
         let settled =
           false;
-
 
         const finish =
           (state) => {
@@ -1665,23 +1419,18 @@ function ensureDesktopPageLoaded(
               return;
             }
 
-
             settled =
               true;
 
-
             image.dataset.loadState =
               state;
-
 
             desktopPageLoadPromises.delete(
               pageNumber
             );
 
-
             resolve();
           };
-
 
         const finishLoaded =
           async () => {
@@ -1692,29 +1441,23 @@ function ensureDesktopPageLoaded(
                 typeof image.decode ===
                 "function"
               ) {
-
                 await image.decode();
               }
 
             } catch (error) {
-
               // Continue.
             }
-
 
             finish(
               "loaded"
             );
           };
 
-
         image.dataset.loadState =
           "loading";
 
-
         image.loading =
           "eager";
-
 
         if (
           !image.getAttribute(
@@ -1725,7 +1468,6 @@ function ensureDesktopPageLoaded(
           image.src =
             image.dataset.src;
         }
-
 
         if (
           image.complete
@@ -1745,10 +1487,8 @@ function ensureDesktopPageLoaded(
             );
           }
 
-
           return;
         }
-
 
         image.addEventListener(
           "load",
@@ -1757,7 +1497,6 @@ function ensureDesktopPageLoaded(
             once: true
           }
         );
-
 
         image.addEventListener(
           "error",
@@ -1774,16 +1513,13 @@ function ensureDesktopPageLoaded(
       }
     );
 
-
   desktopPageLoadPromises.set(
     pageNumber,
     promise
   );
 
-
   return promise;
 }
-
 
 function preloadDesktopAround(
   pageNumber
@@ -1794,7 +1530,6 @@ function preloadDesktopAround(
       pageNumber
     );
 
-
   for (
     let offset = -preloadBehind;
     offset <= preloadAhead;
@@ -1802,9 +1537,7 @@ function preloadDesktopAround(
   ) {
 
     const candidate =
-      current +
-      offset;
-
+      current + offset;
 
     if (
       validPageNumber(
@@ -1818,7 +1551,6 @@ function preloadDesktopAround(
     }
   }
 }
-
 
 function preloadDesktopForwardFrom(
   pageNumber
@@ -1834,9 +1566,7 @@ function preloadDesktopForwardFrom(
       ) {
 
         const candidate =
-          pageNumber +
-          offset;
-
+          pageNumber + offset;
 
         if (
           validPageNumber(
@@ -1853,7 +1583,6 @@ function preloadDesktopForwardFrom(
   );
 }
 
-
 async function loadDesktopStartupPages(
   startingPage
 ) {
@@ -1866,7 +1595,6 @@ async function loadDesktopStartupPages(
       startingPage + 2
     ]);
 
-
   if (
     startingPage === 1
   ) {
@@ -1875,60 +1603,46 @@ async function loadDesktopStartupPages(
       2
     );
 
-
     pages.add(
       3
     );
   }
-
 
   const criticalPages =
     [...pages].filter(
       validPageNumber
     );
 
-
   let complete =
     0;
 
-
   if (loadingProgress) {
-
     loadingProgress.style.width =
       "8%";
   }
 
-
   await Promise.all(
-
     criticalPages.map(
-
       async (pageNumber) => {
 
         await ensureDesktopPageLoaded(
           pageNumber
         );
 
-
         complete +=
           1;
-
 
         if (loadingProgress) {
 
           const percent =
             Math.round(
-
               8 +
-
               (
                 complete /
                 criticalPages.length
               ) *
-
               92
             );
-
 
           loadingProgress.style.width =
             `${Math.min(
@@ -1960,143 +1674,85 @@ function initialiseDesktopFlipbook(
     );
   }
 
-
   pageFlip =
     new St.PageFlip(
       bookElement,
       {
-
-        width:
-          pageWidth,
-
-        height:
-          pageHeight,
-
-        size:
-          "stretch",
-
-        minWidth:
-          280,
-
-        maxWidth:
-          pageWidth,
-
-        minHeight:
-          396,
-
-        maxHeight:
-          pageHeight,
-
-        showCover:
-          true,
-
-        usePortrait:
-          true,
-
-        autoSize:
-          true,
-
-        drawShadow:
-          true,
-
-        maxShadowOpacity:
-          0.45,
-
-        flippingTime:
-          850,
-
-        mobileScrollSupport:
-          false,
-
-        clickEventForward:
-          true,
-
-        useMouseEvents:
-          !isTouchDevice,
-
-        swipeDistance:
-          30,
-
-        showPageCorners:
-          true,
-
-        disableFlipByClick:
-          false
+        width: pageWidth,
+        height: pageHeight,
+        size: "stretch",
+        minWidth: 280,
+        maxWidth: pageWidth,
+        minHeight: 396,
+        maxHeight: pageHeight,
+        showCover: true,
+        usePortrait: true,
+        autoSize: true,
+        drawShadow: true,
+        maxShadowOpacity: 0.45,
+        flippingTime: 850,
+        mobileScrollSupport: false,
+        clickEventForward: true,
+        useMouseEvents: !isTouchDevice,
+        swipeDistance: 30,
+        showPageCorners: true,
+        disableFlipByClick: false
       }
     );
 
-
   pageFlip.loadFromHTML(
-
     document.querySelectorAll(
       ".page"
     )
   );
 
-
   pageFlip.on(
-
     "init",
-
     () => {
 
       if (zoomContainer) {
-
         zoomContainer.style.transform =
           "none";
       }
 
-
       if (
-        startingPage >
-        1
+        startingPage > 1
       ) {
 
         pageFlip.turnToPage(
-          startingPage -
-          1
+          startingPage - 1
         );
       }
 
-
       window.setTimeout(
-
         () => {
 
           const actualIndex =
             pageFlip.getCurrentPageIndex();
 
-
           const actualPage =
             clampPageNumber(
-              actualIndex +
-              1
+              actualIndex + 1
             );
-
 
           updateInterface(
             actualIndex
           );
 
-
           updateUrlPage(
             actualPage
           );
-
 
           preloadDesktopAround(
             actualPage
           );
 
-
           preloadDesktopForwardFrom(
             actualPage
           );
 
-
           hideLoadingScreen();
         },
-
         startingPage > 1
           ? 100
           : 30
@@ -2104,36 +1760,27 @@ function initialiseDesktopFlipbook(
     }
   );
 
-
   pageFlip.on(
-
     "flip",
-
     (event) => {
 
       const pageIndex =
         event.data;
 
-
       const currentPage =
         clampPageNumber(
-          pageIndex +
-          1
+          pageIndex + 1
         );
-
 
       updateInterface(
         pageIndex
       );
 
-
       updateUrlPage(
         currentPage
       );
 
-
       playPageTurnSound();
-
 
       preloadDesktopAround(
         currentPage
@@ -2141,32 +1788,24 @@ function initialiseDesktopFlipbook(
     }
   );
 
-
   pageFlip.on(
-
     "changeOrientation",
-
     () => {
 
       window.setTimeout(
-
         () => {
 
           const pageIndex =
             pageFlip.getCurrentPageIndex();
 
-
           updateInterface(
             pageIndex
           );
 
-
           preloadDesktopAround(
-            pageIndex +
-            1
+            pageIndex + 1
           );
         },
-
         120
       );
     }
@@ -2175,7 +1814,7 @@ function initialiseDesktopFlipbook(
 
 
 /* =========================================================
-   MOBILE SINGLE PAGE VIEWER
+   MOBILE SINGLE-PAGE VIEWER
    ========================================================= */
 
 function createMobileViewer() {
@@ -2184,58 +1823,46 @@ function createMobileViewer() {
     return;
   }
 
-
   bookElement.innerHTML =
     "";
-
 
   bookElement.classList.add(
     "mobile-book"
   );
-
 
   const frame =
     document.createElement(
       "div"
     );
 
-
   frame.className =
     "mobile-page-frame";
-
 
   mobileMainImage =
     document.createElement(
       "img"
     );
 
-
   mobileMainImage.className =
     "mobile-page-image";
-
 
   mobileMainImage.decoding =
     "async";
 
-
   mobileMainImage.loading =
     "eager";
 
-
   mobileMainImage.draggable =
     false;
-
 
   frame.appendChild(
     mobileMainImage
   );
 
-
   bookElement.appendChild(
     frame
   );
 }
-
 
 function preloadMobilePage(
   pageNumber
@@ -2249,15 +1876,12 @@ function preloadMobilePage(
       pageNumber
     )
   ) {
-
     return;
   }
-
 
   mobilePreloadedPages.add(
     pageNumber
   );
-
 
   scheduleIdle(
     () => {
@@ -2265,10 +1889,8 @@ function preloadMobilePage(
       const preload =
         new Image();
 
-
       preload.decoding =
         "async";
-
 
       preload.src =
         imagePath(
@@ -2277,7 +1899,6 @@ function preloadMobilePage(
     }
   );
 }
-
 
 function preloadMobileAround(
   pageNumber
@@ -2292,7 +1913,6 @@ function preloadMobileAround(
   );
 }
 
-
 async function showMobilePage(
   pageNumber,
   initial = false
@@ -2302,22 +1922,18 @@ async function showMobilePage(
     return;
   }
 
-
   const safePage =
     clampPageNumber(
       pageNumber
     );
-
 
   const source =
     imagePath(
       safePage
     );
 
-
   mobileCurrentPage =
     safePage;
-
 
   if (!initial) {
 
@@ -2325,7 +1941,6 @@ async function showMobilePage(
       "is-loading"
     );
   }
-
 
   if (pageStatus) {
 
@@ -2335,19 +1950,15 @@ async function showMobilePage(
         : `Loading page ${safePage}…`;
   }
 
-
   mobileMainImage.alt =
     `${getPageTitle(safePage)} — ` +
     `Keswick Discos Wedding Brochure`;
 
-
   await new Promise(
-
     (resolve) => {
 
       let settled =
         false;
-
 
       const finish =
         async () => {
@@ -2356,10 +1967,8 @@ async function showMobilePage(
             return;
           }
 
-
           settled =
             true;
-
 
           try {
 
@@ -2372,14 +1981,11 @@ async function showMobilePage(
             }
 
           } catch (error) {
-
             // Continue.
           }
 
-
           resolve();
         };
-
 
       const fail =
         () => {
@@ -2388,14 +1994,11 @@ async function showMobilePage(
             return;
           }
 
-
           settled =
             true;
 
-
           resolve();
         };
-
 
       mobileMainImage.addEventListener(
         "load",
@@ -2405,7 +2008,6 @@ async function showMobilePage(
         }
       );
 
-
       mobileMainImage.addEventListener(
         "error",
         fail,
@@ -2414,10 +2016,8 @@ async function showMobilePage(
         }
       );
 
-
       mobileMainImage.src =
         source;
-
 
       if (
         mobileMainImage.complete
@@ -2438,34 +2038,27 @@ async function showMobilePage(
     }
   );
 
-
   mobileMainImage.classList.remove(
     "is-loading"
   );
 
-
   updateInterface(
-    safePage -
-    1
+    safePage - 1
   );
-
 
   updateUrlPage(
     safePage
   );
 
-
   preloadMobileAround(
     safePage
   );
-
 
   trimThumbnailMemory(
     mobileThumbnailContainer,
     ".mobile-thumbnail-button",
     safePage
   );
-
 
   centreThumbnail(
     mobileThumbnailContainer,
@@ -2479,7 +2072,7 @@ async function showMobilePage(
 
 
 /* =========================================================
-   GO TO PAGE
+   NAVIGATION
    ========================================================= */
 
 async function goToPage(
@@ -2490,12 +2083,10 @@ async function goToPage(
     return;
   }
 
-
   const safePage =
     clampPageNumber(
       pageNumber
     );
-
 
   if (isMobileViewer) {
 
@@ -2505,24 +2096,20 @@ async function goToPage(
     ) {
 
       updateInterface(
-        safePage -
-        1
+        safePage - 1
       );
 
       return;
     }
 
-
     navigationLocked =
       true;
-
 
     try {
 
       await showMobilePage(
         safePage
       );
-
 
       playPageTurnSound();
 
@@ -2538,26 +2125,21 @@ async function goToPage(
       );
     }
 
-
     return;
   }
-
 
   if (!pageFlip) {
     return;
   }
 
-
   navigationLocked =
     true;
-
 
   if (pageStatus) {
 
     pageStatus.textContent =
       `Loading page ${safePage}…`;
   }
-
 
   try {
 
@@ -2566,36 +2148,31 @@ async function goToPage(
         ensureDesktopPageLoaded(
           safePage
         ),
+
         ensureDesktopPageLoaded(
           safePage - 1
         ),
+
         ensureDesktopPageLoaded(
           safePage + 1
         )
       ]
     );
 
-
     pageFlip.turnToPage(
-      safePage -
-      1
+      safePage - 1
     );
-
 
     const actualIndex =
       pageFlip.getCurrentPageIndex();
-
 
     updateInterface(
       actualIndex
     );
 
-
     updateUrlPage(
-      actualIndex +
-      1
+      actualIndex + 1
     );
-
 
     preloadDesktopAround(
       safePage
@@ -2614,11 +2191,6 @@ async function goToPage(
   }
 }
 
-
-/* =========================================================
-   PREVIOUS / NEXT
-   ========================================================= */
-
 async function goPrevious() {
 
   if (
@@ -2628,39 +2200,30 @@ async function goPrevious() {
       mobileSwipeLocked
     )
   ) {
-
     return;
   }
-
 
   const currentPage =
     getCurrentPageNumber();
 
-
   const targetPage =
     clampPageNumber(
-      currentPage -
-      1
+      currentPage - 1
     );
-
 
   if (
     targetPage ===
     currentPage
   ) {
-
     return;
   }
-
 
   if (isMobileViewer) {
 
     if (isTouchDevice) {
-
       mobileSwipeLocked =
         true;
     }
-
 
     try {
 
@@ -2680,26 +2243,20 @@ async function goPrevious() {
       );
     }
 
-
     return;
   }
-
 
   if (!pageFlip) {
     return;
   }
 
-
   navigationLocked =
     true;
 
-
   if (isTouchDevice) {
-
     mobileSwipeLocked =
       true;
   }
-
 
   try {
 
@@ -2708,16 +2265,14 @@ async function goPrevious() {
         ensureDesktopPageLoaded(
           targetPage
         ),
+
         ensureDesktopPageLoaded(
-          targetPage -
-          1
+          targetPage - 1
         )
       ]
     );
 
-
     pageFlip.flipPrev();
-
 
     preloadDesktopAround(
       targetPage
@@ -2731,7 +2286,6 @@ async function goPrevious() {
         navigationLocked =
           false;
 
-
         mobileSwipeLocked =
           false;
       },
@@ -2739,7 +2293,6 @@ async function goPrevious() {
     );
   }
 }
-
 
 async function goNext() {
 
@@ -2750,39 +2303,30 @@ async function goNext() {
       mobileSwipeLocked
     )
   ) {
-
     return;
   }
-
 
   const currentPage =
     getCurrentPageNumber();
 
-
   const targetPage =
     clampPageNumber(
-      currentPage +
-      1
+      currentPage + 1
     );
-
 
   if (
     targetPage ===
     currentPage
   ) {
-
     return;
   }
-
 
   if (isMobileViewer) {
 
     if (isTouchDevice) {
-
       mobileSwipeLocked =
         true;
     }
-
 
     try {
 
@@ -2802,26 +2346,20 @@ async function goNext() {
       );
     }
 
-
     return;
   }
-
 
   if (!pageFlip) {
     return;
   }
 
-
   navigationLocked =
     true;
 
-
   if (isTouchDevice) {
-
     mobileSwipeLocked =
       true;
   }
-
 
   try {
 
@@ -2830,16 +2368,14 @@ async function goNext() {
         ensureDesktopPageLoaded(
           targetPage
         ),
+
         ensureDesktopPageLoaded(
-          targetPage +
-          1
+          targetPage + 1
         )
       ]
     );
 
-
     pageFlip.flipNext();
-
 
     preloadDesktopAround(
       targetPage
@@ -2853,7 +2389,6 @@ async function goNext() {
         navigationLocked =
           false;
 
-
         mobileSwipeLocked =
           false;
       },
@@ -2864,7 +2399,7 @@ async function goNext() {
 
 
 /* =========================================================
-   UPDATE INTERFACE
+   INTERFACE
    ========================================================= */
 
 function updateInterface(
@@ -2873,17 +2408,14 @@ function updateInterface(
 
   const currentPage =
     clampPageNumber(
-      pageIndex +
-      1
+      pageIndex + 1
     );
-
 
   if (pageStatus) {
 
     pageStatus.textContent =
       `Page ${currentPage} of ${totalPages}`;
   }
-
 
   if (pageProgress) {
 
@@ -2897,38 +2429,27 @@ function updateInterface(
       }%`;
   }
 
-
   if (previousButton) {
-
     previousButton.disabled =
       pageIndex <= 0;
   }
 
-
   if (nextButton) {
-
     nextButton.disabled =
       pageIndex >=
-      totalPages -
-      1;
+      totalPages - 1;
   }
 
-
   if (edgePrevious) {
-
     edgePrevious.disabled =
       pageIndex <= 0;
   }
 
-
   if (edgeNext) {
-
     edgeNext.disabled =
       pageIndex >=
-      totalPages -
-      1;
+      totalPages - 1;
   }
-
 
   document
     .querySelectorAll(
@@ -2938,16 +2459,13 @@ function updateInterface(
       (button) => {
 
         button.classList.toggle(
-
           "active",
-
           Number(
             button.dataset.pageIndex
           ) === pageIndex
         );
       }
     );
-
 
   document
     .querySelectorAll(
@@ -2957,16 +2475,13 @@ function updateInterface(
       (button) => {
 
         button.classList.toggle(
-
           "active",
-
           Number(
             button.dataset.pageIndex
           ) === pageIndex
         );
       }
     );
-
 
   document
     .querySelectorAll(
@@ -2976,16 +2491,13 @@ function updateInterface(
       (button) => {
 
         button.classList.toggle(
-
           "active",
-
           Number(
             button.dataset.pageIndex
           ) === pageIndex
         );
       }
     );
-
 
   if (
     thumbnailPanel &&
@@ -2998,7 +2510,6 @@ function updateInterface(
       currentPage
     );
 
-
     centreThumbnail(
       thumbnailContainer,
       ".thumbnail-button",
@@ -3009,57 +2520,46 @@ function updateInterface(
 
 
 /* =========================================================
-   NAV BUTTONS
+   NAV BUTTON EVENTS
    ========================================================= */
 
 if (previousButton) {
-
   previousButton.addEventListener(
     "click",
     goPrevious
   );
 }
 
-
 if (nextButton) {
-
   nextButton.addEventListener(
     "click",
     goNext
   );
 }
 
-
 if (edgePrevious) {
-
   edgePrevious.addEventListener(
     "click",
     goPrevious
   );
 }
 
-
 if (edgeNext) {
-
   edgeNext.addEventListener(
     "click",
     goNext
   );
 }
 
-
 if (firstButton) {
 
   firstButton.addEventListener(
-
     "click",
-
     async () => {
 
       await goToPage(
         1
       );
-
 
       closeAllPanels();
     }
@@ -3068,7 +2568,839 @@ if (firstButton) {
 
 
 /* =========================================================
-   ZOOM
+   PROPER IMAGE PINCH ZOOM
+   ========================================================= */
+
+const IMAGE_ZOOM_MIN =
+  1;
+
+const IMAGE_ZOOM_MAX =
+  4;
+
+const IMAGE_ZOOM_DOUBLE_TAP =
+  2.5;
+
+let imageZoomScale =
+  1;
+
+let imageZoomX =
+  0;
+
+let imageZoomY =
+  0;
+
+let imageZoomGesture =
+  null;
+
+let imageZoomLastTap =
+  {
+    time: 0,
+    x: 0,
+    y: 0
+  };
+
+const imageZoomPointers =
+  new Map();
+
+
+function getImageZoomBounds() {
+
+  if (
+    !imageZoomScroll ||
+    !zoomPageImage
+  ) {
+
+    return {
+      maxX: 0,
+      maxY: 0
+    };
+  }
+
+  const viewportWidth =
+    imageZoomScroll.clientWidth;
+
+  const viewportHeight =
+    imageZoomScroll.clientHeight;
+
+  const baseWidth =
+    zoomPageImage.offsetWidth;
+
+  const baseHeight =
+    zoomPageImage.offsetHeight;
+
+  const scaledWidth =
+    baseWidth *
+    imageZoomScale;
+
+  const scaledHeight =
+    baseHeight *
+    imageZoomScale;
+
+  return {
+    maxX:
+      Math.max(
+        0,
+        (
+          scaledWidth -
+          viewportWidth
+        ) /
+        2
+      ),
+
+    maxY:
+      Math.max(
+        0,
+        (
+          scaledHeight -
+          viewportHeight
+        ) /
+        2
+      )
+  };
+}
+
+
+function clampImageZoomPosition() {
+
+  const bounds =
+    getImageZoomBounds();
+
+  imageZoomX =
+    clamp(
+      imageZoomX,
+      -bounds.maxX,
+      bounds.maxX
+    );
+
+  imageZoomY =
+    clamp(
+      imageZoomY,
+      -bounds.maxY,
+      bounds.maxY
+    );
+}
+
+
+function applyImageZoom(
+  animate = false
+) {
+
+  if (
+    !zoomPageImage ||
+    !imageZoomScroll
+  ) {
+    return;
+  }
+
+  clampImageZoomPosition();
+
+  zoomPageImage.style.transition =
+    animate
+      ? "transform 180ms ease"
+      : "none";
+
+  zoomPageImage.style.transform =
+    `translate3d(${imageZoomX}px, ${imageZoomY}px, 0) ` +
+    `scale(${imageZoomScale})`;
+
+  imageZoomScroll.classList.toggle(
+    "is-zoomed",
+    imageZoomScale > 1.01
+  );
+
+  if (animate) {
+
+    window.setTimeout(
+      () => {
+
+        if (zoomPageImage) {
+
+          zoomPageImage.style.transition =
+            "";
+        }
+      },
+      190
+    );
+  }
+}
+
+
+function resetImageZoom(
+  animate = false
+) {
+
+  imageZoomScale =
+    1;
+
+  imageZoomX =
+    0;
+
+  imageZoomY =
+    0;
+
+  imageZoomGesture =
+    null;
+
+  imageZoomPointers.clear();
+
+  applyImageZoom(
+    animate
+  );
+}
+
+
+function getPointerDistance(
+  first,
+  second
+) {
+
+  return Math.hypot(
+    second.x -
+      first.x,
+    second.y -
+      first.y
+  );
+}
+
+
+function getPointerMidpoint(
+  first,
+  second
+) {
+
+  return {
+    x:
+      (
+        first.x +
+        second.x
+      ) /
+      2,
+
+    y:
+      (
+        first.y +
+        second.y
+      ) /
+      2
+  };
+}
+
+
+function startImageZoomPinch() {
+
+  if (
+    imageZoomPointers.size <
+    2 ||
+    !imageZoomScroll
+  ) {
+    return;
+  }
+
+  const pointers =
+    Array.from(
+      imageZoomPointers.values()
+    ).slice(
+      0,
+      2
+    );
+
+  const midpoint =
+    getPointerMidpoint(
+      pointers[0],
+      pointers[1]
+    );
+
+  const rect =
+    imageZoomScroll.getBoundingClientRect();
+
+  imageZoomGesture =
+    {
+      type:
+        "pinch",
+
+      startDistance:
+        Math.max(
+          1,
+          getPointerDistance(
+            pointers[0],
+            pointers[1]
+          )
+        ),
+
+      startScale:
+        imageZoomScale,
+
+      startX:
+        imageZoomX,
+
+      startY:
+        imageZoomY,
+
+      startMidX:
+        midpoint.x,
+
+      startMidY:
+        midpoint.y,
+
+      centreX:
+        rect.left +
+        rect.width / 2,
+
+      centreY:
+        rect.top +
+        rect.height / 2
+    };
+}
+
+
+function handleImageZoomDoubleTap(
+  x,
+  y
+) {
+
+  if (!imageZoomScroll) {
+    return;
+  }
+
+  if (
+    imageZoomScale >
+    1.05
+  ) {
+
+    resetImageZoom(
+      true
+    );
+
+    return;
+  }
+
+  const rect =
+    imageZoomScroll.getBoundingClientRect();
+
+  const centreX =
+    rect.left +
+    rect.width / 2;
+
+  const centreY =
+    rect.top +
+    rect.height / 2;
+
+  imageZoomScale =
+    IMAGE_ZOOM_DOUBLE_TAP;
+
+  imageZoomX =
+    -(
+      x -
+      centreX
+    ) *
+    (
+      imageZoomScale -
+      1
+    );
+
+  imageZoomY =
+    -(
+      y -
+      centreY
+    ) *
+    (
+      imageZoomScale -
+      1
+    );
+
+  applyImageZoom(
+    true
+  );
+}
+
+
+function attachImageZoomEvents() {
+
+  if (
+    !imageZoomScroll ||
+    !zoomPageImage
+  ) {
+    return;
+  }
+
+  imageZoomScroll.addEventListener(
+    "pointerdown",
+    (event) => {
+
+      if (
+        imageZoomViewer &&
+        imageZoomViewer.hidden
+      ) {
+        return;
+      }
+
+      if (
+        event.pointerType ===
+          "mouse" &&
+        event.button !== 0
+      ) {
+        return;
+      }
+
+      try {
+
+        imageZoomScroll.setPointerCapture(
+          event.pointerId
+        );
+
+      } catch (error) {
+        // Some browsers may not allow capture.
+      }
+
+      imageZoomPointers.set(
+        event.pointerId,
+        {
+          x:
+            event.clientX,
+
+          y:
+            event.clientY,
+
+          startX:
+            event.clientX,
+
+          startY:
+            event.clientY,
+
+          startTime:
+            Date.now()
+        }
+      );
+
+      if (
+        imageZoomPointers.size >=
+        2
+      ) {
+
+        startImageZoomPinch();
+
+        return;
+      }
+
+      imageZoomGesture =
+        {
+          type:
+            "pan",
+
+          pointerId:
+            event.pointerId,
+
+          startPointerX:
+            event.clientX,
+
+          startPointerY:
+            event.clientY,
+
+          startX:
+            imageZoomX,
+
+          startY:
+            imageZoomY
+        };
+    }
+  );
+
+
+  imageZoomScroll.addEventListener(
+    "pointermove",
+    (event) => {
+
+      if (
+        !imageZoomPointers.has(
+          event.pointerId
+        )
+      ) {
+        return;
+      }
+
+      const existing =
+        imageZoomPointers.get(
+          event.pointerId
+        );
+
+      imageZoomPointers.set(
+        event.pointerId,
+        {
+          ...existing,
+
+          x:
+            event.clientX,
+
+          y:
+            event.clientY
+        }
+      );
+
+      if (
+        imageZoomPointers.size >=
+        2
+      ) {
+
+        event.preventDefault();
+
+        if (
+          !imageZoomGesture ||
+          imageZoomGesture.type !==
+            "pinch"
+        ) {
+
+          startImageZoomPinch();
+        }
+
+        const pointers =
+          Array.from(
+            imageZoomPointers.values()
+          ).slice(
+            0,
+            2
+          );
+
+        const distance =
+          Math.max(
+            1,
+            getPointerDistance(
+              pointers[0],
+              pointers[1]
+            )
+          );
+
+        const midpoint =
+          getPointerMidpoint(
+            pointers[0],
+            pointers[1]
+          );
+
+        const start =
+          imageZoomGesture;
+
+        const newScale =
+          clamp(
+            start.startScale *
+              (
+                distance /
+                start.startDistance
+              ),
+            IMAGE_ZOOM_MIN,
+            IMAGE_ZOOM_MAX
+          );
+
+        const ratio =
+          newScale /
+          start.startScale;
+
+        imageZoomScale =
+          newScale;
+
+        imageZoomX =
+          midpoint.x -
+          start.centreX -
+          ratio *
+          (
+            start.startMidX -
+            start.centreX -
+            start.startX
+          );
+
+        imageZoomY =
+          midpoint.y -
+          start.centreY -
+          ratio *
+          (
+            start.startMidY -
+            start.centreY -
+            start.startY
+          );
+
+        applyImageZoom(
+          false
+        );
+
+        return;
+      }
+
+      if (
+        !imageZoomGesture ||
+        imageZoomGesture.type !==
+          "pan" ||
+        imageZoomScale <=
+          1.01
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+
+      imageZoomX =
+        imageZoomGesture.startX +
+        (
+          event.clientX -
+          imageZoomGesture.startPointerX
+        );
+
+      imageZoomY =
+        imageZoomGesture.startY +
+        (
+          event.clientY -
+          imageZoomGesture.startPointerY
+        );
+
+      applyImageZoom(
+        false
+      );
+    },
+    {
+      passive: false
+    }
+  );
+
+
+  const endPointer =
+    (event) => {
+
+      const pointer =
+        imageZoomPointers.get(
+          event.pointerId
+        );
+
+      const pointerCountBefore =
+        imageZoomPointers.size;
+
+      if (pointer) {
+
+        const movement =
+          Math.hypot(
+            event.clientX -
+              pointer.startX,
+            event.clientY -
+              pointer.startY
+          );
+
+        const duration =
+          Date.now() -
+          pointer.startTime;
+
+        if (
+          pointerCountBefore === 1 &&
+          movement < 12 &&
+          duration < 350
+        ) {
+
+          const now =
+            Date.now();
+
+          const previousDistance =
+            Math.hypot(
+              event.clientX -
+                imageZoomLastTap.x,
+              event.clientY -
+                imageZoomLastTap.y
+            );
+
+          if (
+            now -
+              imageZoomLastTap.time <
+              330 &&
+            previousDistance <
+              45
+          ) {
+
+            handleImageZoomDoubleTap(
+              event.clientX,
+              event.clientY
+            );
+
+            imageZoomLastTap =
+              {
+                time:
+                  0,
+
+                x:
+                  0,
+
+                y:
+                  0
+              };
+
+          } else {
+
+            imageZoomLastTap =
+              {
+                time:
+                  now,
+
+                x:
+                  event.clientX,
+
+                y:
+                  event.clientY
+              };
+          }
+        }
+      }
+
+      imageZoomPointers.delete(
+        event.pointerId
+      );
+
+      if (
+        imageZoomPointers.size >=
+        2
+      ) {
+
+        startImageZoomPinch();
+
+      } else if (
+        imageZoomPointers.size ===
+        1
+      ) {
+
+        const remainingEntry =
+          Array.from(
+            imageZoomPointers.entries()
+          )[0];
+
+        imageZoomGesture =
+          {
+            type:
+              "pan",
+
+            pointerId:
+              remainingEntry[0],
+
+            startPointerX:
+              remainingEntry[1].x,
+
+            startPointerY:
+              remainingEntry[1].y,
+
+            startX:
+              imageZoomX,
+
+            startY:
+              imageZoomY
+          };
+
+      } else {
+
+        imageZoomGesture =
+          null;
+
+        clampImageZoomPosition();
+
+        applyImageZoom(
+          true
+        );
+      }
+    };
+
+
+  imageZoomScroll.addEventListener(
+    "pointerup",
+    endPointer
+  );
+
+  imageZoomScroll.addEventListener(
+    "pointercancel",
+    endPointer
+  );
+
+
+  imageZoomScroll.addEventListener(
+    "wheel",
+    (event) => {
+
+      if (
+        !imageZoomViewer ||
+        imageZoomViewer.hidden
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const oldScale =
+        imageZoomScale;
+
+      const zoomFactor =
+        Math.exp(
+          -event.deltaY *
+          0.002
+        );
+
+      const newScale =
+        clamp(
+          oldScale *
+          zoomFactor,
+          IMAGE_ZOOM_MIN,
+          IMAGE_ZOOM_MAX
+        );
+
+      if (
+        Math.abs(
+          newScale -
+          oldScale
+        ) <
+        0.001
+      ) {
+        return;
+      }
+
+      const rect =
+        imageZoomScroll.getBoundingClientRect();
+
+      const centreX =
+        rect.left +
+        rect.width / 2;
+
+      const centreY =
+        rect.top +
+        rect.height / 2;
+
+      const ratio =
+        newScale /
+        oldScale;
+
+      imageZoomX =
+        event.clientX -
+        centreX -
+        ratio *
+        (
+          event.clientX -
+          centreX -
+          imageZoomX
+        );
+
+      imageZoomY =
+        event.clientY -
+        centreY -
+        ratio *
+        (
+          event.clientY -
+          centreY -
+          imageZoomY
+        );
+
+      imageZoomScale =
+        newScale;
+
+      applyImageZoom(
+        false
+      );
+    },
+    {
+      passive: false
+    }
+  );
+}
+
+
+/* =========================================================
+   OPEN / CLOSE ZOOM
    ========================================================= */
 
 async function openImageZoomViewer() {
@@ -3077,14 +3409,11 @@ async function openImageZoomViewer() {
     !imageZoomViewer ||
     !zoomPageImage
   ) {
-
     return;
   }
 
-
   const currentPage =
     getCurrentPageNumber();
-
 
   if (!isMobileViewer) {
 
@@ -3093,17 +3422,13 @@ async function openImageZoomViewer() {
     );
   }
 
-
   zoomPageImage.src =
     imagePath(
       currentPage
     );
 
-
   zoomPageImage.alt =
-    `${getPageTitle(currentPage)} — ` +
-    `enlarged brochure page`;
-
+    `${getPageTitle(currentPage)} — enlarged brochure page`;
 
   if (zoomViewerStatus) {
 
@@ -3111,16 +3436,22 @@ async function openImageZoomViewer() {
       `Page ${currentPage} of ${totalPages}`;
   }
 
-
   imageZoomViewer.hidden =
     false;
-
 
   document.body.classList.add(
     "zoom-viewer-open"
   );
-}
 
+  window.requestAnimationFrame(
+    () => {
+
+      resetImageZoom(
+        false
+      );
+    }
+  );
+}
 
 function closeImageZoomViewer() {
 
@@ -3128,25 +3459,24 @@ function closeImageZoomViewer() {
     !imageZoomViewer ||
     !zoomPageImage
   ) {
-
     return;
   }
 
+  resetImageZoom(
+    false
+  );
 
   imageZoomViewer.hidden =
     true;
-
 
   zoomPageImage.removeAttribute(
     "src"
   );
 
-
   document.body.classList.remove(
     "zoom-viewer-open"
   );
 }
-
 
 if (zoomButton) {
 
@@ -3156,7 +3486,6 @@ if (zoomButton) {
   );
 }
 
-
 if (closeImageZoomButton) {
 
   closeImageZoomButton.addEventListener(
@@ -3164,6 +3493,37 @@ if (closeImageZoomButton) {
     closeImageZoomViewer
   );
 }
+
+if (resetImageZoomButton) {
+
+  resetImageZoomButton.addEventListener(
+    "click",
+    () => {
+
+      resetImageZoom(
+        true
+      );
+    }
+  );
+}
+
+attachImageZoomEvents();
+
+window.addEventListener(
+  "resize",
+  () => {
+
+    if (
+      imageZoomViewer &&
+      !imageZoomViewer.hidden
+    ) {
+
+      resetImageZoom(
+        false
+      );
+    }
+  }
+);
 
 
 /* =========================================================
@@ -3173,9 +3533,7 @@ if (closeImageZoomButton) {
 if (fullscreenButton) {
 
   fullscreenButton.addEventListener(
-
     "click",
-
     async () => {
 
       try {
@@ -3205,11 +3563,8 @@ if (fullscreenButton) {
   );
 }
 
-
 document.addEventListener(
-
   "fullscreenchange",
-
   () => {
 
     const fullscreenActive =
@@ -3217,12 +3572,10 @@ document.addEventListener(
         document.fullscreenElement
       );
 
-
     document.body.classList.toggle(
       "fullscreen-mode",
       fullscreenActive
     );
-
 
     if (fullscreenButton) {
 
@@ -3242,29 +3595,25 @@ document.addEventListener(
 if (shareButton) {
 
   shareButton.addEventListener(
-
     "click",
-
     async () => {
 
       const currentPage =
         getCurrentPageNumber();
 
+      const shareData =
+        {
+          title:
+            document.title,
 
-      const shareData = {
+          text:
+            currentPage === 1
+              ? "View the Keswick Discos Wedding Brochure."
+              : `View page ${currentPage} of the Keswick Discos Wedding Brochure.`,
 
-        title:
-          document.title,
-
-        text:
-          currentPage === 1
-            ? "View the Keswick Discos Wedding Brochure."
-            : `View page ${currentPage} of the Keswick Discos Wedding Brochure.`,
-
-        url:
-          getShareUrl()
-      };
-
+          url:
+            getShareUrl()
+        };
 
       try {
 
@@ -3284,10 +3633,8 @@ if (shareButton) {
               shareData.url
             );
 
-
           shareButton.textContent =
             "Link copied";
-
 
           window.setTimeout(
             () => {
@@ -3324,15 +3671,12 @@ if (shareButton) {
 if (pagesButton) {
 
   pagesButton.addEventListener(
-
     "click",
-
     () => {
 
       togglePanel(
         thumbnailPanel
       );
-
 
       if (
         thumbnailPanel &&
@@ -3341,13 +3685,11 @@ if (pagesButton) {
 
         initialiseDrawerThumbnailLoading();
 
-
         trimThumbnailMemory(
           thumbnailContainer,
           ".thumbnail-button",
           getCurrentPageNumber()
         );
-
 
         window.setTimeout(
           () => {
@@ -3355,8 +3697,7 @@ if (pagesButton) {
             centreThumbnail(
               thumbnailContainer,
               ".thumbnail-button",
-              getCurrentPageNumber() -
-              1
+              getCurrentPageNumber() - 1
             );
           },
           60
@@ -3366,13 +3707,10 @@ if (pagesButton) {
   );
 }
 
-
 if (moreButton) {
 
   moreButton.addEventListener(
-
     "click",
-
     () => {
 
       togglePanel(
@@ -3382,13 +3720,10 @@ if (moreButton) {
   );
 }
 
-
 if (contentsButton) {
 
   contentsButton.addEventListener(
-
     "click",
-
     () => {
 
       togglePanel(
@@ -3400,7 +3735,7 @@ if (contentsButton) {
 
 
 /* =========================================================
-   ENQUIRY
+   ENQUIRY BUTTON
    ========================================================= */
 
 if (floatingEnquire) {
@@ -3424,20 +3759,16 @@ document
     (button) => {
 
       button.addEventListener(
-
         "click",
-
         () => {
 
           const targetId =
             button.dataset.close;
 
-
           const target =
             document.getElementById(
               targetId
             );
-
 
           if (
             targetId ===
@@ -3464,9 +3795,7 @@ document
 if (copyLinkButton) {
 
   copyLinkButton.addEventListener(
-
     "click",
-
     async () => {
 
       try {
@@ -3477,10 +3806,8 @@ if (copyLinkButton) {
             getShareUrl()
           );
 
-
         copyLinkButton.textContent =
           "Link copied";
-
 
         window.setTimeout(
           () => {
@@ -3512,16 +3839,12 @@ if (soundButton) {
   soundButton.textContent =
     "Sound: off";
 
-
   soundButton.addEventListener(
-
     "click",
-
     () => {
 
       soundEnabled =
         !soundEnabled;
-
 
       soundButton.textContent =
         `Sound: ${
@@ -3541,9 +3864,7 @@ if (soundButton) {
 if (resetReadingButton) {
 
   resetReadingButton.addEventListener(
-
     "click",
-
     () => {
 
       try {
@@ -3559,10 +3880,8 @@ if (resetReadingButton) {
         );
       }
 
-
       resetReadingButton.textContent =
         "Saved page cleared";
-
 
       window.setTimeout(
         () => {
@@ -3585,117 +3904,88 @@ let swipeStartX = 0;
 let swipeStartY = 0;
 let swipeStartTime = 0;
 
-
 if (
   isTouchDevice &&
   bookStage
 ) {
 
   bookStage.addEventListener(
-
     "touchstart",
-
     (event) => {
 
       if (
-        event.touches.length !==
-        1 ||
+        event.touches.length !== 1 ||
         mobileSwipeLocked ||
         navigationLocked
       ) {
-
         return;
       }
-
 
       swipeStartX =
         event.touches[0].clientX;
 
-
       swipeStartY =
         event.touches[0].clientY;
-
 
       swipeStartTime =
         Date.now();
     },
-
     {
       passive: true
     }
   );
 
-
   bookStage.addEventListener(
-
     "touchend",
-
     async (event) => {
 
       if (
         mobileSwipeLocked ||
         navigationLocked ||
-        event.changedTouches.length !==
-        1
+        event.changedTouches.length !== 1
       ) {
-
         return;
       }
-
 
       const endX =
         event.changedTouches[0].clientX;
 
-
       const endY =
         event.changedTouches[0].clientY;
-
 
       const deltaX =
         endX -
         swipeStartX;
 
-
       const deltaY =
         endY -
         swipeStartY;
-
 
       const elapsed =
         Date.now() -
         swipeStartTime;
 
-
       const horizontalSwipe =
-
         Math.abs(
           deltaX
         ) >= 45 &&
-
         Math.abs(
           deltaX
         ) >
-
-        Math.abs(
-          deltaY
-        ) *
-        1.25 &&
-
-        elapsed <=
-        800;
-
+          Math.abs(
+            deltaY
+          ) *
+          1.25 &&
+        elapsed <= 800;
 
       if (
         !horizontalSwipe
       ) {
-
         return;
       }
 
-
       if (
-        deltaX <
-        0
+        deltaX < 0
       ) {
 
         await goNext();
@@ -3705,7 +3995,6 @@ if (
         await goPrevious();
       }
     },
-
     {
       passive: true
     }
@@ -3718,14 +4007,11 @@ if (
    ========================================================= */
 
 document.addEventListener(
-
   "keydown",
-
   async (event) => {
 
     if (
-      event.key ===
-      "Escape" &&
+      event.key === "Escape" &&
       imageZoomViewer &&
       !imageZoomViewer.hidden
     ) {
@@ -3734,7 +4020,6 @@ document.addEventListener(
 
       return;
     }
-
 
     if (
       event.key ===
@@ -3748,49 +4033,39 @@ document.addEventListener(
       return;
     }
 
-
     if (
       navigationLocked
     ) {
-
       return;
     }
-
 
     if (
       event.key ===
       "ArrowLeft"
     ) {
-
       await goPrevious();
     }
-
 
     if (
       event.key ===
       "ArrowRight"
     ) {
-
       await goNext();
     }
-
 
     if (
       event.key ===
       "Home"
     ) {
-
       await goToPage(
         1
       );
     }
 
-
     if (
       event.key === "+" ||
       event.key === "="
     ) {
-
       await openImageZoomViewer();
     }
   }
@@ -3811,26 +4086,20 @@ async function startMobileBrochure(
 
   initialiseMobileThumbnailLoading();
 
-
   if (loadingProgress) {
-
     loadingProgress.style.width =
       "35%";
   }
-
 
   await showMobilePage(
     startingPage,
     true
   );
 
-
   if (loadingProgress) {
-
     loadingProgress.style.width =
       "100%";
   }
-
 
   hideLoadingScreen();
 }
@@ -3846,11 +4115,9 @@ async function startDesktopBrochure(
 
   createDesktopPages();
 
-
   await loadDesktopStartupPages(
     startingPage
   );
-
 
   initialiseDesktopFlipbook(
     startingPage
@@ -3859,7 +4126,7 @@ async function startDesktopBrochure(
 
 
 /* =========================================================
-   START BROCHURE
+   START
    ========================================================= */
 
 async function startBrochure() {
@@ -3869,18 +4136,15 @@ async function startBrochure() {
     const startingPage =
       getStartingPage();
 
-
     buildContents();
 
     createDrawerThumbnails();
-
 
     if (isMobileViewer) {
 
       document.body.classList.add(
         "mobile-viewer-mode"
       );
-
 
       await startMobileBrochure(
         startingPage
@@ -3891,7 +4155,6 @@ async function startBrochure() {
       document.body.classList.add(
         "desktop-viewer-mode"
       );
-
 
       await startDesktopBrochure(
         startingPage
@@ -3904,24 +4167,18 @@ async function startBrochure() {
       error
     );
 
-
     hideLoadingScreen();
 
-
     if (bookStage) {
-
       bookStage.style.display =
         "none";
     }
 
-
     if (errorMessage) {
-
       errorMessage.hidden =
         false;
     }
   }
 }
-
 
 startBrochure();
