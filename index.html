@@ -2,54 +2,98 @@
 <html lang="en-GB">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
   <meta name="theme-color" content="#080808">
   <meta name="color-scheme" content="dark">
   <meta name="format-detection" content="telephone=no">
 
-  <title>Wedding DJ Brochure | Keswick Discos | Lake District & Cumbria</title>
+  <title>
+    Wedding DJ Brochure | Keswick Discos | Lake District & Cumbria
+  </title>
 
   <meta
     name="description"
     content="Explore the interactive Keswick Discos wedding DJ brochure. Discover wedding entertainment packages, personalised music, lighting, extras and ideas for weddings across Cumbria and the Lake District."
   >
+
   <meta name="author" content="Keswick Discos">
 
-  <link rel="canonical" href="https://djrph.github.io/wedding-brochure/">
+  <link
+    rel="canonical"
+    href="https://djrph.github.io/wedding-brochure/"
+  >
 
-  <meta property="og:title" content="Keswick Discos Wedding DJ Brochure">
+  <meta
+    property="og:title"
+    content="Keswick Discos Wedding DJ Brochure"
+  >
+
   <meta
     property="og:description"
     content="Explore wedding entertainment packages, personalised music, lighting, extras and inspiration from Keswick Discos."
   >
+
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://djrph.github.io/wedding-brochure/">
+
+  <meta
+    property="og:url"
+    content="https://djrph.github.io/wedding-brochure/"
+  >
+
   <meta
     property="og:image"
     content="https://djrph.github.io/wedding-brochure/pages/page1.jpg?v=20261003-1"
   >
+
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1447">
   <meta property="og:image:height" content="2048">
+
   <meta
     property="og:image:alt"
     content="Keswick Discos Wedding Entertainment Brochure"
   >
-  <meta property="og:site_name" content="Keswick Discos">
-  <meta property="og:locale" content="en_GB">
 
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Keswick Discos Wedding DJ Brochure">
+  <meta
+    property="og:site_name"
+    content="Keswick Discos"
+  >
+
+  <meta
+    property="og:locale"
+    content="en_GB"
+  >
+
+  <meta
+    name="twitter:card"
+    content="summary_large_image"
+  >
+
+  <meta
+    name="twitter:title"
+    content="Keswick Discos Wedding DJ Brochure"
+  >
+
   <meta
     name="twitter:description"
     content="Explore the interactive Keswick Discos wedding entertainment brochure for Cumbria and the Lake District."
   >
+
   <meta
     name="twitter:image"
     content="https://djrph.github.io/wedding-brochure/pages/page1.jpg?v=20261003-1"
   >
 
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link
+    rel="preconnect"
+    href="https://cdn.jsdelivr.net"
+    crossorigin
+  >
 
   <link
     rel="preload"
@@ -58,14 +102,20 @@
     fetchpriority="high"
   >
 
-  <link rel="stylesheet" href="style.css?v=20261003-6">
+  <link
+    rel="stylesheet"
+    href="style.css?v=20261003-7"
+  >
 
   <script
     defer
     src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"
   ></script>
 
-  <script defer src="script.js?v=20261003-10"></script>
+  <script
+    defer
+    src="script.js?v=20261003-11"
+  ></script>
 </head>
 
 <body>
@@ -77,6 +127,7 @@
     aria-live="polite"
     aria-label="Loading wedding brochure"
   >
+
     <div class="loading-content">
 
       <div class="loading-brand">
@@ -87,7 +138,10 @@
         Preparing your interactive wedding brochure…
       </div>
 
-      <div class="loading-bar" aria-hidden="true">
+      <div
+        class="loading-bar"
+        aria-hidden="true"
+      >
         <div
           id="loadingProgress"
           class="loading-progress"
@@ -95,6 +149,7 @@
       </div>
 
     </div>
+
   </div>
 
 
@@ -171,6 +226,7 @@
       role="alert"
       hidden
     >
+
       <strong>
         Sorry — the brochure couldn't be loaded.
       </strong>
@@ -190,6 +246,7 @@
           Keswick Discos wedding page
         </a>.
       </p>
+
     </div>
 
 
@@ -203,8 +260,6 @@
       ></div>
     </div>
 
-
-    <!-- MOBILE QUICK THUMBNAILS -->
 
     <section
       id="mobileThumbnailStrip"
@@ -332,7 +387,6 @@
         </button>
 
       </div>
-
 
       <div class="option-grid">
 
@@ -515,28 +569,45 @@
         Page 1 of 26
       </span>
 
-      <button
-        id="closeImageZoom"
-        type="button"
-        aria-label="Close enlarged page"
-      >
-        ×
-      </button>
+      <div class="image-zoom-actions">
+
+        <button
+          id="resetImageZoom"
+          class="image-zoom-reset"
+          type="button"
+          aria-label="Reset zoom"
+        >
+          Reset
+        </button>
+
+        <button
+          id="closeImageZoom"
+          type="button"
+          aria-label="Close enlarged page"
+        >
+          ×
+        </button>
+
+      </div>
 
     </div>
 
     <div
+      id="imageZoomScroll"
       class="image-zoom-scroll"
       aria-label="Enlarged brochure page"
     >
+
       <img
         id="zoomPageImage"
         alt=""
+        draggable="false"
       >
+
     </div>
 
     <p class="image-zoom-help">
-      Pinch to zoom and drag to explore the page
+      Pinch or double-tap to zoom • drag to move
     </p>
 
   </div>
