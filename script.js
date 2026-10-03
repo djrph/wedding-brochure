@@ -11,8 +11,6 @@ const brochureVersion = "20261003-1";
 const pageWidth = 600;
 const pageHeight = 848;
 
-// Images are now very small, so keeping six pages ahead
-// gives smoother page turns without a large download.
 const preloadBehind = 2;
 const preloadAhead = 6;
 
@@ -51,6 +49,34 @@ const pageTitles = {
   25: "Create Your Wedding Package",
   26: "Let's Plan Your Wedding"
 };
+
+
+/* =========================================================
+   INTERACTIVE INDEX SECTIONS
+   ========================================================= */
+
+const contentsSections = [
+  {
+    title: "Getting Started",
+    pages: [2, 3, 4, 5, 6]
+  },
+  {
+    title: "Wedding Packages",
+    pages: [7, 8, 9, 10, 11, 12, 13, 14]
+  },
+  {
+    title: "Entertainment Extras",
+    pages: [15, 16, 17, 18, 19, 20]
+  },
+  {
+    title: "Lighting",
+    pages: [21, 22, 23]
+  },
+  {
+    title: "Plan Your Wedding",
+    pages: [24, 25, 26]
+  }
+];
 
 
 let pageFlip;
@@ -289,11 +315,6 @@ function getStartingPage() {
   const pageFromUrl =
     getPageFromUrl();
 
-  // Normal brochure visits always start
-  // on the cover.
-  //
-  // A deliberate ?page= link still opens
-  // directly on that page.
   return pageFromUrl ?? 1;
 }
 
@@ -521,7 +542,7 @@ function createPages() {
 
 
 /* =========================================================
-   LOAD AND DECODE A PAGE
+   LOAD AND DECODE PAGE
    ========================================================= */
 
 function ensurePageLoaded(pageNumber) {
@@ -541,7 +562,6 @@ function ensurePageLoaded(pageNumber) {
 
 
   if (!image) {
-
     return Promise.resolve();
   }
 
@@ -577,11 +597,9 @@ function ensurePageLoaded(pageNumber) {
             image.dataset.loadState =
               state;
 
-
             pageLoadPromises.delete(
               pageNumber
             );
-
 
             resolve();
           };
@@ -589,7 +607,6 @@ function ensurePageLoaded(pageNumber) {
 
         image.dataset.loadState =
           "loading";
-
 
         image.loading =
           "eager";
@@ -613,11 +630,9 @@ function ensurePageLoaded(pageNumber) {
 
             } catch (error) {
 
-              // Image has already loaded.
-              // Continue even if decode()
-              // is not fully supported.
+              // Continue because the image
+              // itself has already loaded.
             }
-
 
             finish(
               "loaded"
@@ -639,7 +654,6 @@ function ensurePageLoaded(pageNumber) {
             console.error(
               `Unable to load ${image.dataset.src}`
             );
-
 
             finish(
               "error"
@@ -846,10 +860,8 @@ function createThumbnail(pageNumber) {
   button.type =
     "button";
 
-
   button.className =
     "thumbnail-button";
-
 
   button.dataset.pageIndex =
     String(
@@ -858,11 +870,8 @@ function createThumbnail(pageNumber) {
 
 
   button.setAttribute(
-
     "aria-label",
-
-    `Go to ${getPageTitle(pageNumber)}, ` +
-    `page ${pageNumber}`
+    `Go to ${getPageTitle(pageNumber)}, page ${pageNumber}`
   );
 
 
@@ -876,7 +885,6 @@ function createThumbnail(pageNumber) {
     imagePath(
       pageNumber
     );
-
 
   image.alt =
     "";
@@ -902,7 +910,6 @@ function createThumbnail(pageNumber) {
       await goToPage(
         pageNumber
       );
-
 
       closeAllPanels();
     }
@@ -1063,7 +1070,6 @@ function loadNearbyThumbnails() {
       ) {
 
         loadThumbnailImage(
-
           button.querySelector(
             "img[data-src]"
           )
@@ -1119,8 +1125,122 @@ function centreActiveThumbnail(
 
 
 /* =========================================================
-   CONTENTS MENU
+   INTERACTIVE CONTENTS / INDEX
    ========================================================= */
+
+function createContentsButton(
+  pageNumber,
+  extraClass = ""
+) {
+
+  const button =
+    document.createElement(
+      "button"
+    );
+
+
+  button.type =
+    "button";
+
+
+  button.className =
+    `contents-button ${extraClass}`.trim();
+
+
+  button.dataset.pageIndex =
+    String(
+      pageNumber - 1
+    );
+
+
+  button.setAttribute(
+    "aria-label",
+    `Go to ${getPageTitle(pageNumber)}, page ${pageNumber}`
+  );
+
+
+  const copy =
+    document.createElement(
+      "span"
+    );
+
+
+  copy.className =
+    "contents-item-copy";
+
+
+  const title =
+    document.createElement(
+      "strong"
+    );
+
+
+  title.textContent =
+    getPageTitle(
+      pageNumber
+    );
+
+
+  const pageLabel =
+    document.createElement(
+      "small"
+    );
+
+
+  pageLabel.textContent =
+    `Page ${pageNumber}`;
+
+
+  copy.append(
+    title,
+    pageLabel
+  );
+
+
+  const arrow =
+    document.createElement(
+      "span"
+    );
+
+
+  arrow.className =
+    "contents-item-arrow";
+
+
+  arrow.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+
+  arrow.textContent =
+    "›";
+
+
+  button.append(
+    copy,
+    arrow
+  );
+
+
+  button.addEventListener(
+
+    "click",
+
+    async () => {
+
+      await goToPage(
+        pageNumber
+      );
+
+      closeAllPanels();
+    }
+  );
+
+
+  return button;
+}
+
 
 function buildContents() {
 
@@ -1133,74 +1253,131 @@ function buildContents() {
     "";
 
 
-  for (
-    let pageNumber = 1;
-    pageNumber <= totalPages;
-    pageNumber += 1
-  ) {
-
-    const button =
-      document.createElement(
-        "button"
-      );
-
-
-    button.type =
-      "button";
-
-
-    button.className =
-      "contents-button";
-
-
-    const title =
-      document.createElement(
-        "span"
-      );
-
-
-    title.textContent =
-      getPageTitle(
-        pageNumber
-      );
-
-
-    const pageLabel =
-      document.createElement(
-        "small"
-      );
-
-
-    pageLabel.textContent =
-      `Page ${pageNumber}`;
-
-
-    button.append(
-      title,
-      pageLabel
+  const coverArea =
+    document.createElement(
+      "div"
     );
 
 
-    button.addEventListener(
+  coverArea.className =
+    "contents-home";
 
-      "click",
 
-      async () => {
+  coverArea.appendChild(
+    createContentsButton(
+      1,
+      "contents-cover-button"
+    )
+  );
 
-        await goToPage(
-          pageNumber
+
+  contentsList.appendChild(
+    coverArea
+  );
+
+
+  contentsSections.forEach(
+    (section) => {
+
+      const sectionElement =
+        document.createElement(
+          "section"
         );
 
 
-        closeAllPanels();
-      }
-    );
+      sectionElement.className =
+        "contents-section";
 
 
-    contentsList.appendChild(
-      button
-    );
-  }
+      const heading =
+        document.createElement(
+          "div"
+        );
+
+
+      heading.className =
+        "contents-section-heading";
+
+
+      const headingTitle =
+        document.createElement(
+          "h3"
+        );
+
+
+      headingTitle.className =
+        "contents-section-title";
+
+
+      headingTitle.textContent =
+        section.title;
+
+
+      const pageRange =
+        document.createElement(
+          "span"
+        );
+
+
+      pageRange.className =
+        "contents-section-range";
+
+
+      const firstPage =
+        section.pages[0];
+
+
+      const lastPage =
+        section.pages[
+          section.pages.length - 1
+        ];
+
+
+      pageRange.textContent =
+        firstPage === lastPage
+          ? `Page ${firstPage}`
+          : `Pages ${firstPage}–${lastPage}`;
+
+
+      heading.append(
+        headingTitle,
+        pageRange
+      );
+
+
+      const grid =
+        document.createElement(
+          "div"
+        );
+
+
+      grid.className =
+        "contents-section-grid";
+
+
+      section.pages.forEach(
+        (pageNumber) => {
+
+          grid.appendChild(
+            createContentsButton(
+              pageNumber
+            )
+          );
+        }
+      );
+
+
+      sectionElement.append(
+        heading,
+        grid
+      );
+
+
+      contentsList.appendChild(
+        sectionElement
+      );
+    }
+  );
 }
 
 
@@ -1834,6 +2011,26 @@ function updateInterface(
     );
 
 
+  document
+    .querySelectorAll(
+      ".contents-button"
+    )
+    .forEach(
+
+      (button) => {
+
+        button.classList.toggle(
+
+          "active",
+
+          Number(
+            button.dataset.pageIndex
+          ) === pageIndex
+        );
+      }
+    );
+
+
   if (
     thumbnailPanel &&
     !thumbnailPanel.hidden
@@ -1900,7 +2097,6 @@ if (firstButton) {
       await goToPage(
         1
       );
-
 
       closeAllPanels();
     }
@@ -2094,12 +2290,10 @@ if (shareButton) {
         title:
           document.title,
 
-
         text:
           currentPage === 1
             ? "View the Keswick Discos Wedding Brochure."
             : `View page ${currentPage} of the Keswick Discos Wedding Brochure.`,
-
 
         url:
           getShareUrl()
@@ -2560,20 +2754,14 @@ document.addEventListener(
 
   async (event) => {
 
-    if (
-      !pageFlip
-    ) {
-
+    if (!pageFlip) {
       return;
     }
 
 
     if (
-      event.key ===
-        "Escape" &&
-
+      event.key === "Escape" &&
       imageZoomViewer &&
-
       !imageZoomViewer.hidden
     ) {
 
@@ -2584,8 +2772,7 @@ document.addEventListener(
 
 
     if (
-      event.key ===
-      "Escape"
+      event.key === "Escape"
     ) {
 
       closeAllPanels();
@@ -2660,12 +2847,6 @@ async function startBrochure() {
 
     createPages();
 
-
-    /*
-      Wait for the essential opening pages
-      to load and decode before initialising
-      the flipbook.
-    */
 
     await loadStartupPages(
       startingPage
