@@ -26,7 +26,7 @@
 
   <link
     rel="canonical"
-    href="pages/page1.jpg?v=20261003-1"
+    href="https://djrph.github.io/wedding-brochure/"
   >
 
   <!-- =====================================================
@@ -52,7 +52,22 @@
 
   <meta
     property="og:image"
-    content="https://djrph.github.io/wedding-brochure/pages/page1.jpg"
+    content="https://djrph.github.io/wedding-brochure/pages/page1.jpg?v=20261003-1"
+  >
+
+  <meta
+    property="og:image:type"
+    content="image/jpeg"
+  >
+
+  <meta
+    property="og:image:width"
+    content="1447"
+  >
+
+  <meta
+    property="og:image:height"
+    content="2048"
   >
 
   <meta
@@ -60,8 +75,15 @@
     content="Keswick Discos Wedding Entertainment Brochure"
   >
 
-  <meta property="og:site_name" content="Keswick Discos">
-  <meta property="og:locale" content="en_GB">
+  <meta
+    property="og:site_name"
+    content="Keswick Discos"
+  >
+
+  <meta
+    property="og:locale"
+    content="en_GB"
+  >
 
   <!-- =====================================================
        X / TWITTER PREVIEW
@@ -84,7 +106,7 @@
 
   <meta
     name="twitter:image"
-    content="https://djrph.github.io/wedding-brochure/pages/page1.jpg"
+    content="https://djrph.github.io/wedding-brochure/pages/page1.jpg?v=20261003-1"
   >
 
   <!-- =====================================================
@@ -100,27 +122,36 @@
   <link
     rel="preload"
     as="image"
-    href="pages/page1.jpg?v=20261002-1"
+    href="pages/page1.jpg?v=20261003-1"
     fetchpriority="high"
   >
 
-  <!-- Cache version.
-       Change this number whenever index/style/script are updated. -->
+  <!-- =====================================================
+       STYLES
+       ===================================================== -->
 
   <link
     rel="stylesheet"
     href="style.css?v=20261003-1"
   >
 
+  <!-- =====================================================
+       PAGE FLIP LIBRARY
+       ===================================================== -->
+
   <script
     defer
     src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"
   ></script>
 
-<script
-  defer
-  src="script.js?v=20261003-3"
-></script>
+  <!-- =====================================================
+       BROCHURE SCRIPT
+       ===================================================== -->
+
+  <script
+    defer
+    src="script.js?v=20261003-5"
+  ></script>
 
 </head>
 
@@ -137,6 +168,7 @@
     aria-live="polite"
     aria-label="Loading wedding brochure"
   >
+
     <div class="loading-content">
 
       <div class="loading-brand">
@@ -151,13 +183,16 @@
         class="loading-bar"
         aria-hidden="true"
       >
+
         <div
           id="loadingProgress"
           class="loading-progress"
         ></div>
+
       </div>
 
     </div>
+
   </div>
 
 
@@ -220,7 +255,9 @@
         id="zoomContainer"
         class="zoom-container"
       >
+
         <div id="book"></div>
+
       </div>
 
       <button
@@ -246,14 +283,19 @@
       role="alert"
       hidden
     >
-      <strong>Sorry — the brochure couldn't be loaded.</strong>
+
+      <strong>
+        Sorry — the brochure couldn't be loaded.
+      </strong>
 
       <p>
         Please refresh the page and try again.
       </p>
 
       <p>
+
         If the problem continues, you can visit the
+
         <a
           href="https://www.keswickdiscos.co.uk/wedding-dj-entertainment"
           target="_blank"
@@ -261,7 +303,9 @@
         >
           Keswick Discos wedding page
         </a>.
+
       </p>
+
     </div>
 
 
@@ -273,10 +317,12 @@
       class="progress-wrap"
       aria-hidden="true"
     >
+
       <div
         id="pageProgress"
         class="page-progress"
       ></div>
+
     </div>
 
 
@@ -634,8 +680,6 @@
 
   <!-- =====================================================
        PAGE TURN SOUND
-       Sound is off by default, so don't download the audio
-       until it is actually required.
        ===================================================== -->
 
   <audio
@@ -669,12 +713,15 @@
       </strong>
 
       <p>
+
         You can still visit the
+
         <a
           href="https://www.keswickdiscos.co.uk/wedding-dj-entertainment"
         >
           Keswick Discos wedding entertainment page
         </a>.
+
       </p>
 
     </div>
@@ -699,4 +746,5 @@
   </footer>
 
 </body>
+
 </html>
