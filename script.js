@@ -179,11 +179,14 @@ function getSavedReadingPosition() {
 function getStartingPage() {
   const pageFromUrl = getPageFromUrl();
 
+  // Only jump to another page when a specific page
+  // has been deliberately included in the URL.
   if (pageFromUrl !== null) {
     return pageFromUrl;
   }
 
-  return getSavedReadingPosition();
+  // Normal brochure visits always start on the cover.
+  return 1;
 }
 
 /* =========================================================
