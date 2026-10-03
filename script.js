@@ -5,7 +5,7 @@ const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
 const totalPages = 26;
 
 // Change this ONLY when the actual brochure JPG artwork changes.
-const brochureVersion = "20261002-1";
+const brochureVersion = "20261003-1";
 
 const pageWidth = 600;
 const pageHeight = 848;
