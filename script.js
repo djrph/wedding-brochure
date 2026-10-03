@@ -1,23 +1,19 @@
 "use strict";
 
-/* =========================================================
-   KESWICK DISCOS INTERACTIVE WEDDING BROCHURE
-   ========================================================= */
-
 const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
 
-// Current brochure
 const totalPages = 26;
 
-// Change this whenever brochure artwork is updated.
-// This forces browsers to fetch the newest page images.
+// Change this ONLY when the actual brochure JPG artwork changes.
 const brochureVersion = "20261002-1";
 
 const pageWidth = 600;
 const pageHeight = 848;
 
-// Known page titles.
-// We will complete pages 5–26 once the final page order is locked.
+// Keep a few pages ready either side of the reader.
+const preloadBehind = 2;
+const preloadAhead = 4;
+
 const pageTitles = {
   1: "Cover",
   2: "About Me",
@@ -26,13 +22,12 @@ const pageTitles = {
 };
 
 let pageFlip;
-let loadedImages = 0;
 let mobileSwipeLocked = false;
 let soundEnabled = false;
+let thumbnailObserver = null;
 
-/* =========================================================
-   ELEMENTS
-   ========================================================= */
+const pageImages = new Map();
+const pageLoadPromises = new Map();
 
 const bookElement = document.getElementById("book");
 const bookStage = document.getElementById("bookStage");
@@ -71,136 +66,177 @@ const morePanel = document.getElementById("morePanel");
 const contentsPanel = document.getElementById("contentsPanel");
 
 const copyLinkButton = document.getElementById("copyLinkButton");
-
 const pageSound = document.getElementById("pageSound");
 
 const imageZoomViewer = document.getElementById("imageZoomViewer");
 const zoomPageImage = document.getElementById("zoomPageImage");
 const closeImageZoomButton = document.getElementById("closeImageZoom");
 const zoomViewerStatus = document.getElementById("zoomViewerStatus");
-
 const zoomButton = document.getElementById("zoomButton");
-const zoomInButton = document.getElementById("zoomInButton");
-const zoomOutButton = document.getElementById("zoomOutButton");
-const zoomResetButton = document.getElementById("zoomResetButton");
+
 
 /* =========================================================
-   HELPERS
+   BASIC HELPERS
    ========================================================= */
 
 function clampPageNumber(pageNumber) {
   const parsed = Number.parseInt(pageNumber, 10);
 
-  if (!Number.isFinite(parsed)) return 1;
+  if (!Number.isFinite(parsed)) {
+    return 1;
+  }
 
-  return Math.min(totalPages, Math.max(1, parsed));
+  return Math.min(
+    totalPages,
+    Math.max(1, parsed)
+  );
 }
+
+
+function validPageNumber(pageNumber) {
+  return (
+    Number.isInteger(pageNumber) &&
+    pageNumber >= 1 &&
+    pageNumber <= totalPages
+  );
+}
+
 
 function imagePath(pageNumber) {
   return `pages/page${pageNumber}.jpg?v=${brochureVersion}`;
 }
 
-function getCurrentPageNumber() {
-  if (!pageFlip) return 1;
-
-  return clampPageNumber(pageFlip.getCurrentPageIndex() + 1);
-}
 
 function getPageTitle(pageNumber) {
   return pageTitles[pageNumber] || `Page ${pageNumber}`;
 }
+
+
+function getCurrentPageNumber() {
+  if (!pageFlip) {
+    return 1;
+  }
+
+  return clampPageNumber(
+    pageFlip.getCurrentPageIndex() + 1
+  );
+}
+
+
+function scheduleIdle(callback) {
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(
+      callback,
+      { timeout: 1500 }
+    );
+  } else {
+    window.setTimeout(
+      callback,
+      250
+    );
+  }
+}
+
 
 /* =========================================================
    DIRECT PAGE LINKS
    ========================================================= */
 
 function getPageFromUrl() {
-  const params = new URLSearchParams(window.location.search);
+  const params =
+    new URLSearchParams(window.location.search);
+
   const page = params.get("page");
 
-  if (!page) return null;
+  if (!page) {
+    return null;
+  }
 
   return clampPageNumber(page);
 }
 
+
+function getStartingPage() {
+  const pageFromUrl = getPageFromUrl();
+
+  // Normal visits always begin at the cover.
+  // Direct ?page= links still work.
+  return pageFromUrl ?? 1;
+}
+
+
 function updateUrlPage(pageNumber) {
   try {
-    const url = new URL(window.location.href);
+    const url =
+      new URL(window.location.href);
 
     if (pageNumber <= 1) {
       url.searchParams.delete("page");
     } else {
-      url.searchParams.set("page", String(pageNumber));
+      url.searchParams.set(
+        "page",
+        String(pageNumber)
+      );
     }
 
-    window.history.replaceState({}, "", url);
+    window.history.replaceState(
+      {},
+      "",
+      url
+    );
+
   } catch (error) {
-    console.warn("Unable to update brochure URL:", error);
+    console.warn(
+      "Unable to update brochure URL:",
+      error
+    );
   }
 }
 
+
 function getShareUrl() {
-  const url = new URL(window.location.href);
-  const currentPage = getCurrentPageNumber();
+  const url =
+    new URL(window.location.href);
+
+  const currentPage =
+    getCurrentPageNumber();
 
   if (currentPage <= 1) {
     url.searchParams.delete("page");
   } else {
-    url.searchParams.set("page", String(currentPage));
+    url.searchParams.set(
+      "page",
+      String(currentPage)
+    );
   }
 
   return url.toString();
 }
 
-/* =========================================================
-   SAVED READING POSITION
-   ========================================================= */
-
-function saveReadingPosition(pageNumber) {
-  try {
-    localStorage.setItem("keswickLastPage", String(pageNumber));
-  } catch (error) {
-    console.warn("Unable to save reading position:", error);
-  }
-}
-
-function getSavedReadingPosition() {
-  try {
-    const saved = localStorage.getItem("keswickLastPage");
-
-    if (!saved) return 1;
-
-    return clampPageNumber(saved);
-  } catch (error) {
-    return 1;
-  }
-}
-
-function getStartingPage() {
-  const pageFromUrl = getPageFromUrl();
-
-  // Only jump to another page when a specific page
-  // has been deliberately included in the URL.
-  if (pageFromUrl !== null) {
-    return pageFromUrl;
-  }
-
-  // Normal brochure visits always start on the cover.
-  return 1;
-}
 
 /* =========================================================
    PANELS
    ========================================================= */
 
 function closeAllPanels() {
-  if (thumbnailPanel) thumbnailPanel.hidden = true;
-  if (morePanel) morePanel.hidden = true;
-  if (contentsPanel) contentsPanel.hidden = true;
+  if (thumbnailPanel) {
+    thumbnailPanel.hidden = true;
+  }
+
+  if (morePanel) {
+    morePanel.hidden = true;
+  }
+
+  if (contentsPanel) {
+    contentsPanel.hidden = true;
+  }
 }
 
+
 function togglePanel(panel) {
-  if (!panel) return;
+  if (!panel) {
+    return;
+  }
 
   const shouldOpen = panel.hidden;
 
@@ -209,647 +245,1747 @@ function togglePanel(panel) {
   panel.hidden = !shouldOpen;
 }
 
+
 /* =========================================================
    ENQUIRY MODAL
    ========================================================= */
 
 function openContactModal() {
-  if (!contactModal) return;
+  if (!contactModal) {
+    return;
+  }
 
   contactModal.hidden = false;
-  document.body.style.overflow = "hidden";
+
+  document.body.style.overflow =
+    "hidden";
 }
+
 
 function closeContactModal() {
-  if (!contactModal) return;
+  if (!contactModal) {
+    return;
+  }
 
   contactModal.hidden = true;
-  document.body.style.overflow = "";
+
+  document.body.style.overflow =
+    "";
 }
 
+
 /* =========================================================
-   PAGE CREATION
+   CREATE BROCHURE PAGES
+   IMPORTANT:
+   No full-size JPG is loaded here.
    ========================================================= */
 
 function createPages() {
-  for (let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1) {
-    const page = document.createElement("div");
+
+  for (
+    let pageNumber = 1;
+    pageNumber <= totalPages;
+    pageNumber += 1
+  ) {
+
+    const page =
+      document.createElement("div");
 
     page.className = "page";
-    page.dataset.pageNumber = String(pageNumber);
 
-    if (pageNumber === 1 || pageNumber === totalPages) {
-      page.classList.add("page-cover");
-      page.dataset.density = "hard";
+    page.dataset.pageNumber =
+      String(pageNumber);
+
+
+    if (
+      pageNumber === 1 ||
+      pageNumber === totalPages
+    ) {
+
+      page.classList.add(
+        "page-cover"
+      );
+
+      page.dataset.density =
+        "hard";
     }
 
-    const image = document.createElement("img");
 
-    image.src = imagePath(pageNumber);
-    image.alt = `${getPageTitle(pageNumber)} — Keswick Discos Wedding Brochure`;
+    const image =
+      document.createElement("img");
+
+
+    image.alt =
+      `${getPageTitle(pageNumber)} — ` +
+      `Keswick Discos Wedding Brochure`;
+
 
     image.decoding = "async";
 
-    if (pageNumber <= 4) {
-      image.loading = "eager";
-    } else {
-      image.loading = "lazy";
-    }
+    image.loading = "lazy";
 
-    image.fetchPriority = pageNumber <= 2 ? "high" : "auto";
 
-    image.addEventListener("load", updateLoadingProgress);
+    // Store the real image URL here.
+    // It is NOT downloaded yet.
+    image.dataset.src =
+      imagePath(pageNumber);
 
-    image.addEventListener("error", () => {
-      console.error(`Unable to load ${image.src}`);
-      updateLoadingProgress();
-    });
+
+    image.dataset.loadState =
+      "waiting";
+
+
+    pageImages.set(
+      pageNumber,
+      image
+    );
+
 
     page.appendChild(image);
+
     bookElement.appendChild(page);
+
 
     createThumbnail(pageNumber);
   }
 }
 
+
+/* =========================================================
+   LOAD ONE FULL-SIZE PAGE ONLY WHEN REQUIRED
+   ========================================================= */
+
+function ensurePageLoaded(pageNumber) {
+
+  if (!validPageNumber(pageNumber)) {
+    return Promise.resolve();
+  }
+
+
+  const image =
+    pageImages.get(pageNumber);
+
+
+  if (!image) {
+    return Promise.resolve();
+  }
+
+
+  if (
+    image.dataset.loadState ===
+    "loaded"
+  ) {
+    return Promise.resolve();
+  }
+
+
+  if (
+    pageLoadPromises.has(pageNumber)
+  ) {
+
+    return pageLoadPromises.get(
+      pageNumber
+    );
+  }
+
+
+  const promise =
+    new Promise((resolve) => {
+
+      const finish = (state) => {
+
+        image.dataset.loadState =
+          state;
+
+
+        pageLoadPromises.delete(
+          pageNumber
+        );
+
+
+        resolve();
+      };
+
+
+      image.dataset.loadState =
+        "loading";
+
+
+      image.loading =
+        "eager";
+
+
+      image.addEventListener(
+        "load",
+        () => {
+          finish("loaded");
+        },
+        { once: true }
+      );
+
+
+      image.addEventListener(
+        "error",
+        () => {
+
+          console.error(
+            `Unable to load ${image.dataset.src}`
+          );
+
+
+          finish("error");
+        },
+        { once: true }
+      );
+
+
+      // This is the moment the image
+      // is actually requested.
+      image.src =
+        image.dataset.src;
+    });
+
+
+  pageLoadPromises.set(
+    pageNumber,
+    promise
+  );
+
+
+  return promise;
+}
+
+
+/* =========================================================
+   KEEP NEARBY PAGES READY
+   ========================================================= */
+
+function preloadAround(pageNumber) {
+
+  const current =
+    clampPageNumber(pageNumber);
+
+
+  for (
+    let offset = -preloadBehind;
+    offset <= preloadAhead;
+    offset += 1
+  ) {
+
+    const candidate =
+      current + offset;
+
+
+    if (
+      validPageNumber(candidate)
+    ) {
+
+      ensurePageLoaded(
+        candidate
+      );
+    }
+  }
+}
+
+
+function preloadForwardFrom(pageNumber) {
+
+  scheduleIdle(() => {
+
+    for (
+      let offset = 1;
+      offset <= preloadAhead;
+      offset += 1
+    ) {
+
+      const candidate =
+        pageNumber + offset;
+
+
+      if (
+        validPageNumber(candidate)
+      ) {
+
+        ensurePageLoaded(
+          candidate
+        );
+      }
+    }
+  });
+}
+
+
+/* =========================================================
+   STARTUP LOADING
+   Only loads the pages required to begin reading.
+   ========================================================= */
+
+async function loadStartupPages(
+  startingPage
+) {
+
+  const criticalPages =
+    new Set([
+      startingPage,
+      startingPage - 1,
+      startingPage + 1
+    ]);
+
+
+  if (startingPage === 1) {
+    criticalPages.add(2);
+  }
+
+
+  const pages =
+    [...criticalPages].filter(
+      validPageNumber
+    );
+
+
+  let completed = 0;
+
+
+  if (loadingProgress) {
+    loadingProgress.style.width =
+      "8%";
+  }
+
+
+  await Promise.all(
+
+    pages.map(
+      async (pageNumber) => {
+
+        await ensurePageLoaded(
+          pageNumber
+        );
+
+
+        completed += 1;
+
+
+        if (loadingProgress) {
+
+          const percentage =
+            Math.round(
+              8 +
+              (
+                completed /
+                pages.length
+              ) *
+              92
+            );
+
+
+          loadingProgress.style.width =
+            `${Math.min(
+              100,
+              percentage
+            )}%`;
+        }
+      }
+    )
+  );
+
+
+  if (loadingProgress) {
+    loadingProgress.style.width =
+      "100%";
+  }
+
+
+  if (loadingScreen) {
+
+    loadingScreen.classList.add(
+      "hidden"
+    );
+  }
+
+
+  // Once the brochure is visible,
+  // quietly prepare a few pages ahead.
+  preloadForwardFrom(
+    startingPage
+  );
+}
+
+
 /* =========================================================
    THUMBNAILS
+   These are also progressively loaded.
    ========================================================= */
 
 function createThumbnail(pageNumber) {
-  if (!thumbnailContainer) return;
 
-  const button = document.createElement("button");
+  if (!thumbnailContainer) {
+    return;
+  }
+
+
+  const button =
+    document.createElement("button");
+
 
   button.type = "button";
-  button.className = "thumbnail-button";
+
+  button.className =
+    "thumbnail-button";
+
+
+  button.dataset.pageIndex =
+    String(pageNumber - 1);
+
 
   button.setAttribute(
     "aria-label",
-    `Go to ${getPageTitle(pageNumber)}, page ${pageNumber}`
+    `Go to ${getPageTitle(pageNumber)}, ` +
+    `page ${pageNumber}`
   );
 
-  button.dataset.pageIndex = String(pageNumber - 1);
 
-  const image = document.createElement("img");
+  const image =
+    document.createElement("img");
 
-  image.dataset.src = imagePath(pageNumber);
+
+  image.dataset.src =
+    imagePath(pageNumber);
+
+
   image.alt = "";
+
   image.loading = "lazy";
+
   image.decoding = "async";
+
 
   button.appendChild(image);
 
-  button.addEventListener("click", () => {
-    goToPage(pageNumber);
-    closeAllPanels();
-  });
 
-  thumbnailContainer.appendChild(button);
-}
+  button.addEventListener(
+    "click",
+    async () => {
 
-function loadThumbnailImages() {
-  document
-    .querySelectorAll(".thumbnail-button img[data-src]")
-    .forEach((image) => {
-      image.src = image.dataset.src;
-      image.removeAttribute("data-src");
-    });
-}
+      await goToPage(
+        pageNumber
+      );
 
-function centreActiveThumbnail(pageIndex) {
-  if (!thumbnailContainer) return;
 
-  const activeThumbnail = document.querySelector(
-    `.thumbnail-button[data-page-index="${pageIndex}"]`
+      closeAllPanels();
+    }
   );
 
-  if (!activeThumbnail) return;
+
+  thumbnailContainer.appendChild(
+    button
+  );
+}
+
+
+function loadThumbnailImage(image) {
+
+  if (
+    !image ||
+    !image.dataset.src ||
+    image.hasAttribute("src")
+  ) {
+    return;
+  }
+
+
+  image.src =
+    image.dataset.src;
+}
+
+
+/* =========================================================
+   THUMBNAIL INTERSECTION OBSERVER
+   ========================================================= */
+
+function initialiseThumbnailLoading() {
+
+  if (!thumbnailContainer) {
+    return;
+  }
+
+
+  const images =
+    thumbnailContainer.querySelectorAll(
+      "img[data-src]"
+    );
+
+
+  if (
+    !("IntersectionObserver" in window)
+  ) {
+
+    images.forEach(
+      (image, index) => {
+
+        if (index < 8) {
+          loadThumbnailImage(image);
+        }
+      }
+    );
+
+    return;
+  }
+
+
+  if (thumbnailObserver) {
+
+    thumbnailObserver.disconnect();
+  }
+
+
+  thumbnailObserver =
+    new IntersectionObserver(
+
+      (entries) => {
+
+        entries.forEach(
+          (entry) => {
+
+            if (
+              !entry.isIntersecting
+            ) {
+              return;
+            }
+
+
+            loadThumbnailImage(
+              entry.target
+            );
+
+
+            thumbnailObserver.unobserve(
+              entry.target
+            );
+          }
+        );
+      },
+
+      {
+        root:
+          thumbnailContainer,
+
+        rootMargin:
+          "0px 320px",
+
+        threshold:
+          0.01
+      }
+    );
+
+
+  images.forEach(
+    (image) => {
+
+      thumbnailObserver.observe(
+        image
+      );
+    }
+  );
+}
+
+
+function loadNearbyThumbnails() {
+
+  if (
+    !thumbnailContainer ||
+    !pageFlip
+  ) {
+    return;
+  }
+
+
+  const currentIndex =
+    pageFlip.getCurrentPageIndex();
+
+
+  const buttons =
+    thumbnailContainer.querySelectorAll(
+      ".thumbnail-button"
+    );
+
+
+  buttons.forEach(
+    (button, index) => {
+
+      if (
+        Math.abs(
+          index - currentIndex
+        ) <= 4
+      ) {
+
+        loadThumbnailImage(
+          button.querySelector(
+            "img[data-src]"
+          )
+        );
+      }
+    }
+  );
+}
+
+
+function centreActiveThumbnail(
+  pageIndex
+) {
+
+  if (!thumbnailContainer) {
+    return;
+  }
+
+
+  const activeThumbnail =
+    document.querySelector(
+      `.thumbnail-button[data-page-index="${pageIndex}"]`
+    );
+
+
+  if (!activeThumbnail) {
+    return;
+  }
+
 
   const thumbnailLeft =
+
     activeThumbnail.offsetLeft -
+
     thumbnailContainer.clientWidth / 2 +
+
     activeThumbnail.clientWidth / 2;
 
+
   thumbnailContainer.scrollTo({
-    left: Math.max(0, thumbnailLeft),
-    behavior: "smooth"
+
+    left:
+      Math.max(
+        0,
+        thumbnailLeft
+      ),
+
+    behavior:
+      "smooth"
   });
 }
+
 
 /* =========================================================
    CONTENTS MENU
    ========================================================= */
 
 function buildContents() {
-  if (!contentsList) return;
 
-  contentsList.innerHTML = "";
+  if (!contentsList) {
+    return;
+  }
 
-  for (let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1) {
-    const button = document.createElement("button");
+
+  contentsList.innerHTML =
+    "";
+
+
+  for (
+    let pageNumber = 1;
+    pageNumber <= totalPages;
+    pageNumber += 1
+  ) {
+
+    const button =
+      document.createElement(
+        "button"
+      );
+
 
     button.type = "button";
-    button.className = "contents-button";
 
-    const title = document.createElement("span");
-    title.textContent = getPageTitle(pageNumber);
+    button.className =
+      "contents-button";
 
-    const pageLabel = document.createElement("small");
-    pageLabel.textContent = `Page ${pageNumber}`;
 
-    button.appendChild(title);
-    button.appendChild(pageLabel);
+    const title =
+      document.createElement(
+        "span"
+      );
 
-    button.addEventListener("click", () => {
-      goToPage(pageNumber);
-      closeAllPanels();
-    });
 
-    contentsList.appendChild(button);
+    title.textContent =
+      getPageTitle(
+        pageNumber
+      );
+
+
+    const pageLabel =
+      document.createElement(
+        "small"
+      );
+
+
+    pageLabel.textContent =
+      `Page ${pageNumber}`;
+
+
+    button.append(
+      title,
+      pageLabel
+    );
+
+
+    button.addEventListener(
+      "click",
+      async () => {
+
+        await goToPage(
+          pageNumber
+        );
+
+
+        closeAllPanels();
+      }
+    );
+
+
+    contentsList.appendChild(
+      button
+    );
   }
 }
 
-/* =========================================================
-   LOADING SCREEN
-   ========================================================= */
-
-function updateLoadingProgress() {
-  loadedImages += 1;
-
-  const initialLoadTarget = Math.min(4, totalPages);
-
-  const percentage = Math.min(
-    100,
-    Math.round((loadedImages / initialLoadTarget) * 100)
-  );
-
-  if (loadingProgress) {
-    loadingProgress.style.width = `${percentage}%`;
-  }
-
-  if (loadedImages >= initialLoadTarget && loadingScreen) {
-    loadingScreen.classList.add("hidden");
-  }
-}
 
 /* =========================================================
    PAGE TURN SOUND
    ========================================================= */
 
 function playPageTurnSound() {
-  if (!soundEnabled || !pageSound) return;
+
+  if (
+    !soundEnabled ||
+    !pageSound
+  ) {
+    return;
+  }
+
 
   try {
+
     pageSound.pause();
+
     pageSound.currentTime = 0;
+
     pageSound.volume = 0.28;
 
-    const playPromise = pageSound.play();
 
-    if (playPromise && typeof playPromise.catch === "function") {
-      playPromise.catch(() => {});
+    const playPromise =
+      pageSound.play();
+
+
+    if (
+      playPromise &&
+      typeof playPromise.catch ===
+      "function"
+    ) {
+
+      playPromise.catch(
+        () => {}
+      );
     }
+
   } catch (error) {
-    console.warn("Page sound unavailable:", error);
+
+    console.warn(
+      "Page sound unavailable:",
+      error
+    );
   }
 }
+
 
 /* =========================================================
    NAVIGATION
    ========================================================= */
 
-function goToPage(pageNumber) {
-  if (!pageFlip) return;
+async function goToPage(pageNumber) {
 
-  const safePage = clampPageNumber(pageNumber);
-  const pageIndex = safePage - 1;
+  if (!pageFlip) {
+    return;
+  }
 
-  pageFlip.flip(pageIndex);
+
+  const safePage =
+    clampPageNumber(
+      pageNumber
+    );
+
+
+  if (pageStatus) {
+
+    pageStatus.textContent =
+      `Loading page ${safePage}…`;
+  }
+
+
+  await Promise.all([
+
+    ensurePageLoaded(
+      safePage
+    ),
+
+    ensurePageLoaded(
+      safePage - 1
+    ),
+
+    ensurePageLoaded(
+      safePage + 1
+    )
+  ]);
+
+
+  pageFlip.flip(
+    safePage - 1
+  );
+
+
+  preloadAround(
+    safePage
+  );
 }
 
-function goPrevious() {
-  if (!pageFlip) return;
 
-  if (isTouchDevice && mobileSwipeLocked) return;
+async function goPrevious() {
 
-  if (isTouchDevice) mobileSwipeLocked = true;
+  if (
+    !pageFlip ||
+    (
+      isTouchDevice &&
+      mobileSwipeLocked
+    )
+  ) {
+    return;
+  }
+
+
+  const currentPage =
+    getCurrentPageNumber();
+
+
+  const targetPage =
+    clampPageNumber(
+      currentPage - 1
+    );
+
+
+  if (
+    targetPage === currentPage
+  ) {
+    return;
+  }
+
+
+  if (isTouchDevice) {
+
+    mobileSwipeLocked =
+      true;
+  }
+
+
+  await ensurePageLoaded(
+    targetPage
+  );
+
 
   pageFlip.flipPrev();
 
-  if (isTouchDevice) unlockMobileSwipe();
+
+  preloadAround(
+    targetPage
+  );
+
+
+  if (isTouchDevice) {
+
+    unlockMobileSwipe();
+  }
 }
 
-function goNext() {
-  if (!pageFlip) return;
 
-  if (isTouchDevice && mobileSwipeLocked) return;
+async function goNext() {
 
-  if (isTouchDevice) mobileSwipeLocked = true;
+  if (
+    !pageFlip ||
+    (
+      isTouchDevice &&
+      mobileSwipeLocked
+    )
+  ) {
+    return;
+  }
+
+
+  const currentPage =
+    getCurrentPageNumber();
+
+
+  const targetPage =
+    clampPageNumber(
+      currentPage + 1
+    );
+
+
+  if (
+    targetPage === currentPage
+  ) {
+    return;
+  }
+
+
+  if (isTouchDevice) {
+
+    mobileSwipeLocked =
+      true;
+  }
+
+
+  await ensurePageLoaded(
+    targetPage
+  );
+
 
   pageFlip.flipNext();
 
-  if (isTouchDevice) unlockMobileSwipe();
+
+  preloadAround(
+    targetPage
+  );
+
+
+  if (isTouchDevice) {
+
+    unlockMobileSwipe();
+  }
 }
 
+
 /* =========================================================
-   FLIPBOOK INITIALISATION
+   FLIPBOOK
    ========================================================= */
 
-function initialiseFlipbook() {
-  if (!window.St || !window.St.PageFlip) {
-    throw new Error("StPageFlip did not load.");
+function initialiseFlipbook(
+  startingPage
+) {
+
+  if (
+    !window.St ||
+    !window.St.PageFlip
+  ) {
+
+    throw new Error(
+      "StPageFlip did not load."
+    );
   }
 
-  pageFlip = new St.PageFlip(bookElement, {
-    width: pageWidth,
-    height: pageHeight,
 
-    size: "stretch",
+  pageFlip =
+    new St.PageFlip(
+      bookElement,
+      {
 
-    minWidth: 280,
-    maxWidth: pageWidth,
+        width:
+          pageWidth,
 
-    minHeight: 396,
-    maxHeight: pageHeight,
+        height:
+          pageHeight,
 
-    showCover: true,
-    usePortrait: true,
-    autoSize: true,
+        size:
+          "stretch",
 
-    drawShadow: true,
-    maxShadowOpacity: 0.45,
+        minWidth:
+          280,
 
-    flippingTime: 850,
+        maxWidth:
+          pageWidth,
 
-    mobileScrollSupport: false,
-    clickEventForward: true,
+        minHeight:
+          396,
 
-    useMouseEvents: !isTouchDevice,
+        maxHeight:
+          pageHeight,
 
-    swipeDistance: 30,
+        showCover:
+          true,
 
-    showPageCorners: true,
+        usePortrait:
+          true,
 
-    disableFlipByClick: false
-  });
+        autoSize:
+          true,
 
-  pageFlip.loadFromHTML(document.querySelectorAll(".page"));
+        drawShadow:
+          true,
 
-  pageFlip.on("init", () => {
-    const startingPage = getStartingPage();
+        maxShadowOpacity:
+          0.45,
 
-    updateInterface(0);
+        flippingTime:
+          850,
 
-    if (zoomContainer) {
-      zoomContainer.style.transform = "none";
+        mobileScrollSupport:
+          false,
+
+        clickEventForward:
+          true,
+
+        useMouseEvents:
+          !isTouchDevice,
+
+        swipeDistance:
+          30,
+
+        showPageCorners:
+          true,
+
+        disableFlipByClick:
+          false
+      }
+    );
+
+
+  pageFlip.loadFromHTML(
+    document.querySelectorAll(
+      ".page"
+    )
+  );
+
+
+  pageFlip.on(
+    "init",
+    () => {
+
+      updateInterface(0);
+
+
+      if (zoomContainer) {
+
+        zoomContainer.style.transform =
+          "none";
+      }
+
+
+      if (
+        startingPage > 1
+      ) {
+
+        window.setTimeout(
+          () => {
+
+            pageFlip.turnToPage(
+              startingPage - 1
+            );
+
+
+            updateInterface(
+              startingPage - 1
+            );
+
+          },
+          100
+        );
+      }
     }
+  );
 
-    if (startingPage > 1) {
-      window.setTimeout(() => {
-        pageFlip.turnToPage(startingPage - 1);
-        updateInterface(startingPage - 1);
-      }, 120);
+
+  pageFlip.on(
+    "flip",
+    (event) => {
+
+      const pageIndex =
+        event.data;
+
+
+      const currentPage =
+        clampPageNumber(
+          pageIndex + 1
+        );
+
+
+      updateInterface(
+        pageIndex
+      );
+
+
+      updateUrlPage(
+        currentPage
+      );
+
+
+      playPageTurnSound();
+
+
+      preloadAround(
+        currentPage
+      );
     }
+  );
 
-    if (loadingScreen) {
-      loadingScreen.classList.add("hidden");
+
+  pageFlip.on(
+    "changeOrientation",
+    () => {
+
+      window.setTimeout(
+        () => {
+
+          const pageIndex =
+            pageFlip.getCurrentPageIndex();
+
+
+          updateInterface(
+            pageIndex
+          );
+
+
+          preloadAround(
+            pageIndex + 1
+          );
+
+        },
+        100
+      );
     }
-  });
-
-  pageFlip.on("flip", (event) => {
-    const pageIndex = event.data;
-
-    updateInterface(pageIndex);
-
-    const currentPage = pageIndex + 1;
-
-    saveReadingPosition(currentPage);
-    updateUrlPage(currentPage);
-    playPageTurnSound();
-  });
-
-  pageFlip.on("changeOrientation", () => {
-    window.setTimeout(() => {
-      updateInterface(pageFlip.getCurrentPageIndex());
-    }, 100);
-  });
+  );
 }
 
+
 /* =========================================================
-   USER INTERFACE
+   UPDATE INTERFACE
    ========================================================= */
 
-function updateInterface(pageIndex) {
-  const currentPage = clampPageNumber(pageIndex + 1);
+function updateInterface(
+  pageIndex
+) {
+
+  const currentPage =
+    clampPageNumber(
+      pageIndex + 1
+    );
+
 
   if (pageStatus) {
-    pageStatus.textContent = `Page ${currentPage} of ${totalPages}`;
+
+    pageStatus.textContent =
+      `Page ${currentPage} of ${totalPages}`;
   }
+
 
   if (pageProgress) {
-    pageProgress.style.width = `${(currentPage / totalPages) * 100}%`;
+
+    pageProgress.style.width =
+      `${(
+        currentPage /
+        totalPages
+      ) * 100}%`;
   }
+
 
   if (previousButton) {
-    previousButton.disabled = pageIndex <= 0;
+
+    previousButton.disabled =
+      pageIndex <= 0;
   }
+
 
   if (nextButton) {
-    nextButton.disabled = pageIndex >= totalPages - 1;
+
+    nextButton.disabled =
+      pageIndex >=
+      totalPages - 1;
   }
+
 
   if (edgePrevious) {
-    edgePrevious.disabled = pageIndex <= 0;
+
+    edgePrevious.disabled =
+      pageIndex <= 0;
   }
+
 
   if (edgeNext) {
-    edgeNext.disabled = pageIndex >= totalPages - 1;
+
+    edgeNext.disabled =
+      pageIndex >=
+      totalPages - 1;
   }
 
-  document
-    .querySelectorAll(".thumbnail-button")
-    .forEach((thumbnail) => {
-      thumbnail.classList.toggle(
-        "active",
-        Number(thumbnail.dataset.pageIndex) === pageIndex
-      );
-    });
 
-  centreActiveThumbnail(pageIndex);
+  document
+    .querySelectorAll(
+      ".thumbnail-button"
+    )
+    .forEach(
+      (thumbnail) => {
+
+        thumbnail.classList.toggle(
+
+          "active",
+
+          Number(
+            thumbnail.dataset.pageIndex
+          ) === pageIndex
+        );
+      }
+    );
+
+
+  if (
+    thumbnailPanel &&
+    !thumbnailPanel.hidden
+  ) {
+
+    loadNearbyThumbnails();
+
+    centreActiveThumbnail(
+      pageIndex
+    );
+  }
 }
 
+
 /* =========================================================
-   MAIN NAVIGATION BUTTONS
+   MAIN NAV BUTTONS
    ========================================================= */
 
 if (previousButton) {
-  previousButton.addEventListener("click", goPrevious);
+
+  previousButton.addEventListener(
+    "click",
+    goPrevious
+  );
 }
+
 
 if (nextButton) {
-  nextButton.addEventListener("click", goNext);
+
+  nextButton.addEventListener(
+    "click",
+    goNext
+  );
 }
+
 
 if (edgePrevious) {
-  edgePrevious.addEventListener("click", goPrevious);
+
+  edgePrevious.addEventListener(
+    "click",
+    goPrevious
+  );
 }
+
 
 if (edgeNext) {
-  edgeNext.addEventListener("click", goNext);
+
+  edgeNext.addEventListener(
+    "click",
+    goNext
+  );
 }
+
 
 if (firstButton) {
-  firstButton.addEventListener("click", () => {
-    goToPage(1);
-    closeAllPanels();
-  });
+
+  firstButton.addEventListener(
+    "click",
+    async () => {
+
+      await goToPage(1);
+
+      closeAllPanels();
+    }
+  );
 }
 
+
 /* =========================================================
-   IMAGE ZOOM VIEWER
+   FULL PAGE ZOOM
    ========================================================= */
 
-function openImageZoomViewer() {
-  if (!pageFlip || !imageZoomViewer || !zoomPageImage) return;
+async function openImageZoomViewer() {
 
-  const currentPage = getCurrentPageNumber();
+  if (
+    !pageFlip ||
+    !imageZoomViewer ||
+    !zoomPageImage
+  ) {
+    return;
+  }
 
-  zoomPageImage.src = imagePath(currentPage);
+
+  const currentPage =
+    getCurrentPageNumber();
+
+
+  await ensurePageLoaded(
+    currentPage
+  );
+
+
+  zoomPageImage.src =
+    imagePath(
+      currentPage
+    );
+
 
   zoomPageImage.alt =
     `${getPageTitle(currentPage)} — enlarged brochure page`;
 
+
   if (zoomViewerStatus) {
+
     zoomViewerStatus.textContent =
       `Page ${currentPage} of ${totalPages}`;
   }
 
-  imageZoomViewer.hidden = false;
 
-  document.body.classList.add("zoom-viewer-open");
+  imageZoomViewer.hidden =
+    false;
+
+
+  document.body.classList.add(
+    "zoom-viewer-open"
+  );
 }
+
 
 function closeImageZoomViewer() {
-  if (!imageZoomViewer || !zoomPageImage) return;
 
-  imageZoomViewer.hidden = true;
-  zoomPageImage.src = "";
+  if (
+    !imageZoomViewer ||
+    !zoomPageImage
+  ) {
+    return;
+  }
 
-  document.body.classList.remove("zoom-viewer-open");
+
+  imageZoomViewer.hidden =
+    true;
+
+
+  zoomPageImage.src =
+    "";
+
+
+  document.body.classList.remove(
+    "zoom-viewer-open"
+  );
 }
+
 
 if (zoomButton) {
-  zoomButton.addEventListener("click", openImageZoomViewer);
+
+  zoomButton.addEventListener(
+    "click",
+    openImageZoomViewer
+  );
 }
 
-if (zoomInButton) {
-  zoomInButton.addEventListener("click", openImageZoomViewer);
-}
-
-if (zoomOutButton) {
-  zoomOutButton.addEventListener("click", openImageZoomViewer);
-}
-
-if (zoomResetButton) {
-  zoomResetButton.addEventListener("click", openImageZoomViewer);
-}
 
 if (closeImageZoomButton) {
+
   closeImageZoomButton.addEventListener(
     "click",
     closeImageZoomViewer
   );
 }
 
+
 /* =========================================================
    FULLSCREEN
    ========================================================= */
 
 if (fullscreenButton) {
-  fullscreenButton.addEventListener("click", async () => {
-    try {
-      if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen();
-      } else {
-        await document.exitFullscreen();
+
+  fullscreenButton.addEventListener(
+    "click",
+    async () => {
+
+      try {
+
+        if (
+          !document.fullscreenElement
+        ) {
+
+          await document
+            .documentElement
+            .requestFullscreen();
+
+        } else {
+
+          await document
+            .exitFullscreen();
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Fullscreen failed:",
+          error
+        );
       }
-    } catch (error) {
-      console.error("Fullscreen failed:", error);
     }
-  });
+  );
 }
 
-document.addEventListener("fullscreenchange", () => {
-  const fullscreenActive = Boolean(document.fullscreenElement);
 
-  document.body.classList.toggle(
-    "fullscreen-mode",
-    fullscreenActive
-  );
+document.addEventListener(
+  "fullscreenchange",
+  () => {
 
-  if (fullscreenButton) {
-    fullscreenButton.textContent =
+    const fullscreenActive =
+      Boolean(
+        document.fullscreenElement
+      );
+
+
+    document.body.classList.toggle(
+      "fullscreen-mode",
       fullscreenActive
-        ? "Exit full screen"
-        : "Full screen";
+    );
+
+
+    if (fullscreenButton) {
+
+      fullscreenButton.textContent =
+        fullscreenActive
+          ? "Exit full screen"
+          : "Full screen";
+    }
   }
-});
+);
+
 
 /* =========================================================
-   SHARE
+   SHARE CURRENT PAGE
    ========================================================= */
 
 if (shareButton) {
-  shareButton.addEventListener("click", async () => {
-    const currentPage = getCurrentPageNumber();
 
-    const shareData = {
-      title: document.title,
+  shareButton.addEventListener(
+    "click",
+    async () => {
 
-      text:
-        currentPage === 1
-          ? "View the Keswick Discos Wedding Brochure."
-          : `View page ${currentPage} of the Keswick Discos Wedding Brochure.`,
+      const currentPage =
+        getCurrentPageNumber();
 
-      url: getShareUrl()
-    };
 
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(shareData.url);
+      const shareData = {
 
-        shareButton.textContent = "Link copied";
+        title:
+          document.title,
 
-        window.setTimeout(() => {
-          shareButton.textContent = "Share";
-        }, 1800);
-      }
-    } catch (error) {
-      if (error.name !== "AbortError") {
-        console.error("Sharing failed:", error);
+
+        text:
+          currentPage === 1
+            ? "View the Keswick Discos Wedding Brochure."
+            : `View page ${currentPage} of the Keswick Discos Wedding Brochure.`,
+
+
+        url:
+          getShareUrl()
+      };
+
+
+      try {
+
+        if (navigator.share) {
+
+          await navigator.share(
+            shareData
+          );
+
+        } else {
+
+          await navigator
+            .clipboard
+            .writeText(
+              shareData.url
+            );
+
+
+          shareButton.textContent =
+            "Link copied";
+
+
+          window.setTimeout(
+            () => {
+
+              shareButton.textContent =
+                "Share this page";
+
+            },
+            1800
+          );
+        }
+
+      } catch (error) {
+
+        if (
+          error.name !==
+          "AbortError"
+        ) {
+
+          console.error(
+            "Sharing failed:",
+            error
+          );
+        }
       }
     }
-  });
+  );
 }
+
 
 /* =========================================================
    PANELS
    ========================================================= */
 
 if (pagesButton) {
-  pagesButton.addEventListener("click", () => {
-    loadThumbnailImages();
-    togglePanel(thumbnailPanel);
 
-    if (thumbnailPanel && !thumbnailPanel.hidden && pageFlip) {
-      window.setTimeout(() => {
-        centreActiveThumbnail(pageFlip.getCurrentPageIndex());
-      }, 60);
+  pagesButton.addEventListener(
+    "click",
+    () => {
+
+      togglePanel(
+        thumbnailPanel
+      );
+
+
+      if (
+        thumbnailPanel &&
+        !thumbnailPanel.hidden
+      ) {
+
+        initialiseThumbnailLoading();
+
+        loadNearbyThumbnails();
+
+
+        window.setTimeout(
+          () => {
+
+            if (pageFlip) {
+
+              centreActiveThumbnail(
+                pageFlip.getCurrentPageIndex()
+              );
+            }
+
+          },
+          60
+        );
+      }
     }
-  });
+  );
 }
+
 
 if (moreButton) {
-  moreButton.addEventListener("click", () => {
-    togglePanel(morePanel);
-  });
+
+  moreButton.addEventListener(
+    "click",
+    () => {
+
+      togglePanel(
+        morePanel
+      );
+    }
+  );
 }
 
+
 if (contentsButton) {
-  contentsButton.addEventListener("click", () => {
-    togglePanel(contentsPanel);
-  });
+
+  contentsButton.addEventListener(
+    "click",
+    () => {
+
+      togglePanel(
+        contentsPanel
+      );
+    }
+  );
 }
+
 
 /* =========================================================
    ENQUIRY
    ========================================================= */
 
 if (floatingEnquire) {
+
   floatingEnquire.addEventListener(
     "click",
     openContactModal
   );
 }
 
+
 /* =========================================================
    CLOSE BUTTONS
    ========================================================= */
 
 document
-  .querySelectorAll("[data-close]")
-  .forEach((button) => {
-    button.addEventListener("click", () => {
-      const targetId = button.dataset.close;
-      const target = document.getElementById(targetId);
+  .querySelectorAll(
+    "[data-close]"
+  )
+  .forEach(
+    (button) => {
 
-      if (targetId === "contactModal") {
-        closeContactModal();
-      } else if (target) {
-        target.hidden = true;
-      }
-    });
-  });
+      button.addEventListener(
+        "click",
+        () => {
+
+          const targetId =
+            button.dataset.close;
+
+
+          const target =
+            document.getElementById(
+              targetId
+            );
+
+
+          if (
+            targetId ===
+            "contactModal"
+          ) {
+
+            closeContactModal();
+
+          } else if (target) {
+
+            target.hidden =
+              true;
+          }
+        }
+      );
+    }
+  );
+
 
 /* =========================================================
-   COPY BROCHURE LINK
+   COPY CURRENT PAGE LINK
    ========================================================= */
 
 if (copyLinkButton) {
-  copyLinkButton.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(getShareUrl());
 
-      copyLinkButton.textContent = "Link copied";
+  copyLinkButton.addEventListener(
+    "click",
+    async () => {
 
-      window.setTimeout(() => {
-        copyLinkButton.textContent = "Copy brochure link";
-      }, 1600);
-    } catch (error) {
-      console.error("Copy failed:", error);
+      try {
+
+        await navigator
+          .clipboard
+          .writeText(
+            getShareUrl()
+          );
+
+
+        copyLinkButton.textContent =
+          "Link copied";
+
+
+        window.setTimeout(
+          () => {
+
+            copyLinkButton.textContent =
+              "Copy this brochure page";
+
+          },
+          1600
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Copy failed:",
+          error
+        );
+      }
     }
-  });
+  );
 }
+
 
 /* =========================================================
    SOUND
    ========================================================= */
 
 if (soundButton) {
-  soundButton.textContent = "Sound: off";
 
-  soundButton.addEventListener("click", () => {
-    soundEnabled = !soundEnabled;
+  soundButton.textContent =
+    "Sound: off";
 
-    soundButton.textContent =
-      `Sound: ${soundEnabled ? "on" : "off"}`;
-  });
+
+  soundButton.addEventListener(
+    "click",
+    () => {
+
+      soundEnabled =
+        !soundEnabled;
+
+
+      soundButton.textContent =
+        `Sound: ${
+          soundEnabled
+            ? "on"
+            : "off"
+        }`;
+    }
+  );
 }
 
+
 /* =========================================================
-   FORGET SAVED PAGE
+   OLD SAVED PAGE CLEANUP
    ========================================================= */
 
 if (resetReadingButton) {
-  resetReadingButton.addEventListener("click", () => {
-    try {
-      localStorage.removeItem("keswickLastPage");
-    } catch (error) {
-      console.warn(error);
-    }
 
-    resetReadingButton.textContent =
-      "Saved page cleared";
+  resetReadingButton.addEventListener(
+    "click",
+    () => {
 
-    window.setTimeout(() => {
+      try {
+
+        localStorage.removeItem(
+          "keswickLastPage"
+        );
+
+      } catch (error) {
+
+        console.warn(error);
+      }
+
+
       resetReadingButton.textContent =
-        "Forget saved page";
-    }, 1800);
-  });
+        "Saved page cleared";
+
+
+      window.setTimeout(
+        () => {
+
+          resetReadingButton.textContent =
+            "Forget saved page";
+
+        },
+        1800
+      );
+    }
+  );
 }
+
 
 /* =========================================================
    MOBILE SWIPE
@@ -859,16 +1995,32 @@ let swipeStartX = 0;
 let swipeStartY = 0;
 let swipeStartTime = 0;
 
+
 function unlockMobileSwipe() {
-  window.setTimeout(() => {
-    mobileSwipeLocked = false;
-  }, 100);
+
+  window.setTimeout(
+    () => {
+
+      mobileSwipeLocked =
+        false;
+
+    },
+    100
+  );
 }
 
-if (isTouchDevice && bookStage) {
+
+if (
+  isTouchDevice &&
+  bookStage
+) {
+
   bookStage.addEventListener(
+
     "touchstart",
+
     (event) => {
+
       if (
         event.touches.length !== 1 ||
         mobileSwipeLocked
@@ -876,16 +2028,31 @@ if (isTouchDevice && bookStage) {
         return;
       }
 
-      swipeStartX = event.touches[0].clientX;
-      swipeStartY = event.touches[0].clientY;
-      swipeStartTime = Date.now();
+
+      swipeStartX =
+        event.touches[0].clientX;
+
+
+      swipeStartY =
+        event.touches[0].clientY;
+
+
+      swipeStartTime =
+        Date.now();
     },
-    { passive: true }
+
+    {
+      passive: true
+    }
   );
 
+
   bookStage.addEventListener(
+
     "touchend",
-    (event) => {
+
+    async (event) => {
+
       if (
         !pageFlip ||
         mobileSwipeLocked ||
@@ -894,96 +2061,196 @@ if (isTouchDevice && bookStage) {
         return;
       }
 
-      const endX = event.changedTouches[0].clientX;
-      const endY = event.changedTouches[0].clientY;
 
-      const deltaX = endX - swipeStartX;
-      const deltaY = endY - swipeStartY;
+      const endX =
+        event.changedTouches[0].clientX;
+
+
+      const endY =
+        event.changedTouches[0].clientY;
+
+
+      const deltaX =
+        endX - swipeStartX;
+
+
+      const deltaY =
+        endY - swipeStartY;
+
 
       const elapsed =
-        Date.now() - swipeStartTime;
+        Date.now() -
+        swipeStartTime;
+
 
       const horizontalSwipe =
+
         Math.abs(deltaX) >= 45 &&
+
         Math.abs(deltaX) >
           Math.abs(deltaY) * 1.25 &&
+
         elapsed <= 800;
 
-      if (!horizontalSwipe) return;
 
-      mobileSwipeLocked = true;
-
-      if (deltaX < 0) {
-        pageFlip.flipNext();
-      } else {
-        pageFlip.flipPrev();
+      if (!horizontalSwipe) {
+        return;
       }
 
-      unlockMobileSwipe();
+
+      if (deltaX < 0) {
+
+        await goNext();
+
+      } else {
+
+        await goPrevious();
+      }
     },
-    { passive: true }
+
+    {
+      passive: true
+    }
   );
 }
 
+
 /* =========================================================
-   KEYBOARD CONTROLS
+   KEYBOARD
    ========================================================= */
 
-document.addEventListener("keydown", (event) => {
-  if (!pageFlip) return;
+document.addEventListener(
 
-  if (
-    event.key === "Escape" &&
-    imageZoomViewer &&
-    !imageZoomViewer.hidden
-  ) {
-    closeImageZoomViewer();
-    return;
-  }
+  "keydown",
 
-  if (event.key === "Escape") {
-    closeAllPanels();
-    closeContactModal();
-    return;
-  }
+  async (event) => {
 
-  if (event.key === "ArrowLeft") {
-    pageFlip.flipPrev();
-  }
+    if (!pageFlip) {
+      return;
+    }
 
-  if (event.key === "ArrowRight") {
-    pageFlip.flipNext();
-  }
 
-  if (event.key === "Home") {
-    goToPage(1);
-  }
+    if (
+      event.key === "Escape" &&
+      imageZoomViewer &&
+      !imageZoomViewer.hidden
+    ) {
 
-  if (event.key === "+" || event.key === "=") {
-    openImageZoomViewer();
+      closeImageZoomViewer();
+
+      return;
+    }
+
+
+    if (
+      event.key === "Escape"
+    ) {
+
+      closeAllPanels();
+
+      closeContactModal();
+
+      return;
+    }
+
+
+    if (
+      event.key === "ArrowLeft"
+    ) {
+
+      await goPrevious();
+    }
+
+
+    if (
+      event.key === "ArrowRight"
+    ) {
+
+      await goNext();
+    }
+
+
+    if (
+      event.key === "Home"
+    ) {
+
+      await goToPage(1);
+    }
+
+
+    if (
+      event.key === "+" ||
+      event.key === "="
+    ) {
+
+      await openImageZoomViewer();
+    }
   }
-});
+);
+
 
 /* =========================================================
    START BROCHURE
    ========================================================= */
 
-try {
-  buildContents();
-  createPages();
-  initialiseFlipbook();
-} catch (error) {
-  console.error(error);
+async function startBrochure() {
 
-  if (loadingScreen) {
-    loadingScreen.classList.add("hidden");
-  }
+  try {
 
-  if (bookStage) {
-    bookStage.style.display = "none";
-  }
+    const startingPage =
+      getStartingPage();
 
-  if (errorMessage) {
-    errorMessage.hidden = false;
+
+    buildContents();
+
+    createPages();
+
+
+    // Start only the essential
+    // image downloads.
+    const startupLoad =
+      loadStartupPages(
+        startingPage
+      );
+
+
+    // Initialise PageFlip while
+    // those few pages download.
+    initialiseFlipbook(
+      startingPage
+    );
+
+
+    await startupLoad;
+
+
+  } catch (error) {
+
+    console.error(error);
+
+
+    if (loadingScreen) {
+
+      loadingScreen.classList.add(
+        "hidden"
+      );
+    }
+
+
+    if (bookStage) {
+
+      bookStage.style.display =
+        "none";
+    }
+
+
+    if (errorMessage) {
+
+      errorMessage.hidden =
+        false;
+    }
   }
 }
+
+
+startBrochure();
