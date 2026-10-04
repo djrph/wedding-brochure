@@ -31,10 +31,10 @@
 
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" as="image" href="pages/page1.jpg?v=20261003-1" fetchpriority="high">
-  <link rel="stylesheet" href="style.css?v=20261004-1">
+  <link rel="stylesheet" href="style.css?v=20261004-2">
 
   <script defer src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
-  <script defer src="script.js?v=20261004-2"></script>
+  <script defer src="script.js?v=20261004-3"></script>
 </head>
 
 <body>
@@ -85,17 +85,35 @@
       <div id="pageProgress" class="page-progress"></div>
     </div>
 
-    <section id="mobileThumbnailStrip" class="mobile-thumbnail-tray" aria-label="Quick page thumbnails">
+    <!-- Mobile: separate launcher + fully hidden page tray. -->
+    <div id="mobileThumbnailLauncher" class="mobile-thumbnail-launcher">
       <button
         id="mobileThumbnailHandle"
         class="mobile-thumbnail-handle"
         type="button"
         aria-expanded="false"
-        aria-controls="mobileThumbnails"
+        aria-controls="mobileThumbnailStrip"
         aria-label="Swipe up or tap to show page thumbnails"
       >
         <span class="mobile-thumbnail-grip" aria-hidden="true"></span>
-        <span id="mobileThumbnailHint">Swipe up for pages</span>
+        <span id="mobileThumbnailHint">Pages</span>
+      </button>
+    </div>
+
+    <section
+      id="mobileThumbnailStrip"
+      class="mobile-thumbnail-tray"
+      aria-label="Quick page thumbnails"
+      aria-hidden="true"
+    >
+      <button
+        id="mobileThumbnailTrayHandle"
+        class="mobile-thumbnail-tray-handle"
+        type="button"
+        aria-label="Swipe down or tap to hide page thumbnails"
+      >
+        <span class="mobile-thumbnail-grip" aria-hidden="true"></span>
+        <span id="mobileThumbnailTrayHint">Swipe down to hide</span>
       </button>
 
       <div id="mobileThumbnails" class="mobile-thumbnails"></div>
@@ -123,12 +141,12 @@
       <button type="button" id="nextButton" class="primary-nav" aria-label="Next page" title="Next page">›</button>
     </nav>
 
+    <!-- Desktop/tablet page picker -->
     <section id="thumbnailPanel" class="drawer thumbnail-panel" aria-label="Brochure page thumbnails" hidden>
       <div class="drawer-heading">
         <div><strong>Choose a page</strong></div>
         <button type="button" data-close="thumbnailPanel" aria-label="Close page thumbnails">×</button>
       </div>
-
       <div id="thumbnails" class="thumbnails"></div>
     </section>
 
@@ -153,7 +171,6 @@
         <div><strong>Explore the brochure</strong></div>
         <button type="button" data-close="contentsPanel" aria-label="Close brochure contents">×</button>
       </div>
-
       <div id="contentsList" class="contents-list"></div>
     </section>
   </main>
@@ -170,7 +187,6 @@
 
       <p class="eyebrow">LET'S CREATE AN AMAZING PARTY</p>
       <h2 id="contactTitle">Check your wedding date</h2>
-
       <p id="contactDescription">
         Ready to start planning your wedding entertainment? Choose the easiest way to get in touch.
       </p>
@@ -179,14 +195,8 @@
         <a href="https://www.keswickdiscos.co.uk/wedding-dj-entertainment" target="_blank" rel="noopener">
           Wedding enquiry page
         </a>
-
-        <a href="mailto:dj_rph@hotmail.com?subject=Wedding%20DJ%20Enquiry">
-          Send an email
-        </a>
-
-        <button id="copyLinkButton" type="button">
-          Copy this brochure page
-        </button>
+        <a href="mailto:dj_rph@hotmail.com?subject=Wedding%20DJ%20Enquiry">Send an email</a>
+        <button id="copyLinkButton" type="button">Copy this brochure page</button>
       </div>
     </section>
   </div>
@@ -196,13 +206,8 @@
       <span id="zoomViewerStatus">Page 1 of 26</span>
 
       <div class="image-zoom-actions">
-        <button id="resetImageZoom" class="image-zoom-reset" type="button" aria-label="Reset zoom">
-          Reset
-        </button>
-
-        <button id="closeImageZoom" type="button" aria-label="Close enlarged page">
-          ×
-        </button>
+        <button id="resetImageZoom" class="image-zoom-reset" type="button" aria-label="Reset zoom">Reset</button>
+        <button id="closeImageZoom" type="button" aria-label="Close enlarged page">×</button>
       </div>
     </div>
 
@@ -210,9 +215,7 @@
       <img id="zoomPageImage" alt="" draggable="false">
     </div>
 
-    <p class="image-zoom-help">
-      Pinch or double-tap to zoom • drag to move
-    </p>
+    <p class="image-zoom-help">Pinch or double-tap to zoom • drag to move</p>
   </div>
 
   <audio id="pageSound" preload="none">
@@ -223,7 +226,6 @@
   <noscript>
     <div class="error-message">
       <strong>JavaScript is required to view the interactive brochure.</strong>
-
       <p>
         You can still visit the
         <a href="https://www.keswickdiscos.co.uk/wedding-dj-entertainment">
