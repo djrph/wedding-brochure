@@ -54,10 +54,7 @@ button {
 
 button:focus-visible,
 a:focus-visible {
-  outline:
-    2px solid
-    var(--gold-light);
-
+  outline: 2px solid var(--gold-light);
   outline-offset: 3px;
 }
 
@@ -69,7 +66,6 @@ a:focus-visible {
 .loading-screen {
   position: fixed;
   inset: 0;
-
   z-index: 9999;
 
   display: grid;
@@ -95,47 +91,29 @@ a:focus-visible {
 }
 
 .loading-content {
-  width:
-    min(
-      390px,
-      84vw
-    );
-
+  width: min(390px, 84vw);
   text-align: center;
 }
 
 .loading-brand {
   color: var(--gold);
-
   font-size: 16px;
   font-weight: 800;
   letter-spacing: .22em;
 }
 
 .loading-title {
-  margin:
-    14px 0 22px;
-
+  margin: 14px 0 22px;
   color: #ddd;
-
   font-size: 14px;
   line-height: 1.5;
 }
 
 .loading-bar {
   height: 4px;
-
   overflow: hidden;
-
   border-radius: 999px;
-
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      .09
-    );
+  background: rgba(255,255,255,.09);
 }
 
 .loading-progress {
@@ -154,15 +132,9 @@ a:focus-visible {
 
   box-shadow:
     0 0 16px
-    rgba(
-      215,
-      182,
-      111,
-      .45
-    );
+    rgba(215,182,111,.45);
 
-  transition:
-    width .22s ease;
+  transition: width .22s ease;
 }
 
 
@@ -172,7 +144,6 @@ a:focus-visible {
 
 .site-header {
   position: relative;
-
   z-index: 50;
 
   display: flex;
@@ -181,23 +152,13 @@ a:focus-visible {
 
   gap: 24px;
 
-  width:
-    min(
-      1480px,
-      100%
-    );
-
-  margin:
-    0 auto;
-
-  padding:
-    19px 28px 12px;
+  width: min(1480px, 100%);
+  margin: 0 auto;
+  padding: 19px 28px 12px;
 }
 
 .site-header h1 {
-  margin:
-    3px 0 0;
-
+  margin: 3px 0 0;
   color: #fff;
 
   font-size:
@@ -227,18 +188,11 @@ a:focus-visible {
   justify-content: center;
 
   min-height: 46px;
-
-  padding:
-    0 21px;
+  padding: 0 21px;
 
   border:
     1px solid
-    rgba(
-      255,
-      231,
-      173,
-      .3
-    );
+    rgba(255,231,173,.3);
 
   border-radius: 999px;
 
@@ -253,12 +207,7 @@ a:focus-visible {
 
   box-shadow:
     0 10px 30px
-    rgba(
-      0,
-      0,
-      0,
-      .32
-    );
+    rgba(0,0,0,.32);
 
   text-decoration: none;
 
@@ -273,9 +222,7 @@ a:focus-visible {
 
 .viewer-shell {
   width: 100%;
-
-  padding:
-    0 14px 96px;
+  padding: 0 14px 96px;
 }
 
 .book-stage {
@@ -289,9 +236,7 @@ a:focus-visible {
   max-width: 1500px;
   min-height: 720px;
 
-  margin:
-    0 auto;
-
+  margin: 0 auto;
   overflow: hidden;
 
   border-radius: 26px;
@@ -305,47 +250,27 @@ a:focus-visible {
   left: 50%;
   top: 48%;
 
-  width:
-    min(
-      1100px,
-      82vw
-    );
-
+  width: min(1100px, 82vw);
   height: 75%;
 
   transform:
-    translate(
-      -50%,
-      -50%
-    );
+    translate(-50%, -50%);
 
   pointer-events: none;
 
   background:
     radial-gradient(
       ellipse,
-      rgba(
-        255,
-        255,
-        255,
-        .065
-      ) 0%,
-      rgba(
-        215,
-        182,
-        111,
-        .025
-      ) 42%,
+      rgba(255,255,255,.065) 0%,
+      rgba(215,182,111,.025) 42%,
       transparent 73%
     );
 
-  filter:
-    blur(12px);
+  filter: blur(12px);
 }
 
 .zoom-container {
   position: relative;
-
   z-index: 2;
 
   display: flex;
@@ -366,18 +291,12 @@ a:focus-visible {
   filter:
     drop-shadow(
       0 30px 40px
-      rgba(
-        0,
-        0,
-        0,
-        .78
-      )
+      rgba(0,0,0,.78)
     );
 }
 
 .page {
   overflow: hidden;
-
   background: #101010;
 }
 
@@ -392,7 +311,6 @@ a:focus-visible {
   background: #101010;
 
   user-select: none;
-
   -webkit-user-drag: none;
 }
 
@@ -410,12 +328,7 @@ a:focus-visible {
   filter:
     drop-shadow(
       0 18px 26px
-      rgba(
-        0,
-        0,
-        0,
-        .72
-      )
+      rgba(0,0,0,.72)
     );
 }
 
@@ -439,7 +352,6 @@ a:focus-visible {
   object-fit: contain;
 
   user-select: none;
-
   -webkit-user-drag: none;
 }
 
@@ -465,39 +377,21 @@ a:focus-visible {
 
   border:
     1px solid
-    rgba(
-      255,
-      255,
-      255,
-      .12
-    );
+    rgba(255,255,255,.12);
 
   border-radius: 999px;
 
   background:
-    rgba(
-      12,
-      12,
-      12,
-      .68
-    );
+    rgba(12,12,12,.68);
 
   color: #fff;
 
   box-shadow:
     0 12px 32px
-    rgba(
-      0,
-      0,
-      0,
-      .42
-    );
+    rgba(0,0,0,.42);
 
-  backdrop-filter:
-    blur(14px);
-
-  -webkit-backdrop-filter:
-    blur(14px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 
   font-size: 39px;
 
@@ -517,7 +411,6 @@ a:focus-visible {
 
 .edge-button:disabled {
   opacity: .22;
-
   cursor: default;
 }
 
@@ -527,28 +420,17 @@ a:focus-visible {
    ========================================================= */
 
 .progress-wrap {
-  width:
-    min(
-      760px,
-      72%
-    );
-
+  width: min(760px,72%);
   height: 2px;
 
-  margin:
-    4px auto 14px;
+  margin: 4px auto 14px;
 
   overflow: hidden;
 
   border-radius: 999px;
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      .09
-    );
+    rgba(255,255,255,.09);
 }
 
 .page-progress {
@@ -564,8 +446,7 @@ a:focus-visible {
       var(--gold-light)
     );
 
-  transition:
-    width .3s ease;
+  transition: width .3s ease;
 }
 
 
@@ -589,19 +470,13 @@ a:focus-visible {
 
   overflow-x: auto;
 
-  padding:
-    0 4px 5px;
+  padding: 0 4px 5px;
 
   scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
 
-  scroll-snap-type:
-    x proximity;
-
-  overscroll-behavior-x:
-    contain;
-
-  -webkit-overflow-scrolling:
-    touch;
+  -webkit-overflow-scrolling: touch;
 
   scrollbar-width: none;
 }
@@ -613,8 +488,7 @@ a:focus-visible {
 .mobile-thumbnail-button {
   position: relative;
 
-  flex:
-    0 0 auto;
+  flex: 0 0 auto;
 
   width: 50px;
 
@@ -622,12 +496,7 @@ a:focus-visible {
 
   border:
     1px solid
-    rgba(
-      255,
-      255,
-      255,
-      .1
-    );
+    rgba(255,255,255,.1);
 
   border-radius: 8px;
 
@@ -635,8 +504,7 @@ a:focus-visible {
 
   cursor: pointer;
 
-  scroll-snap-align:
-    center;
+  scroll-snap-align: center;
 }
 
 .mobile-thumbnail-button img {
@@ -664,18 +532,12 @@ a:focus-visible {
   display: grid;
   place-items: center;
 
-  padding:
-    0 4px;
+  padding: 0 4px;
 
   border-radius: 999px;
 
   background:
-    rgba(
-      0,
-      0,
-      0,
-      .78
-    );
+    rgba(0,0,0,.78);
 
   color: #fff;
 
@@ -684,17 +546,11 @@ a:focus-visible {
 }
 
 .mobile-thumbnail-button.active {
-  border-color:
-    var(--gold-light);
+  border-color: var(--gold-light);
 
   box-shadow:
     0 0 0 1px
-    rgba(
-      215,
-      182,
-      111,
-      .42
-    );
+    rgba(215,182,111,.42);
 
   transform:
     translateY(-2px);
@@ -725,48 +581,27 @@ a:focus-visible {
   width: fit-content;
 
   max-width:
-    calc(
-      100% - 20px
-    );
+    calc(100% - 20px);
 
-  margin:
-    0 auto;
+  margin: 0 auto;
 
   padding: 6px;
 
   border:
     1px solid
-    rgba(
-      255,
-      255,
-      255,
-      .12
-    );
+    rgba(255,255,255,.12);
 
   border-radius: 999px;
 
   background:
-    rgba(
-      12,
-      12,
-      13,
-      .94
-    );
+    rgba(12,12,13,.94);
 
   box-shadow:
     0 18px 55px
-    rgba(
-      0,
-      0,
-      0,
-      .64
-    );
+    rgba(0,0,0,.64);
 
-  backdrop-filter:
-    blur(18px);
-
-  -webkit-backdrop-filter:
-    blur(18px);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 .control-bar button {
@@ -778,8 +613,7 @@ a:focus-visible {
 
   border-radius: 999px;
 
-  padding:
-    0 15px;
+  padding: 0 15px;
 
   background: transparent;
 
@@ -814,18 +648,15 @@ a:focus-visible {
 
 .control-bar button:disabled {
   opacity: .28;
-
   cursor: default;
 }
 
 .page-status {
   min-width: 100px;
 
-  padding:
-    0 9px;
+  padding: 0 9px;
 
-  color:
-    var(--gold-light);
+  color: var(--gold-light);
 
   text-align: center;
 
@@ -854,9 +685,7 @@ a:focus-visible {
   width:
     min(
       820px,
-      calc(
-        100% - 24px
-      )
+      calc(100% - 24px)
     );
 
   max-height: 68vh;
@@ -868,45 +697,24 @@ a:focus-visible {
 
   border:
     1px solid
-    rgba(
-      255,
-      255,
-      255,
-      .11
-    );
+    rgba(255,255,255,.11);
 
   border-radius: 22px;
 
   background:
-    rgba(
-      18,
-      18,
-      19,
-      .98
-    );
+    rgba(18,18,19,.98);
 
   box-shadow:
     0 30px 90px
-    rgba(
-      0,
-      0,
-      0,
-      .78
-    );
+    rgba(0,0,0,.78);
 
   padding: 16px;
 
-  backdrop-filter:
-    blur(20px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 
-  -webkit-backdrop-filter:
-    blur(20px);
-
-  overscroll-behavior:
-    contain;
-
-  -webkit-overflow-scrolling:
-    touch;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .drawer[hidden],
@@ -929,25 +737,14 @@ a:focus-visible {
 
   margin-bottom: 14px;
 
-  padding:
-    2px 2px 10px;
+  padding: 2px 2px 10px;
 
   border-bottom:
     1px solid
-    rgba(
-      255,
-      255,
-      255,
-      .08
-    );
+    rgba(255,255,255,.08);
 
   background:
-    rgba(
-      22,
-      22,
-      23,
-      .94
-    );
+    rgba(22,22,23,.94);
 }
 
 .drawer-heading > button,
@@ -962,22 +759,12 @@ a:focus-visible {
 
   border:
     1px solid
-    rgba(
-      255,
-      255,
-      255,
-      .08
-    );
+    rgba(255,255,255,.08);
 
   border-radius: 50%;
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      .07
-    );
+    rgba(255,255,255,.07);
 
   color: #fff;
 
@@ -993,26 +780,19 @@ a:focus-visible {
 
   overflow-x: auto;
 
-  padding:
-    7px 4px 15px;
+  padding: 7px 4px 15px;
 
   scroll-behavior: smooth;
 }
 
 .thumbnail-button {
-  flex:
-    0 0 auto;
+  flex: 0 0 auto;
 
   padding: 3px;
 
   border:
     1px solid
-    rgba(
-      255,
-      255,
-      255,
-      .09
-    );
+    rgba(255,255,255,.09);
 
   border-radius: 10px;
 
@@ -1022,8 +802,7 @@ a:focus-visible {
 }
 
 .thumbnail-button.active {
-  border-color:
-    var(--gold);
+  border-color: var(--gold);
 }
 
 .thumbnail-button img {
@@ -1031,8 +810,7 @@ a:focus-visible {
 
   width: 76px;
 
-  aspect-ratio:
-    210 / 297;
+  aspect-ratio: 210 / 297;
 
   object-fit: cover;
 
@@ -1045,10 +823,7 @@ a:focus-visible {
   display: grid;
 
   grid-template-columns:
-    repeat(
-      3,
-      1fr
-    );
+    repeat(3,1fr);
 
   gap: 9px;
 }
@@ -1056,17 +831,11 @@ a:focus-visible {
 .option-grid button {
   min-height: 50px;
 
-  padding:
-    10px 12px;
+  padding: 10px 12px;
 
   border:
     1px solid
-    rgba(
-      255,
-      255,
-      255,
-      .09
-    );
+    rgba(255,255,255,.09);
 
   border-radius: 13px;
 
@@ -1089,9 +858,7 @@ a:focus-visible {
   width:
     min(
       900px,
-      calc(
-        100% - 24px
-      )
+      calc(100% - 24px)
     );
 
   max-height: 72vh;
@@ -1109,12 +876,7 @@ a:focus-visible {
 
   border-top:
     1px solid
-    rgba(
-      255,
-      255,
-      255,
-      .075
-    );
+    rgba(255,255,255,.075);
 }
 
 .contents-section-heading {
@@ -1124,8 +886,7 @@ a:focus-visible {
 
   gap: 12px;
 
-  margin:
-    0 3px 9px;
+  margin: 0 3px 9px;
 }
 
 .contents-section-title {
@@ -1135,7 +896,6 @@ a:focus-visible {
 
   font-size: 11px;
   font-weight: 800;
-
   letter-spacing: .14em;
 
   text-transform: uppercase;
@@ -1154,10 +914,7 @@ a:focus-visible {
   grid-template-columns:
     repeat(
       2,
-      minmax(
-        0,
-        1fr
-      )
+      minmax(0,1fr)
     );
 
   gap: 8px;
@@ -1173,27 +930,16 @@ a:focus-visible {
   width: 100%;
   min-height: 62px;
 
-  padding:
-    11px 13px 11px 15px;
+  padding: 11px 13px 11px 15px;
 
   border:
     1px solid
-    rgba(
-      255,
-      255,
-      255,
-      .085
-    );
+    rgba(255,255,255,.085);
 
   border-radius: 13px;
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      .04
-    );
+    rgba(255,255,255,.04);
 
   color: #fff;
 
@@ -1204,20 +950,10 @@ a:focus-visible {
 
 .contents-button.active {
   border-color:
-    rgba(
-      215,
-      182,
-      111,
-      .72
-    );
+    rgba(215,182,111,.72);
 
   background:
-    rgba(
-      215,
-      182,
-      111,
-      .13
-    );
+    rgba(215,182,111,.13);
 
   box-shadow:
     inset 3px 0 0
@@ -1243,8 +979,7 @@ a:focus-visible {
 }
 
 .contents-item-arrow {
-  color:
-    var(--gold-light);
+  color: var(--gold-light);
 
   font-size: 25px;
 }
@@ -1273,8 +1008,7 @@ a:focus-visible {
 
   border-radius: 999px;
 
-  padding:
-    0 22px;
+  padding: 0 22px;
 
   background:
     linear-gradient(
@@ -1310,12 +1044,7 @@ a:focus-visible {
   inset: 0;
 
   background:
-    rgba(
-      0,
-      0,
-      0,
-      .8
-    );
+    rgba(0,0,0,.8);
 }
 
 .modal-card {
@@ -1323,20 +1052,11 @@ a:focus-visible {
 
   z-index: 1;
 
-  width:
-    min(
-      510px,
-      100%
-    );
+  width: min(510px,100%);
 
   border:
     1px solid
-    rgba(
-      255,
-      255,
-      255,
-      .12
-    );
+    rgba(255,255,255,.12);
 
   border-radius: 24px;
 
@@ -1370,17 +1090,11 @@ a:focus-visible {
 
   border:
     1px solid
-    rgba(
-      255,
-      255,
-      255,
-      .08
-    );
+    rgba(255,255,255,.08);
 
   border-radius: 999px;
 
-  padding:
-    0 18px;
+  padding: 0 18px;
 
   background:
     linear-gradient(
@@ -1452,36 +1166,21 @@ a:focus-visible {
 
   background:
     linear-gradient(
-      rgba(
-        0,
-        0,
-        0,
-        .97
-      ),
-      rgba(
-        0,
-        0,
-        0,
-        .64
-      )
+      rgba(0,0,0,.97),
+      rgba(0,0,0,.64)
     );
 
-  backdrop-filter:
-    blur(12px);
-
-  -webkit-backdrop-filter:
-    blur(12px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 
   pointer-events:
     auto !important;
 
-  touch-action:
-    manipulation;
+  touch-action: manipulation;
 }
 
 .image-zoom-toolbar > span {
-  color:
-    var(--gold-light);
+  color: var(--gold-light);
 
   font-size: 12px;
   font-weight: 800;
@@ -1516,27 +1215,16 @@ a:focus-visible {
   min-width: 40px;
   height: 40px;
 
-  padding:
-    0 10px;
+  padding: 0 10px;
 
   border:
     1px solid
-    rgba(
-      255,
-      255,
-      255,
-      .13
-    );
+    rgba(255,255,255,.13);
 
   border-radius: 999px;
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      .1
-    );
+    rgba(255,255,255,.1);
 
   color: #fff;
 
@@ -1547,14 +1235,10 @@ a:focus-visible {
   pointer-events:
     auto !important;
 
-  touch-action:
-    manipulation;
+  touch-action: manipulation;
 
-  -webkit-user-select:
-    none;
-
-  user-select:
-    none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .image-zoom-toolbar button:disabled {
@@ -1562,8 +1246,7 @@ a:focus-visible {
 }
 
 .image-zoom-reset {
-  min-width:
-    58px !important;
+  min-width: 58px !important;
 
   font-size: 11px;
 }
@@ -1609,14 +1292,11 @@ a:focus-visible {
 
   background: #020202;
 
-  overscroll-behavior:
-    contain;
+  overscroll-behavior: contain;
 
-  -webkit-overflow-scrolling:
-    touch;
+  -webkit-overflow-scrolling: touch;
 
-  touch-action:
-    pan-x pan-y;
+  touch-action: pan-x pan-y;
 
   pointer-events: auto;
 
@@ -1647,9 +1327,7 @@ a:focus-visible {
   margin: 0;
 
   user-select: none;
-
   -webkit-user-select: none;
-
   -webkit-user-drag: none;
 
   pointer-events: none;
@@ -1681,33 +1359,20 @@ a:focus-visible {
   width: max-content;
 
   max-width:
-    calc(
-      100% - 18px
-    );
+    calc(100% - 18px);
 
   margin: 0;
 
-  padding:
-    6px 10px;
+  padding: 6px 10px;
 
   border:
     1px solid
-    rgba(
-      255,
-      255,
-      255,
-      .08
-    );
+    rgba(255,255,255,.08);
 
   border-radius: 999px;
 
   background:
-    rgba(
-      0,
-      0,
-      0,
-      .78
-    );
+    rgba(0,0,0,.78);
 
   color: #ddd;
 
@@ -1745,8 +1410,7 @@ body.zoom-viewer-open
 .error-message {
   max-width: 680px;
 
-  margin:
-    30px auto;
+  margin: 30px auto;
 
   padding: 20px;
 
@@ -1758,8 +1422,7 @@ body.zoom-viewer-open
 }
 
 .site-footer {
-  padding:
-    8px 12px 26px;
+  padding: 8px 12px 26px;
 
   text-align: center;
 }
@@ -1851,13 +1514,11 @@ body.fullscreen-mode
   }
 
   .header-enquire {
-    flex:
-      0 0 auto;
+    flex: 0 0 auto;
 
     min-height: 34px;
 
-    padding:
-      0 11px;
+    padding: 0 11px;
 
     font-size: 10px;
   }
@@ -1885,8 +1546,7 @@ body.fullscreen-mode
         )
       );
 
-    margin:
-      0 auto;
+    margin: 0 auto;
 
     padding: 0;
 
@@ -1929,8 +1589,7 @@ body.fullscreen-mode
   .progress-wrap {
     width: 62%;
 
-    margin:
-      4px auto 2px;
+    margin: 4px auto 2px;
   }
 
 
@@ -1968,10 +1627,7 @@ body.fullscreen-mode
     opacity: 0;
 
     transform:
-      translate(
-        -50%,
-        8px
-      );
+      translate(-50%,8px);
 
     pointer-events: none;
   }
@@ -1995,15 +1651,9 @@ body.fullscreen-mode
       12px 12px 0 0;
 
     background:
-      rgba(
-        4,
-        4,
-        4,
-        .72
-      );
+      rgba(4,4,4,.72);
 
-    color:
-      var(--gold-light);
+    color: var(--gold-light);
 
     font-size: 8px;
     font-weight: 800;
@@ -2016,11 +1666,8 @@ body.fullscreen-mode
 
     touch-action: none;
 
-    backdrop-filter:
-      blur(8px);
-
-    -webkit-backdrop-filter:
-      blur(8px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
   .mobile-thumbnail-grip {
@@ -2042,12 +1689,7 @@ body.fullscreen-mode
 
     box-shadow:
       0 0 8px
-      rgba(
-        215,
-        182,
-        111,
-        .24
-      );
+      rgba(215,182,111,.24);
   }
 
 
@@ -2069,23 +1711,18 @@ body.fullscreen-mode
     display: block;
 
     width:
-      calc(
-        100% - 10px
-      );
+      calc(100% - 10px);
 
     max-width: 620px;
 
     height: 108px;
 
-    padding:
-      0 5px 6px;
+    padding: 0 5px 6px;
 
     transform:
       translate(
         -50%,
-        calc(
-          100% + 20px
-        )
+        calc(100% + 20px)
       );
 
     opacity: 0;
@@ -2096,12 +1733,7 @@ body.fullscreen-mode
 
     border:
       1px solid
-      rgba(
-        255,
-        255,
-        255,
-        .12
-      );
+      rgba(255,255,255,.12);
 
     border-radius:
       16px 16px 12px 12px;
@@ -2109,34 +1741,16 @@ body.fullscreen-mode
     background:
       linear-gradient(
         180deg,
-        rgba(
-          28,
-          28,
-          29,
-          .985
-        ),
-        rgba(
-          8,
-          8,
-          8,
-          .99
-        )
+        rgba(28,28,29,.985),
+        rgba(8,8,8,.99)
       );
 
     box-shadow:
       0 -8px 30px
-      rgba(
-        0,
-        0,
-        0,
-        .48
-      );
+      rgba(0,0,0,.48);
 
-    backdrop-filter:
-      blur(16px);
-
-    -webkit-backdrop-filter:
-      blur(16px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 
     transition:
       transform .22s ease,
@@ -2148,10 +1762,7 @@ body.fullscreen-mode
 
   .mobile-thumbnail-tray.open {
     transform:
-      translate(
-        -50%,
-        0
-      );
+      translate(-50%,0);
 
     opacity: 1;
 
@@ -2173,15 +1784,13 @@ body.fullscreen-mode
     width: 100%;
     height: 31px;
 
-    padding:
-      2px 0 3px;
+    padding: 2px 0 3px;
 
     border: 0;
 
     background: transparent;
 
-    color:
-      var(--gold-light);
+    color: var(--gold-light);
 
     font-size: 8px;
     font-weight: 800;
@@ -2222,25 +1831,14 @@ body.fullscreen-mode
 
     grid-template-columns:
       39px
-      minmax(
-        44px,
-        1fr
-      )
+      minmax(44px,1fr)
       64px
-      minmax(
-        42px,
-        1fr
-      )
-      minmax(
-        42px,
-        1fr
-      )
+      minmax(42px,1fr)
+      minmax(42px,1fr)
       39px;
 
     width:
-      calc(
-        100% - 10px
-      );
+      calc(100% - 10px);
 
     max-width: 620px;
 
@@ -2258,8 +1856,7 @@ body.fullscreen-mode
     min-width: 0;
     min-height: 40px;
 
-    padding:
-      0 4px;
+    padding: 0 4px;
 
     font-size: 10px;
   }
@@ -2274,8 +1871,7 @@ body.fullscreen-mode
   .page-status {
     min-width: 0;
 
-    padding:
-      0 1px;
+    padding: 0 1px;
 
     font-size: 9px;
     line-height: 1.1;
@@ -2295,14 +1891,10 @@ body.fullscreen-mode
       );
 
     width:
-      calc(
-        100% - 10px
-      );
+      calc(100% - 10px);
 
     max-height:
-      calc(
-        100dvh - 104px
-      );
+      calc(100dvh - 104px);
 
     padding: 12px;
 
@@ -2315,22 +1907,16 @@ body.fullscreen-mode
 
   .option-grid {
     grid-template-columns:
-      repeat(
-        2,
-        1fr
-      );
+      repeat(2,1fr);
   }
 
   .contents-panel {
     max-height:
-      calc(
-        100dvh - 104px
-      );
+      calc(100dvh - 104px);
   }
 
   .contents-section-grid {
-    grid-template-columns:
-      1fr;
+    grid-template-columns: 1fr;
   }
 
   .contents-button {
@@ -2346,9 +1932,7 @@ body.fullscreen-mode
 
   .modal-card {
     max-height:
-      calc(
-        100dvh - 24px
-      );
+      calc(100dvh - 24px);
 
     overflow: auto;
 
@@ -2380,8 +1964,7 @@ body.fullscreen-mode
     min-width: 36px;
     height: 36px;
 
-    padding:
-      0 8px;
+    padding: 0 8px;
   }
 
   .image-zoom-reset {
@@ -2413,8 +1996,7 @@ body.fullscreen-mode
   }
 
   .header-enquire {
-    padding:
-      0 9px;
+    padding: 0 9px;
 
     font-size: 9px;
   }
@@ -2435,25 +2017,15 @@ body.fullscreen-mode
   .control-bar {
     grid-template-columns:
       37px
-      minmax(
-        40px,
-        1fr
-      )
+      minmax(40px,1fr)
       58px
-      minmax(
-        38px,
-        1fr
-      )
-      minmax(
-        38px,
-        1fr
-      )
+      minmax(38px,1fr)
+      minmax(38px,1fr)
       37px;
   }
 
   .control-bar button {
-    padding:
-      0 2px;
+    padding: 0 2px;
 
     font-size: 9px;
   }
@@ -2502,9 +2074,7 @@ body.fullscreen-mode
 
   .book-stage {
     height:
-      calc(
-        100dvh - 120px
-      );
+      calc(100dvh - 120px);
   }
 
   .mobile-thumbnail-tray {
