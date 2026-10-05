@@ -131,101 +131,51 @@ const desktopPageLoadPromises = new Map();
 const mobileBytePrefetchPromises = new Map();
 const mobileReadyImagePromises = new Map();
 
-
 /* =========================================================
    HELPERS
    ========================================================= */
 
-function clamp(
-  value,
-  min,
-  max
-) {
-  return Math.min(
-    max,
-    Math.max(
-      min,
-      value
-    )
-  );
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
 }
 
+function clampPageNumber(value) {
+  const page = Number.parseInt(value, 10);
 
-function clampPageNumber(
-  value
-) {
-  const page =
-    Number.parseInt(
-      value,
-      10
-    );
-
-  return Number.isFinite(
-    page
-  )
-    ? clamp(
-        page,
-        1,
-        totalPages
-      )
+  return Number.isFinite(page)
+    ? clamp(page, 1, totalPages)
     : 1;
 }
 
-
-function validPageNumber(
-  pageNumber
-) {
+function validPageNumber(pageNumber) {
   return (
-    Number.isInteger(
-      pageNumber
-    ) &&
+    Number.isInteger(pageNumber) &&
     pageNumber >= 1 &&
     pageNumber <= totalPages
   );
 }
 
-
-function imagePath(
-  pageNumber
-) {
-  return (
-    `pages/page${pageNumber}.jpg` +
-    `?v=${brochureVersion}`
-  );
+function imagePath(pageNumber) {
+  return `pages/page${pageNumber}.jpg?v=${brochureVersion}`;
 }
 
-
-function getPageTitle(
-  pageNumber
-) {
-  return (
-    pageTitles[
-      pageNumber
-    ] ||
-    `Page ${pageNumber}`
-  );
+function getPageTitle(pageNumber) {
+  return pageTitles[pageNumber] || `Page ${pageNumber}`;
 }
-
 
 function getCurrentPageNumber() {
-  if (
-    isMobileViewer
-  ) {
+  if (isMobileViewer) {
     return mobileCurrentPage;
   }
 
-  if (
-    !pageFlip
-  ) {
+  if (!pageFlip) {
     return 1;
   }
 
   return clampPageNumber(
-    pageFlip.getCurrentPageIndex() +
-    1
+    pageFlip.getCurrentPageIndex() + 1
   );
 }
-
 
 function isImageZoomOpen() {
   return Boolean(
@@ -234,56 +184,36 @@ function isImageZoomOpen() {
   );
 }
 
-
-function wait(
-  milliseconds
-) {
-  return new Promise(
-    (
-      resolve
-    ) => {
-      window.setTimeout(
-        resolve,
-        milliseconds
-      );
-    }
-  );
+function wait(milliseconds) {
+  return new Promise((resolve) => {
+    window.setTimeout(
+      resolve,
+      milliseconds
+    );
+  });
 }
-
 
 function waitForTwoFrames() {
-  return new Promise(
-    (
-      resolve
-    ) => {
+  return new Promise((resolve) => {
+    window.requestAnimationFrame(() => {
       window.requestAnimationFrame(
-        () => {
-          window.requestAnimationFrame(
-            resolve
-          );
-        }
+        resolve
       );
-    }
-  );
+    });
+  });
 }
 
-
 function hideLoadingScreen() {
-  if (
-    !loadingScreen
-  ) {
+  if (!loadingScreen) {
     return;
   }
 
-  window.requestAnimationFrame(
-    () => {
-      loadingScreen.classList.add(
-        "hidden"
-      );
-    }
-  );
+  window.requestAnimationFrame(() => {
+    loadingScreen.classList.add(
+      "hidden"
+    );
+  });
 }
-
 
 /* =========================================================
    URLS
@@ -293,47 +223,32 @@ function getPageFromUrl() {
   const value =
     new URLSearchParams(
       window.location.search
-    ).get(
-      "page"
-    );
+    ).get("page");
 
   return value
-    ? clampPageNumber(
-        value
-      )
+    ? clampPageNumber(value)
     : null;
 }
 
-
 function getStartingPage() {
-  return (
-    getPageFromUrl() ??
-    1
-  );
+  return getPageFromUrl() ?? 1;
 }
 
-
-function updateUrlPage(
-  pageNumber
-) {
+function updateUrlPage(pageNumber) {
   try {
     const url =
       new URL(
         window.location.href
       );
 
-    if (
-      pageNumber <= 1
-    ) {
+    if (pageNumber <= 1) {
       url.searchParams.delete(
         "page"
       );
     } else {
       url.searchParams.set(
         "page",
-        String(
-          pageNumber
-        )
+        String(pageNumber)
       );
     }
 
@@ -342,17 +257,13 @@ function updateUrlPage(
       "",
       url
     );
-
-  } catch (
-    error
-  ) {
+  } catch (error) {
     console.warn(
       "Unable to update brochure URL:",
       error
     );
   }
 }
-
 
 function getShareUrl() {
   const url =
@@ -363,109 +274,77 @@ function getShareUrl() {
   const page =
     getCurrentPageNumber();
 
-  if (
-    page <= 1
-  ) {
+  if (page <= 1) {
     url.searchParams.delete(
       "page"
     );
   } else {
     url.searchParams.set(
       "page",
-      String(
-        page
-      )
+      String(page)
     );
   }
 
   return url.toString();
 }
 
-
 /* =========================================================
    PANELS / MODALS
    ========================================================= */
 
 function closeAllPanels() {
-  if (
-    thumbnailPanel
-  ) {
-    thumbnailPanel.hidden =
-      true;
+  if (thumbnailPanel) {
+    thumbnailPanel.hidden = true;
   }
 
-  if (
-    morePanel
-  ) {
-    morePanel.hidden =
-      true;
+  if (morePanel) {
+    morePanel.hidden = true;
   }
 
-  if (
-    contentsPanel
-  ) {
-    contentsPanel.hidden =
-      true;
+  if (contentsPanel) {
+    contentsPanel.hidden = true;
   }
 }
 
-
-function togglePanel(
-  panel
-) {
-  if (
-    !panel
-  ) {
+function togglePanel(panel) {
+  if (!panel) {
     return;
   }
 
-  if (
-    isMobileViewer
-  ) {
+  if (isMobileViewer) {
     closeMobileThumbnailTray();
   }
 
-  const open =
-    panel.hidden;
+  const open = panel.hidden;
 
   closeAllPanels();
 
-  panel.hidden =
-    !open;
+  panel.hidden = !open;
 }
 
-
 function openContactModal() {
-  if (
-    !contactModal
-  ) {
+  if (!contactModal) {
     return;
   }
 
   closeMobileThumbnailTray();
 
-  contactModal.hidden =
-    false;
+  contactModal.hidden = false;
 
   document.body.style.overflow =
     "hidden";
 }
 
-
 function closeContactModal() {
-  if (
-    !contactModal
-  ) {
+  if (!contactModal) {
     return;
   }
 
-  contactModal.hidden =
-    true;
+  contactModal.hidden = true;
 
   document.body.style.overflow =
     "";
 }
-
 
 /* =========================================================
    THUMBNAILS
@@ -480,22 +359,14 @@ function createThumbnailButton(
       "button"
     );
 
-  button.type =
-    "button";
-
-  button.className =
-    className;
+  button.type = "button";
+  button.className = className;
 
   button.dataset.pageIndex =
-    String(
-      pageNumber -
-      1
-    );
+    String(pageNumber - 1);
 
   button.dataset.pageNumber =
-    String(
-      pageNumber
-    );
+    String(pageNumber);
 
   button.setAttribute(
     "aria-label",
@@ -508,22 +379,13 @@ function createThumbnailButton(
     );
 
   image.dataset.src =
-    imagePath(
-      pageNumber
-    );
+    imagePath(pageNumber);
 
-  image.alt =
-    "";
+  image.alt = "";
+  image.decoding = "async";
+  image.loading = "lazy";
 
-  image.decoding =
-    "async";
-
-  image.loading =
-    "lazy";
-
-  button.appendChild(
-    image
-  );
+  button.appendChild(image);
 
   if (
     className ===
@@ -538,13 +400,9 @@ function createThumbnailButton(
       "mobile-thumbnail-number";
 
     number.textContent =
-      String(
-        pageNumber
-      );
+      String(pageNumber);
 
-    button.appendChild(
-      number
-    );
+    button.appendChild(number);
   }
 
   button.addEventListener(
@@ -568,11 +426,8 @@ function createThumbnailButton(
   return button;
 }
 
-
 function createDrawerThumbnails() {
-  if (
-    !thumbnailContainer
-  ) {
+  if (!thumbnailContainer) {
     return;
   }
 
@@ -593,11 +448,8 @@ function createDrawerThumbnails() {
   }
 }
 
-
 function createMobileThumbnails() {
-  if (
-    !mobileThumbnailContainer
-  ) {
+  if (!mobileThumbnailContainer) {
     return;
   }
 
@@ -618,47 +470,33 @@ function createMobileThumbnails() {
   }
 }
 
-
-function loadThumbnailImage(
-  image
-) {
+function loadThumbnailImage(image) {
   if (
     !image ||
     !image.dataset.src ||
-    image.hasAttribute(
-      "src"
-    )
+    image.hasAttribute("src")
   ) {
     return;
   }
 
-  image.src =
-    image.dataset.src;
+  image.src = image.dataset.src;
 }
-
 
 function unloadThumbnailImage(
   image
 ) {
   if (
     !image ||
-    !image.hasAttribute(
-      "src"
-    )
+    !image.hasAttribute("src")
   ) {
     return;
   }
 
-  image.removeAttribute(
-    "src"
-  );
+  image.removeAttribute("src");
 }
 
-
 function unloadAllMobileThumbnailImages() {
-  if (
-    !mobileThumbnailContainer
-  ) {
+  if (!mobileThumbnailContainer) {
     return;
   }
 
@@ -671,16 +509,12 @@ function unloadAllMobileThumbnailImages() {
     );
 }
 
-
 function isButtonNearVisible(
   container,
   button,
   margin = 120
 ) {
-  if (
-    !container ||
-    !button
-  ) {
+  if (!container || !button) {
     return false;
   }
 
@@ -692,84 +526,64 @@ function isButtonNearVisible(
 
   return (
     buttonRect.right >=
-      containerRect.left -
-      margin &&
+      containerRect.left - margin &&
     buttonRect.left <=
-      containerRect.right +
-      margin
+      containerRect.right + margin
   );
 }
-
 
 function trimThumbnailMemory(
   container,
   selector,
   centrePage,
-  unloadFar =
-    isMobileViewer
+  unloadFar = isMobileViewer
 ) {
-  if (
-    !container
-  ) {
+  if (!container) {
     return;
   }
 
   container
-    .querySelectorAll(
-      selector
-    )
-    .forEach(
-      (
-        button
-      ) => {
-        const pageNumber =
-          Number(
-            button.dataset.pageNumber
-          );
+    .querySelectorAll(selector)
+    .forEach((button) => {
+      const pageNumber =
+        Number(
+          button.dataset.pageNumber
+        );
 
-        const image =
-          button.querySelector(
-            "img[data-src]"
-          );
+      const image =
+        button.querySelector(
+          "img[data-src]"
+        );
 
-        const useful =
-          Math.abs(
-            pageNumber -
-            centrePage
-          ) <= 3 ||
-          isButtonNearVisible(
-            container,
-            button
-          );
+      const useful =
+        Math.abs(
+          pageNumber -
+          centrePage
+        ) <= 3 ||
+        isButtonNearVisible(
+          container,
+          button
+        );
 
-        if (
-          useful
-        ) {
-          loadThumbnailImage(
-            image
-          );
-        } else if (
-          unloadFar
-        ) {
-          unloadThumbnailImage(
-            image
-          );
-        }
+      if (useful) {
+        loadThumbnailImage(
+          image
+        );
+      } else if (unloadFar) {
+        unloadThumbnailImage(
+          image
+        );
       }
-    );
+    });
 }
-
 
 function centreThumbnail(
   container,
   selector,
   pageIndex,
-  behavior =
-    "smooth"
+  behavior = "smooth"
 ) {
-  if (
-    !container
-  ) {
+  if (!container) {
     return;
   }
 
@@ -778,41 +592,30 @@ function centreThumbnail(
       `${selector}[data-page-index="${pageIndex}"]`
     );
 
-  if (
-    !button
-  ) {
+  if (!button) {
     return;
   }
 
   const left =
     button.offsetLeft -
-    container.clientWidth /
-      2 +
-    button.clientWidth /
-      2;
+    container.clientWidth / 2 +
+    button.clientWidth / 2;
 
-  container.scrollTo(
-    {
-      left:
-        Math.max(
-          0,
-          left
-        ),
-
-      behavior
-    }
-  );
+  container.scrollTo({
+    left: Math.max(
+      0,
+      left
+    ),
+    behavior
+  });
 }
-
 
 /* =========================================================
    MOBILE PAGE TRAY
    ========================================================= */
 
 function updateMobileTrayText() {
-  if (
-    mobileThumbnailHandle
-  ) {
+  if (mobileThumbnailHandle) {
     mobileThumbnailHandle.setAttribute(
       "aria-expanded",
       String(
@@ -828,23 +631,17 @@ function updateMobileTrayText() {
     );
   }
 
-  if (
-    mobileThumbnailHint
-  ) {
+  if (mobileThumbnailHint) {
     mobileThumbnailHint.textContent =
       "Swipe up for pages";
   }
 
-  if (
-    mobileThumbnailTrayHint
-  ) {
+  if (mobileThumbnailTrayHint) {
     mobileThumbnailTrayHint.textContent =
       "Swipe down to hide";
   }
 
-  if (
-    mobileThumbnailStrip
-  ) {
+  if (mobileThumbnailStrip) {
     mobileThumbnailStrip.setAttribute(
       "aria-hidden",
       String(
@@ -853,7 +650,6 @@ function updateMobileTrayText() {
     );
   }
 }
-
 
 function openMobileThumbnailTray() {
   if (
@@ -864,9 +660,7 @@ function openMobileThumbnailTray() {
     return;
   }
 
-  if (
-    mobileThumbnailUnloadTimer
-  ) {
+  if (mobileThumbnailUnloadTimer) {
     clearTimeout(
       mobileThumbnailUnloadTimer
     );
@@ -877,8 +671,7 @@ function openMobileThumbnailTray() {
 
   closeAllPanels();
 
-  mobileThumbnailTrayOpen =
-    true;
+  mobileThumbnailTrayOpen = true;
 
   mobileThumbnailStrip.classList.add(
     "open"
@@ -901,28 +694,20 @@ function openMobileThumbnailTray() {
     true
   );
 
-  window.setTimeout(
-    () => {
-      centreThumbnail(
-        mobileThumbnailContainer,
-        ".mobile-thumbnail-button",
-        mobileCurrentPage -
-        1,
-        "smooth"
-      );
-    },
-    80
-  );
+  window.setTimeout(() => {
+    centreThumbnail(
+      mobileThumbnailContainer,
+      ".mobile-thumbnail-button",
+      mobileCurrentPage - 1,
+      "smooth"
+    );
+  }, 80);
 }
 
-
 function closeMobileThumbnailTray(
-  unload =
-    true
+  unload = true
 ) {
-  if (
-    !mobileThumbnailStrip
-  ) {
+  if (!mobileThumbnailStrip) {
     return;
   }
 
@@ -943,98 +728,72 @@ function closeMobileThumbnailTray(
 
   updateMobileTrayText();
 
-  if (
-    mobileThumbnailUnloadTimer
-  ) {
+  if (mobileThumbnailUnloadTimer) {
     clearTimeout(
       mobileThumbnailUnloadTimer
     );
   }
 
-  if (
-    unload
-  ) {
+  if (unload) {
     mobileThumbnailUnloadTimer =
-      window.setTimeout(
-        () => {
-          if (
-            !mobileThumbnailTrayOpen
-          ) {
-            unloadAllMobileThumbnailImages();
-          }
+      window.setTimeout(() => {
+        if (
+          !mobileThumbnailTrayOpen
+        ) {
+          unloadAllMobileThumbnailImages();
+        }
 
-          mobileThumbnailUnloadTimer =
-            null;
-        },
-        240
-      );
+        mobileThumbnailUnloadTimer =
+          null;
+      }, 240);
   }
 }
 
-
 function toggleMobileThumbnailTray() {
-  if (
-    mobileThumbnailTrayOpen
-  ) {
+  if (mobileThumbnailTrayOpen) {
     closeMobileThumbnailTray();
   } else {
     openMobileThumbnailTray();
   }
 }
 
-
 function attachVerticalTrayGesture(
   element,
   direction
 ) {
-  if (
-    !element
-  ) {
+  if (!element) {
     return;
   }
 
-  let startX =
-    0;
-
-  let startY =
-    0;
+  let startX = 0;
+  let startY = 0;
 
   element.addEventListener(
     "touchstart",
-    (
-      event
-    ) => {
+    (event) => {
       if (
-        event.touches.length !==
-        1
+        event.touches.length !== 1
       ) {
         return;
       }
 
       startX =
-        event.touches[
-          0
-        ].clientX;
+        event.touches[0].clientX;
 
       startY =
-        event.touches[
-          0
-        ].clientY;
+        event.touches[0].clientY;
 
       mobileTrayGestureMoved =
         false;
     },
     {
-      passive:
-        true
+      passive: true
     }
   );
 
   element.addEventListener(
     "touchend",
-    (
-      event
-    ) => {
+    (event) => {
       if (
         event.changedTouches.length !==
         1
@@ -1043,40 +802,25 @@ function attachVerticalTrayGesture(
       }
 
       const deltaX =
-        event.changedTouches[
-          0
-        ].clientX -
+        event.changedTouches[0].clientX -
         startX;
 
       const deltaY =
-        event.changedTouches[
-          0
-        ].clientY -
+        event.changedTouches[0].clientY -
         startY;
 
       const verticalEnough =
-        Math.abs(
-          deltaY
-        ) >= 24 &&
-        Math.abs(
-          deltaY
-        ) >
-        Math.abs(
-          deltaX
-        ) *
-        1.15;
+        Math.abs(deltaY) >= 24 &&
+        Math.abs(deltaY) >
+        Math.abs(deltaX) * 1.15;
 
-      if (
-        !verticalEnough
-      ) {
+      if (!verticalEnough) {
         return;
       }
 
       if (
-        direction ===
-          "open" &&
-        deltaY <
-          0
+        direction === "open" &&
+        deltaY < 0
       ) {
         mobileTrayGestureMoved =
           true;
@@ -1085,10 +829,8 @@ function attachVerticalTrayGesture(
       }
 
       if (
-        direction ===
-          "close" &&
-        deltaY >
-          0
+        direction === "close" &&
+        deltaY > 0
       ) {
         mobileTrayGestureMoved =
           true;
@@ -1096,25 +838,18 @@ function attachVerticalTrayGesture(
         closeMobileThumbnailTray();
       }
 
-      if (
-        mobileTrayGestureMoved
-      ) {
-        window.setTimeout(
-          () => {
-            mobileTrayGestureMoved =
-              false;
-          },
-          350
-        );
+      if (mobileTrayGestureMoved) {
+        window.setTimeout(() => {
+          mobileTrayGestureMoved =
+            false;
+        }, 350);
       }
     },
     {
-      passive:
-        true
+      passive: true
     }
   );
 }
-
 
 function initialiseMobileThumbnailTray() {
   if (
@@ -1133,26 +868,21 @@ function initialiseMobileThumbnailTray() {
   mobileThumbnailContainer.addEventListener(
     "scroll",
     () => {
-      if (
-        !mobileThumbnailTrayOpen
-      ) {
+      if (!mobileThumbnailTrayOpen) {
         return;
       }
 
-      window.requestAnimationFrame(
-        () => {
-          trimThumbnailMemory(
-            mobileThumbnailContainer,
-            ".mobile-thumbnail-button",
-            mobileCurrentPage,
-            true
-          );
-        }
-      );
+      window.requestAnimationFrame(() => {
+        trimThumbnailMemory(
+          mobileThumbnailContainer,
+          ".mobile-thumbnail-button",
+          mobileCurrentPage,
+          true
+        );
+      });
     },
     {
-      passive:
-        true
+      passive: true
     }
   );
 
@@ -1169,9 +899,7 @@ function initialiseMobileThumbnailTray() {
   mobileThumbnailHandle.addEventListener(
     "click",
     () => {
-      if (
-        !mobileTrayGestureMoved
-      ) {
+      if (!mobileTrayGestureMoved) {
         openMobileThumbnailTray();
       }
     }
@@ -1180,15 +908,12 @@ function initialiseMobileThumbnailTray() {
   mobileThumbnailTrayHandle.addEventListener(
     "click",
     () => {
-      if (
-        !mobileTrayGestureMoved
-      ) {
+      if (!mobileTrayGestureMoved) {
         closeMobileThumbnailTray();
       }
     }
   );
 }
-
 
 /* =========================================================
    CONTENTS
@@ -1196,25 +921,20 @@ function initialiseMobileThumbnailTray() {
 
 function createContentsButton(
   pageNumber,
-  extraClass =
-    ""
+  extraClass = ""
 ) {
   const button =
     document.createElement(
       "button"
     );
 
-  button.type =
-    "button";
+  button.type = "button";
 
   button.className =
     `contents-button ${extraClass}`.trim();
 
   button.dataset.pageIndex =
-    String(
-      pageNumber -
-      1
-    );
+    String(pageNumber - 1);
 
   button.setAttribute(
     "aria-label",
@@ -1265,8 +985,7 @@ function createContentsButton(
     "true"
   );
 
-  arrow.textContent =
-    "›";
+  arrow.textContent = "›";
 
   button.append(
     copy,
@@ -1289,16 +1008,12 @@ function createContentsButton(
   return button;
 }
 
-
 function buildContents() {
-  if (
-    !contentsList
-  ) {
+  if (!contentsList) {
     return;
   }
 
-  contentsList.innerHTML =
-    "";
+  contentsList.innerHTML = "";
 
   const home =
     document.createElement(
@@ -1315,14 +1030,10 @@ function buildContents() {
     )
   );
 
-  contentsList.appendChild(
-    home
-  );
+  contentsList.appendChild(home);
 
   contentsSections.forEach(
-    (
-      section
-    ) => {
+    (section) => {
       const sectionElement =
         document.createElement(
           "section"
@@ -1359,19 +1070,15 @@ function buildContents() {
         "contents-section-range";
 
       const firstPage =
-        section.pages[
-          0
-        ];
+        section.pages[0];
 
       const lastPage =
         section.pages[
-          section.pages.length -
-          1
+          section.pages.length - 1
         ];
 
       range.textContent =
-        firstPage ===
-        lastPage
+        firstPage === lastPage
           ? `Page ${firstPage}`
           : `Pages ${firstPage}–${lastPage}`;
 
@@ -1389,9 +1096,7 @@ function buildContents() {
         "contents-section-grid";
 
       section.pages.forEach(
-        (
-          page
-        ) => {
+        (page) => {
           grid.appendChild(
             createContentsButton(
               page
@@ -1412,7 +1117,6 @@ function buildContents() {
   );
 }
 
-
 /* =========================================================
    SOUND
    ========================================================= */
@@ -1427,12 +1131,8 @@ function playPageTurnSound() {
 
   try {
     pageSound.pause();
-
-    pageSound.currentTime =
-      0;
-
-    pageSound.volume =
-      0.28;
+    pageSound.currentTime = 0;
+    pageSound.volume = 0.28;
 
     const promise =
       pageSound.play();
@@ -1442,14 +1142,9 @@ function playPageTurnSound() {
       typeof promise.catch ===
         "function"
     ) {
-      promise.catch(
-        () => {}
-      );
+      promise.catch(() => {});
     }
-
-  } catch (
-    error
-  ) {
+  } catch (error) {
     console.warn(
       "Page sound unavailable:",
       error
@@ -1457,20 +1152,16 @@ function playPageTurnSound() {
   }
 }
 
-
 /* =========================================================
    DESKTOP FLIPBOOK
    ========================================================= */
 
 function createDesktopPages() {
-  if (
-    !bookElement
-  ) {
+  if (!bookElement) {
     return;
   }
 
-  bookElement.innerHTML =
-    "";
+  bookElement.innerHTML = "";
 
   desktopPageImages.clear();
 
@@ -1484,19 +1175,14 @@ function createDesktopPages() {
         "div"
       );
 
-    page.className =
-      "page";
+    page.className = "page";
 
     page.dataset.pageNumber =
-      String(
-        pageNumber
-      );
+      String(pageNumber);
 
     if (
-      pageNumber ===
-        1 ||
-      pageNumber ===
-        totalPages
+      pageNumber === 1 ||
+      pageNumber === totalPages
     ) {
       page.classList.add(
         "page-cover"
@@ -1514,25 +1200,20 @@ function createDesktopPages() {
     image.alt =
       `${getPageTitle(pageNumber)} — Keswick Discos Wedding Brochure`;
 
-    image.decoding =
-      "async";
+    image.decoding = "async";
 
     image.loading =
-      pageNumber <=
-        4
+      pageNumber <= 4
         ? "eager"
         : "lazy";
 
     image.fetchPriority =
-      pageNumber ===
-        1
+      pageNumber === 1
         ? "high"
         : "auto";
 
     image.dataset.src =
-      imagePath(
-        pageNumber
-      );
+      imagePath(pageNumber);
 
     image.dataset.loadState =
       "waiting";
@@ -1545,9 +1226,7 @@ function createDesktopPages() {
       image
     );
 
-    page.appendChild(
-      image
-    );
+    page.appendChild(image);
 
     bookElement.appendChild(
       page
@@ -1555,15 +1234,10 @@ function createDesktopPages() {
   }
 }
 
-
 function ensureDesktopPageLoaded(
   pageNumber
 ) {
-  if (
-    !validPageNumber(
-      pageNumber
-    )
-  ) {
+  if (!validPageNumber(pageNumber)) {
     return Promise.resolve();
   }
 
@@ -1572,9 +1246,7 @@ function ensureDesktopPageLoaded(
       pageNumber
     );
 
-  if (
-    !image
-  ) {
+  if (!image) {
     return Promise.resolve();
   }
 
@@ -1596,110 +1268,81 @@ function ensureDesktopPageLoaded(
   }
 
   const promise =
-    new Promise(
-      (
-        resolve
-      ) => {
-        let settled =
-          false;
+    new Promise((resolve) => {
+      let settled = false;
 
-        const finish =
-          (
-            state
-          ) => {
-            if (
-              settled
-            ) {
-              return;
-            }
-
-            settled =
-              true;
-
-            image.dataset.loadState =
-              state;
-
-            desktopPageLoadPromises.delete(
-              pageNumber
-            );
-
-            resolve();
-          };
-
-        const loaded =
-          async () => {
-            try {
-              if (
-                typeof image.decode ===
-                  "function"
-              ) {
-                await image.decode();
-              }
-
-            } catch (
-              error
-            ) {}
-
-            finish(
-              "loaded"
-            );
-          };
-
-        image.dataset.loadState =
-          "loading";
-
-        image.loading =
-          "eager";
-
-        if (
-          !image.getAttribute(
-            "src"
-          )
-        ) {
-          image.src =
-            image.dataset.src;
-        }
-
-        if (
-          image.complete
-        ) {
-          if (
-            image.naturalWidth >
-              0
-          ) {
-            void loaded();
-          } else {
-            finish(
-              "error"
-            );
-          }
-
+      const finish = (state) => {
+        if (settled) {
           return;
         }
 
-        image.addEventListener(
-          "load",
-          loaded,
-          {
-            once:
-              true
-          }
+        settled = true;
+
+        image.dataset.loadState =
+          state;
+
+        desktopPageLoadPromises.delete(
+          pageNumber
         );
 
-        image.addEventListener(
-          "error",
-          () => {
-            finish(
-              "error"
-            );
-          },
-          {
-            once:
-              true
+        resolve();
+      };
+
+      const loaded = async () => {
+        try {
+          if (
+            typeof image.decode ===
+            "function"
+          ) {
+            await image.decode();
           }
-        );
+        } catch (error) {}
+
+        finish("loaded");
+      };
+
+      image.dataset.loadState =
+        "loading";
+
+      image.loading = "eager";
+
+      if (
+        !image.getAttribute("src")
+      ) {
+        image.src =
+          image.dataset.src;
       }
-    );
+
+      if (image.complete) {
+        if (
+          image.naturalWidth > 0
+        ) {
+          void loaded();
+        } else {
+          finish("error");
+        }
+
+        return;
+      }
+
+      image.addEventListener(
+        "load",
+        loaded,
+        {
+          once: true
+        }
+      );
+
+      image.addEventListener(
+        "error",
+        () => {
+          finish("error");
+        },
+        {
+          once: true
+        }
+      );
+    });
 
   desktopPageLoadPromises.set(
     pageNumber,
@@ -1708,7 +1351,6 @@ function ensureDesktopPageLoaded(
 
   return promise;
 }
-
 
 function preloadDesktopAround(
   pageNumber
@@ -1719,15 +1361,12 @@ function preloadDesktopAround(
     );
 
   for (
-    let offset =
-      -2;
-    offset <=
-      6;
+    let offset = -2;
+    offset <= 6;
     offset += 1
   ) {
     const candidate =
-      current +
-      offset;
+      current + offset;
 
     if (
       validPageNumber(
@@ -1741,30 +1380,19 @@ function preloadDesktopAround(
   }
 }
 
-
 async function loadDesktopStartupPages(
   startingPage
 ) {
   const pages =
-    new Set(
-      [
-        startingPage,
-        startingPage -
-          1,
-        startingPage +
-          1,
-        startingPage +
-          2
-      ]
-    );
+    new Set([
+      startingPage,
+      startingPage - 1,
+      startingPage + 1,
+      startingPage + 2
+    ]);
 
-  if (
-    startingPage ===
-      1
-  ) {
-    pages.add(
-      3
-    );
+  if (startingPage === 1) {
+    pages.add(3);
   }
 
   const criticalPages =
@@ -1772,31 +1400,23 @@ async function loadDesktopStartupPages(
       validPageNumber
     );
 
-  let complete =
-    0;
+  let complete = 0;
 
-  if (
-    loadingProgress
-  ) {
+  if (loadingProgress) {
     loadingProgress.style.width =
       "8%";
   }
 
   await Promise.all(
     criticalPages.map(
-      async (
-        pageNumber
-      ) => {
+      async (pageNumber) => {
         await ensureDesktopPageLoaded(
           pageNumber
         );
 
-        complete +=
-          1;
+        complete += 1;
 
-        if (
-          loadingProgress
-        ) {
+        if (loadingProgress) {
           loadingProgress.style.width =
             `${Math.round(
               8 +
@@ -1811,7 +1431,6 @@ async function loadDesktopStartupPages(
     )
   );
 }
-
 
 function initialiseDesktopFlipbook(
   startingPage
@@ -1829,62 +1448,26 @@ function initialiseDesktopFlipbook(
     new St.PageFlip(
       bookElement,
       {
-        width:
-          pageWidth,
-
-        height:
-          pageHeight,
-
-        size:
-          "stretch",
-
-        minWidth:
-          280,
-
-        maxWidth:
-          pageWidth,
-
-        minHeight:
-          396,
-
-        maxHeight:
-          pageHeight,
-
-        showCover:
-          true,
-
-        usePortrait:
-          true,
-
-        autoSize:
-          true,
-
-        drawShadow:
-          true,
-
-        maxShadowOpacity:
-          0.45,
-
-        flippingTime:
-          850,
-
-        mobileScrollSupport:
-          false,
-
-        clickEventForward:
-          true,
-
+        width: pageWidth,
+        height: pageHeight,
+        size: "stretch",
+        minWidth: 280,
+        maxWidth: pageWidth,
+        minHeight: 396,
+        maxHeight: pageHeight,
+        showCover: true,
+        usePortrait: true,
+        autoSize: true,
+        drawShadow: true,
+        maxShadowOpacity: 0.45,
+        flippingTime: 850,
+        mobileScrollSupport: false,
+        clickEventForward: true,
         useMouseEvents:
           !isTouchDevice,
-
-        swipeDistance:
-          30,
-
-        showPageCorners:
-          true,
-
-        disableFlipByClick:
-          false
+        swipeDistance: 30,
+        showPageCorners: true,
+        disableFlipByClick: false
       }
     );
 
@@ -1897,20 +1480,16 @@ function initialiseDesktopFlipbook(
   pageFlip.on(
     "init",
     () => {
-      if (
-        zoomContainer
-      ) {
+      if (zoomContainer) {
         zoomContainer.style.transform =
           "none";
       }
 
       if (
-        startingPage >
-          1
+        startingPage > 1
       ) {
         pageFlip.turnToPage(
-          startingPage -
-          1
+          startingPage - 1
         );
       }
 
@@ -1921,26 +1500,15 @@ function initialiseDesktopFlipbook(
 
           const page =
             clampPageNumber(
-              index +
-              1
+              index + 1
             );
 
-          updateInterface(
-            index
-          );
-
-          updateUrlPage(
-            page
-          );
-
-          preloadDesktopAround(
-            page
-          );
-
+          updateInterface(index);
+          updateUrlPage(page);
+          preloadDesktopAround(page);
           hideLoadingScreen();
         },
-        startingPage >
-          1
+        startingPage > 1
           ? 100
           : 30
       );
@@ -1949,31 +1517,19 @@ function initialiseDesktopFlipbook(
 
   pageFlip.on(
     "flip",
-    (
-      event
-    ) => {
+    (event) => {
       const index =
         event.data;
 
       const page =
         clampPageNumber(
-          index +
-          1
+          index + 1
         );
 
-      updateInterface(
-        index
-      );
-
-      updateUrlPage(
-        page
-      );
-
+      updateInterface(index);
+      updateUrlPage(page);
       playPageTurnSound();
-
-      preloadDesktopAround(
-        page
-      );
+      preloadDesktopAround(page);
     }
   );
 
@@ -1985,13 +1541,10 @@ function initialiseDesktopFlipbook(
           const index =
             pageFlip.getCurrentPageIndex();
 
-          updateInterface(
-            index
-          );
+          updateInterface(index);
 
           preloadDesktopAround(
-            index +
-            1
+            index + 1
           );
         },
         120
@@ -1999,7 +1552,6 @@ function initialiseDesktopFlipbook(
     }
   );
 }
-
 
 /* =========================================================
    MOBILE IMAGE CACHE
@@ -2009,13 +1561,9 @@ function prefetchMobilePageBytes(
   pageNumber
 ) {
   if (
-    !validPageNumber(
-      pageNumber
-    )
+    !validPageNumber(pageNumber)
   ) {
-    return Promise.resolve(
-      false
-    );
+    return Promise.resolve(false);
   }
 
   if (
@@ -2030,54 +1578,37 @@ function prefetchMobilePageBytes(
 
   const promise =
     fetch(
-      imagePath(
-        pageNumber
-      ),
+      imagePath(pageNumber),
       {
-        cache:
-          "force-cache",
-
-        credentials:
-          "same-origin"
+        cache: "force-cache",
+        credentials: "same-origin"
       }
     )
 
-      .then(
-        (
-          response
-        ) => {
-          if (
-            !response.ok
-          ) {
-            throw new Error(
-              `Unable to prefetch page ${pageNumber}`
-            );
-          }
-
-          return response.arrayBuffer();
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            `Unable to prefetch page ${pageNumber}`
+          );
         }
-      )
 
-      .then(
-        () => true
-      )
+        return response.arrayBuffer();
+      })
 
-      .catch(
-        (
+      .then(() => true)
+
+      .catch((error) => {
+        console.warn(
+          `Background prefetch failed for page ${pageNumber}:`,
           error
-        ) => {
-          console.warn(
-            `Background prefetch failed for page ${pageNumber}:`,
-            error
-          );
+        );
 
-          mobileBytePrefetchPromises.delete(
-            pageNumber
-          );
+        mobileBytePrefetchPromises.delete(
+          pageNumber
+        );
 
-          return false;
-        }
-      );
+        return false;
+      });
 
   mobileBytePrefetchPromises.set(
     pageNumber,
@@ -2087,92 +1618,72 @@ function prefetchMobilePageBytes(
   return promise;
 }
 
-
 function waitForReadyImage(
   image,
   source
 ) {
   return new Promise(
-    (
-      resolve,
-      reject
-    ) => {
-      let settled =
-        false;
+    (resolve, reject) => {
+      let settled = false;
 
-      const cleanup =
-        () => {
-          image.removeEventListener(
-            "load",
-            loaded
-          );
+      const cleanup = () => {
+        image.removeEventListener(
+          "load",
+          loaded
+        );
 
-          image.removeEventListener(
-            "error",
-            failed
-          );
-        };
+        image.removeEventListener(
+          "error",
+          failed
+        );
+      };
 
-      const loaded =
-        async () => {
+      const loaded = async () => {
+        if (settled) {
+          return;
+        }
+
+        settled = true;
+
+        cleanup();
+
+        try {
           if (
-            settled
+            typeof image.decode ===
+            "function"
           ) {
-            return;
+            await image.decode();
           }
+        } catch (error) {}
 
-          settled =
-            true;
-
-          cleanup();
-
-          try {
-            if (
-              typeof image.decode ===
-                "function"
-            ) {
-              await image.decode();
-            }
-
-          } catch (
-            error
-          ) {}
-
-          if (
-            image.naturalWidth >
-              0
-          ) {
-            resolve(
-              image
-            );
-          } else {
-            reject(
-              new Error(
-                "Image loaded without usable dimensions."
-              )
-            );
-          }
-        };
-
-      const failed =
-        () => {
-          if (
-            settled
-          ) {
-            return;
-          }
-
-          settled =
-            true;
-
-          cleanup();
-
+        if (
+          image.naturalWidth > 0
+        ) {
+          resolve(image);
+        } else {
           reject(
             new Error(
-              `Unable to load ${source}`
+              "Image loaded without usable dimensions."
             )
           );
-        };
+        }
+      };
+
+      const failed = () => {
+        if (settled) {
+          return;
+        }
+
+        settled = true;
+
+        cleanup();
+
+        reject(
+          new Error(
+            `Unable to load ${source}`
+          )
+        );
+      };
 
       image.addEventListener(
         "load",
@@ -2184,17 +1695,13 @@ function waitForReadyImage(
         failed
       );
 
-      image.src =
-        source;
+      image.src = source;
 
-      if (
-        image.complete
-      ) {
+      if (image.complete) {
         window.queueMicrotask(
           () => {
             if (
-              image.naturalWidth >
-                0
+              image.naturalWidth > 0
             ) {
               void loaded();
             } else {
@@ -2207,14 +1714,11 @@ function waitForReadyImage(
   );
 }
 
-
 function prepareMobilePageImage(
   pageNumber
 ) {
   if (
-    !validPageNumber(
-      pageNumber
-    )
+    !validPageNumber(pageNumber)
   ) {
     return Promise.reject(
       new Error(
@@ -2242,37 +1746,24 @@ function prepareMobilePageImage(
   image.alt =
     `${getPageTitle(pageNumber)} — Keswick Discos Wedding Brochure`;
 
-  image.decoding =
-    "async";
-
-  image.loading =
-    "eager";
-
-  image.fetchPriority =
-    "high";
-
-  image.draggable =
-    false;
+  image.decoding = "async";
+  image.loading = "eager";
+  image.fetchPriority = "high";
+  image.draggable = false;
 
   const promise =
     waitForReadyImage(
       image,
-      imagePath(
-        pageNumber
-      )
+      imagePath(pageNumber)
     )
 
-      .catch(
-        (
-          error
-        ) => {
-          mobileReadyImagePromises.delete(
-            pageNumber
-          );
+      .catch((error) => {
+        mobileReadyImagePromises.delete(
+          pageNumber
+        );
 
-          throw error;
-        }
-      );
+        throw error;
+      });
 
   mobileReadyImagePromises.set(
     pageNumber,
@@ -2282,6 +1773,92 @@ function prepareMobilePageImage(
   return promise;
 }
 
+/*
+ * Initial mobile fast buffer.
+ *
+ * We cache up to eight brochure pages at startup, but only
+ * keep the nearest few decoded. This avoids the old page-6
+ * network pause without holding the whole 26-page brochure
+ * in decoded image memory.
+ */
+async function primeInitialMobileBuffer(
+  startingPage
+) {
+  if (!isMobileViewer) {
+    return;
+  }
+
+  const pages = [];
+
+  for (
+    let page = startingPage;
+    page <= totalPages &&
+    pages.length < 8;
+    page += 1
+  ) {
+    pages.push(page);
+  }
+
+  for (
+    let page = startingPage - 1;
+    page >= 1 &&
+    pages.length < 8;
+    page -= 1
+  ) {
+    pages.push(page);
+  }
+
+  const queue =
+    pages.filter((page) => {
+      return (
+        page !== startingPage
+      );
+    });
+
+  /*
+   * Three small cache workers give the opening section a
+   * quick head start without flooding the connection.
+   */
+  const worker = async () => {
+    while (queue.length > 0) {
+      const page =
+        queue.shift();
+
+      await prefetchMobilePageBytes(
+        page
+      );
+    }
+  };
+
+  await Promise.all([
+    worker(),
+    worker(),
+    worker()
+  ]);
+
+  /*
+   * Keep the next three pages decoded as well. The remaining
+   * pages in the eight-page buffer stay in the browser cache
+   * and can be decoded very quickly if requested.
+   */
+  const readyPages = [
+    startingPage + 1,
+    startingPage + 2,
+    startingPage + 3
+  ].filter(
+    validPageNumber
+  );
+
+  await Promise.all(
+    readyPages.map((page) => {
+      return prepareMobilePageImage(
+        page
+      ).catch(
+        () => null
+      );
+    })
+  );
+}
 
 /*
  * Keeps the most useful nearby pages decoded and ready.
@@ -2322,13 +1899,9 @@ function preloadMobileAround(
         ];
 
   readyCandidates.forEach(
-    (
-      candidate
-    ) => {
+    (candidate) => {
       if (
-        validPageNumber(
-          candidate
-        )
+        validPageNumber(candidate)
       ) {
         void prepareMobilePageImage(
           candidate
@@ -2340,13 +1913,9 @@ function preloadMobileAround(
   );
 
   byteCandidates.forEach(
-    (
-      candidate
-    ) => {
+    (candidate) => {
       if (
-        validPageNumber(
-          candidate
-        )
+        validPageNumber(candidate)
       ) {
         void prefetchMobilePageBytes(
           candidate
@@ -2356,24 +1925,19 @@ function preloadMobileAround(
   );
 
   const keepReady =
-    new Set(
-      [
-        pageNumber,
-        ...readyCandidates.filter(
-          validPageNumber
-        )
-      ]
-    );
+    new Set([
+      pageNumber,
+      ...readyCandidates.filter(
+        validPageNumber
+      )
+    ]);
 
   for (
     const page
-    of
-    mobileReadyImagePromises.keys()
+    of mobileReadyImagePromises.keys()
   ) {
     if (
-      !keepReady.has(
-        page
-      )
+      !keepReady.has(page)
     ) {
       mobileReadyImagePromises.delete(
         page
@@ -2381,7 +1945,6 @@ function preloadMobileAround(
     }
   }
 }
-
 
 /*
  * The rest of the brochure is NOT fetched immediately.
@@ -2392,22 +1955,17 @@ function preloadMobileAround(
 function scheduleMobileBackgroundWarm(
   startingPage
 ) {
-  if (
-    !isMobileViewer
-  ) {
+  if (!isMobileViewer) {
     return;
   }
 
-  if (
-    mobileWarmTimer
-  ) {
+  if (mobileWarmTimer) {
     window.clearTimeout(
       mobileWarmTimer
     );
   }
 
-  mobileWarmGeneration +=
-    1;
+  mobileWarmGeneration += 1;
 
   const generation =
     mobileWarmGeneration;
@@ -2415,8 +1973,7 @@ function scheduleMobileBackgroundWarm(
   mobileWarmTimer =
     window.setTimeout(
       () => {
-        mobileWarmTimer =
-          null;
+        mobileWarmTimer = null;
 
         void warmEntireMobileBrochure(
           startingPage,
@@ -2426,7 +1983,6 @@ function scheduleMobileBackgroundWarm(
       2500
     );
 }
-
 
 async function warmEntireMobileBrochure(
   startingPage,
@@ -2445,20 +2001,16 @@ async function warmEntireMobileBrochure(
     navigator.mozConnection ||
     navigator.webkitConnection;
 
-  if (
-    connection?.saveData
-  ) {
+  if (connection?.saveData) {
     return;
   }
 
   const direction =
-    mobileLastDirection >=
-      0
+    mobileLastDirection >= 0
       ? 1
       : -1;
 
-  const queue =
-    [];
+  const queue = [];
 
   for (
     let distance = 1;
@@ -2467,32 +2019,22 @@ async function warmEntireMobileBrochure(
   ) {
     const forward =
       startingPage +
-      distance *
-      direction;
+      distance * direction;
 
     const backward =
       startingPage -
-      distance *
-      direction;
+      distance * direction;
 
     if (
-      validPageNumber(
-        forward
-      )
+      validPageNumber(forward)
     ) {
-      queue.push(
-        forward
-      );
+      queue.push(forward);
     }
 
     if (
-      validPageNumber(
-        backward
-      )
+      validPageNumber(backward)
     ) {
-      queue.push(
-        backward
-      );
+      queue.push(backward);
     }
   }
 
@@ -2502,14 +2044,10 @@ async function warmEntireMobileBrochure(
    * The moment the user navigates again,
    * mobileWarmGeneration changes and this stops.
    */
-  for (
-    const page
-    of
-    queue
-  ) {
+  for (const page of queue) {
     if (
       generation !==
-        mobileWarmGeneration
+      mobileWarmGeneration
     ) {
       return;
     }
@@ -2520,31 +2058,25 @@ async function warmEntireMobileBrochure(
 
     if (
       generation !==
-        mobileWarmGeneration
+      mobileWarmGeneration
     ) {
       return;
     }
 
-    await wait(
-      120
-    );
+    await wait(120);
   }
 }
-
 
 /* =========================================================
    MOBILE VIEWER
    ========================================================= */
 
 function createMobileViewer() {
-  if (
-    !bookElement
-  ) {
+  if (!bookElement) {
     return;
   }
 
-  bookElement.innerHTML =
-    "";
+  bookElement.innerHTML = "";
 
   bookElement.classList.add(
     "mobile-book"
@@ -2584,7 +2116,6 @@ function createMobileViewer() {
   );
 }
 
-
 /*
  * Actually loads and displays a mobile page.
  *
@@ -2599,9 +2130,7 @@ async function commitMobilePageRequest(
     playSound = false
   } = {}
 ) {
-  if (
-    !mobileMainImage
-  ) {
+  if (!mobileMainImage) {
     return false;
   }
 
@@ -2625,10 +2154,7 @@ async function commitMobilePageRequest(
       await prepareMobilePageImage(
         safePage
       );
-
-  } catch (
-    error
-  ) {
+  } catch (error) {
     console.error(
       `Unable to prepare page ${safePage}:`,
       error
@@ -2643,9 +2169,7 @@ async function commitMobilePageRequest(
         `Page ${mobileCurrentPage} of ${totalPages}`;
     }
 
-    if (
-      initial
-    ) {
+    if (initial) {
       throw error;
     }
 
@@ -2681,8 +2205,7 @@ async function commitMobilePageRequest(
     safePage;
 
   updateInterface(
-    safePage -
-    1
+    safePage - 1
   );
 
   updateUrlPage(
@@ -2707,17 +2230,14 @@ async function commitMobilePageRequest(
     centreThumbnail(
       mobileThumbnailContainer,
       ".mobile-thumbnail-button",
-      safePage -
-      1,
+      safePage - 1,
       initial
         ? "auto"
         : "smooth"
     );
   }
 
-  if (
-    playSound
-  ) {
+  if (playSound) {
     playPageTurnSound();
   }
 
@@ -2727,7 +2247,6 @@ async function commitMobilePageRequest(
 
   return true;
 }
-
 
 /*
  * Direct page selection from:
@@ -2746,9 +2265,7 @@ async function showMobilePage(
       pageNumber
     );
 
-  if (
-    mobileNavigationTimer
-  ) {
+  if (mobileNavigationTimer) {
     window.clearTimeout(
       mobileNavigationTimer
     );
@@ -2757,9 +2274,7 @@ async function showMobilePage(
       null;
   }
 
-  if (
-    mobileWarmTimer
-  ) {
+  if (mobileWarmTimer) {
     window.clearTimeout(
       mobileWarmTimer
     );
@@ -2771,8 +2286,7 @@ async function showMobilePage(
   /*
    * Invalidates any old page load and any background warm.
    */
-  mobileWarmGeneration +=
-    1;
+  mobileWarmGeneration += 1;
 
   mobileLastDirection =
     safePage >=
@@ -2795,7 +2309,6 @@ async function showMobilePage(
     }
   );
 }
-
 
 /*
  * Fast arrow navigation.
@@ -2832,8 +2345,7 @@ function queueMobileRelativeNavigation(
 
   const targetPage =
     clampPageNumber(
-      basePage +
-      delta
+      basePage + delta
     );
 
   if (
@@ -2844,8 +2356,7 @@ function queueMobileRelativeNavigation(
   }
 
   mobileLastDirection =
-    delta >=
-      0
+    delta >= 0
       ? 1
       : -1;
 
@@ -2859,38 +2370,30 @@ function queueMobileRelativeNavigation(
   const requestId =
     ++mobileNavigationRequestId;
 
-  if (
-    pageStatus
-  ) {
+  if (pageStatus) {
     pageStatus.textContent =
       `Loading page ${targetPage}…`;
   }
 
-  if (
-    mobileNavigationTimer
-  ) {
+  if (mobileNavigationTimer) {
     window.clearTimeout(
       mobileNavigationTimer
     );
   }
 
-  if (
-    mobileWarmTimer
-  ) {
+  if (mobileWarmTimer) {
     window.clearTimeout(
       mobileWarmTimer
     );
 
-    mobileWarmTimer =
-      null;
+    mobileWarmTimer = null;
   }
 
   /*
    * Stop any low-priority background downloading while
    * the reader is actively changing pages.
    */
-  mobileWarmGeneration +=
-    1;
+  mobileWarmGeneration += 1;
 
   /*
    * Tiny 85ms debounce:
@@ -2908,18 +2411,14 @@ function queueMobileRelativeNavigation(
           targetPage,
           requestId,
           {
-            initial:
-              false,
-
-            playSound:
-              true
+            initial: false,
+            playSound: true
           }
         );
       },
       85
     );
 }
-
 
 /* =========================================================
    NAVIGATION
@@ -2928,9 +2427,7 @@ function queueMobileRelativeNavigation(
 async function goToPage(
   pageNumber
 ) {
-  if (
-    isImageZoomOpen()
-  ) {
+  if (isImageZoomOpen()) {
     return;
   }
 
@@ -2939,9 +2436,7 @@ async function goToPage(
       pageNumber
     );
 
-  if (
-    isMobileViewer
-  ) {
+  if (isMobileViewer) {
     if (
       safePage ===
         mobileRequestedPage &&
@@ -2967,59 +2462,44 @@ async function goToPage(
     return;
   }
 
-  navigationLocked =
-    true;
+  navigationLocked = true;
 
   try {
-    await Promise.all(
-      [
-        ensureDesktopPageLoaded(
-          safePage
-        ),
-
-        ensureDesktopPageLoaded(
-          safePage -
-          1
-        ),
-
-        ensureDesktopPageLoaded(
-          safePage +
-          1
-        )
-      ]
-    );
+    await Promise.all([
+      ensureDesktopPageLoaded(
+        safePage
+      ),
+      ensureDesktopPageLoaded(
+        safePage - 1
+      ),
+      ensureDesktopPageLoaded(
+        safePage + 1
+      )
+    ]);
 
     pageFlip.turnToPage(
-      safePage -
-      1
+      safePage - 1
     );
 
     preloadDesktopAround(
       safePage
     );
-
   } finally {
     window.setTimeout(
       () => {
-        navigationLocked =
-          false;
+        navigationLocked = false;
       },
       180
     );
   }
 }
 
-
 async function goPrevious() {
-  if (
-    isImageZoomOpen()
-  ) {
+  if (isImageZoomOpen()) {
     return;
   }
 
-  if (
-    isMobileViewer
-  ) {
+  if (isMobileViewer) {
     queueMobileRelativeNavigation(
       -1
     );
@@ -3039,19 +2519,14 @@ async function goPrevious() {
 
   const target =
     clampPageNumber(
-      current -
-      1
+      current - 1
     );
 
-  if (
-    target ===
-      current
-  ) {
+  if (target === current) {
     return;
   }
 
-  navigationLocked =
-    true;
+  navigationLocked = true;
 
   try {
     await ensureDesktopPageLoaded(
@@ -3063,29 +2538,22 @@ async function goPrevious() {
     preloadDesktopAround(
       target
     );
-
   } finally {
     window.setTimeout(
       () => {
-        navigationLocked =
-          false;
+        navigationLocked = false;
       },
       pageTurnLockTime
     );
   }
 }
 
-
 async function goNext() {
-  if (
-    isImageZoomOpen()
-  ) {
+  if (isImageZoomOpen()) {
     return;
   }
 
-  if (
-    isMobileViewer
-  ) {
+  if (isMobileViewer) {
     queueMobileRelativeNavigation(
       1
     );
@@ -3105,19 +2573,14 @@ async function goNext() {
 
   const target =
     clampPageNumber(
-      current +
-      1
+      current + 1
     );
 
-  if (
-    target ===
-      current
-  ) {
+  if (target === current) {
     return;
   }
 
-  navigationLocked =
-    true;
+  navigationLocked = true;
 
   try {
     await ensureDesktopPageLoaded(
@@ -3129,18 +2592,15 @@ async function goNext() {
     preloadDesktopAround(
       target
     );
-
   } finally {
     window.setTimeout(
       () => {
-        navigationLocked =
-          false;
+        navigationLocked = false;
       },
       pageTurnLockTime
     );
   }
 }
-
 
 /* =========================================================
    INTERFACE
@@ -3151,131 +2611,77 @@ function updateInterface(
 ) {
   const page =
     clampPageNumber(
-      pageIndex +
-      1
+      pageIndex + 1
     );
 
-  if (
-    pageStatus
-  ) {
+  if (pageStatus) {
     pageStatus.textContent =
       `Page ${page} of ${totalPages}`;
   }
 
-  if (
-    pageProgress
-  ) {
+  if (pageProgress) {
     pageProgress.style.width =
-      `${
-        (
-          page /
-          totalPages
-        ) *
-        100
-      }%`;
+      `${(page / totalPages) * 100}%`;
   }
 
-  if (
-    previousButton
-  ) {
+  if (previousButton) {
     previousButton.disabled =
-      pageIndex <=
-      0;
+      pageIndex <= 0;
   }
 
-  if (
-    nextButton
-  ) {
+  if (nextButton) {
     nextButton.disabled =
       pageIndex >=
-      totalPages -
-      1;
+      totalPages - 1;
   }
 
-  if (
-    edgePrevious
-  ) {
+  if (edgePrevious) {
     edgePrevious.disabled =
-      pageIndex <=
-      0;
+      pageIndex <= 0;
   }
 
-  if (
-    edgeNext
-  ) {
+  if (edgeNext) {
     edgeNext.disabled =
       pageIndex >=
-      totalPages -
-      1;
+      totalPages - 1;
   }
 
   document
     .querySelectorAll(
       ".thumbnail-button, .mobile-thumbnail-button, .contents-button"
     )
-    .forEach(
-      (
-        button
-      ) => {
-        button.classList.toggle(
-          "active",
-          Number(
-            button.dataset.pageIndex
-          ) ===
-          pageIndex
-        );
-      }
-    );
+    .forEach((button) => {
+      button.classList.toggle(
+        "active",
+        Number(
+          button.dataset.pageIndex
+        ) === pageIndex
+      );
+    });
 }
-
 
 /* =========================================================
    ISOLATED NATIVE ZOOM READER
    ========================================================= */
 
-const ZOOM_MIN =
-  1;
+const ZOOM_MIN = 1;
+const ZOOM_MAX = 4;
+const ZOOM_STEP = 0.5;
 
-const ZOOM_MAX =
-  4;
+let zoomScale = 1;
+let zoomBaseWidth = 0;
+let zoomBaseHeight = 0;
+let zoomGeometry = null;
 
-const ZOOM_STEP =
-  0.5;
-
-let zoomScale =
-  1;
-
-let zoomBaseWidth =
-  0;
-
-let zoomBaseHeight =
-  0;
-
-let zoomGeometry =
-  null;
-
-let pinchStartDistance =
-  0;
-
-let pinchStartScale =
-  1;
-
-let pinchActive =
-  false;
-
+let pinchStartDistance = 0;
+let pinchStartScale = 1;
+let pinchActive = false;
 
 function touchDistance(
   touches
 ) {
-  const first =
-    touches[
-      0
-    ];
-
-  const second =
-    touches[
-      1
-    ];
+  const first = touches[0];
+  const second = touches[1];
 
   return Math.hypot(
     second.clientX -
@@ -3286,7 +2692,6 @@ function touchDistance(
   );
 }
 
-
 function touchMidpoint(
   touches,
   rect
@@ -3295,12 +2700,8 @@ function touchMidpoint(
     x:
       (
         (
-          touches[
-            0
-          ].clientX +
-          touches[
-            1
-          ].clientX
+          touches[0].clientX +
+          touches[1].clientX
         ) /
         2
       ) -
@@ -3309,19 +2710,14 @@ function touchMidpoint(
     y:
       (
         (
-          touches[
-            0
-          ].clientY +
-          touches[
-            1
-          ].clientY
+          touches[0].clientY +
+          touches[1].clientY
         ) /
         2
       ) -
       rect.top
   };
 }
-
 
 function calculateZoomBaseSize() {
   if (
@@ -3362,7 +2758,6 @@ function calculateZoomBaseSize() {
       fit
     );
 }
-
 
 function getGeometryForScale(
   scale
@@ -3425,13 +2820,10 @@ function getGeometryForScale(
   };
 }
 
-
 function renderZoomScale(
   scale,
-  focalX =
-    null,
-  focalY =
-    null
+  focalX = null,
+  focalY = null
 ) {
   if (
     !imageZoomScroll ||
@@ -3546,60 +2938,42 @@ function renderZoomScale(
 
   imageZoomScroll.classList.toggle(
     "is-zoomed",
-    zoomScale >
-      1.01
+    zoomScale > 1.01
   );
 
-  if (
-    zoomOutButton
-  ) {
+  if (zoomOutButton) {
     zoomOutButton.disabled =
       zoomScale <=
-      ZOOM_MIN +
-      0.01;
+      ZOOM_MIN + 0.01;
   }
 
-  if (
-    zoomInButton
-  ) {
+  if (zoomInButton) {
     zoomInButton.disabled =
       zoomScale >=
-      ZOOM_MAX -
-      0.01;
+      ZOOM_MAX - 0.01;
   }
 }
 
-
 function resetImageZoom() {
-  if (
-    !imageZoomScroll
-  ) {
+  if (!imageZoomScroll) {
     return;
   }
 
-  zoomScale =
-    1;
+  zoomScale = 1;
 
   calculateZoomBaseSize();
 
-  zoomGeometry =
-    null;
+  zoomGeometry = null;
 
-  renderZoomScale(
-    1
-  );
+  renderZoomScale(1);
 
   window.requestAnimationFrame(
     () => {
-      imageZoomScroll.scrollLeft =
-        0;
-
-      imageZoomScroll.scrollTop =
-        0;
+      imageZoomScroll.scrollLeft = 0;
+      imageZoomScroll.scrollTop = 0;
     }
   );
 }
-
 
 function zoomIn() {
   renderZoomScale(
@@ -3608,14 +2982,12 @@ function zoomIn() {
   );
 }
 
-
 function zoomOut() {
   renderZoomScale(
     zoomScale -
     ZOOM_STEP
   );
 }
-
 
 function initialiseNativeZoomGestures() {
   if (
@@ -3631,19 +3003,15 @@ function initialiseNativeZoomGestures() {
 
   imageZoomScroll.addEventListener(
     "touchstart",
-    (
-      event
-    ) => {
+    (event) => {
       if (
         !isImageZoomOpen() ||
-        event.touches.length !==
-        2
+        event.touches.length !== 2
       ) {
         return;
       }
 
-      pinchActive =
-        true;
+      pinchActive = true;
 
       pinchStartDistance =
         Math.max(
@@ -3657,21 +3025,17 @@ function initialiseNativeZoomGestures() {
         zoomScale;
     },
     {
-      passive:
-        true
+      passive: true
     }
   );
 
   imageZoomScroll.addEventListener(
     "touchmove",
-    (
-      event
-    ) => {
+    (event) => {
       if (
         !isImageZoomOpen() ||
         !pinchActive ||
-        event.touches.length !==
-        2
+        event.touches.length !== 2
       ) {
         return;
       }
@@ -3709,50 +3073,38 @@ function initialiseNativeZoomGestures() {
       );
     },
     {
-      passive:
-        false
+      passive: false
     }
   );
 
   imageZoomScroll.addEventListener(
     "touchend",
-    (
-      event
-    ) => {
+    (event) => {
       if (
-        event.touches.length <
-        2
+        event.touches.length < 2
       ) {
-        pinchActive =
-          false;
+        pinchActive = false;
       }
     },
     {
-      passive:
-        true
+      passive: true
     }
   );
 
   imageZoomScroll.addEventListener(
     "touchcancel",
     () => {
-      pinchActive =
-        false;
+      pinchActive = false;
     },
     {
-      passive:
-        true
+      passive: true
     }
   );
 
   imageZoomScroll.addEventListener(
     "wheel",
-    (
-      event
-    ) => {
-      if (
-        !isImageZoomOpen()
-      ) {
+    (event) => {
+      if (!isImageZoomOpen()) {
         return;
       }
 
@@ -3770,26 +3122,22 @@ function initialiseNativeZoomGestures() {
         rect.top;
 
       const direction =
-        event.deltaY <
-        0
+        event.deltaY < 0
           ? 1
           : -1;
 
       renderZoomScale(
         zoomScale +
-        direction *
-        0.25,
+        direction * 0.25,
         focalX,
         focalY
       );
     },
     {
-      passive:
-        false
+      passive: false
     }
   );
 }
-
 
 async function openImageZoomViewer() {
   if (
@@ -3806,8 +3154,7 @@ async function openImageZoomViewer() {
 
   closeAllPanels();
 
-  mobileSwipeLocked =
-    true;
+  mobileSwipeLocked = true;
 
   const currentPage =
     getCurrentPageNumber();
@@ -3821,20 +3168,15 @@ async function openImageZoomViewer() {
     zoomButton?.textContent ||
     "Zoom";
 
-  if (
-    zoomButton
-  ) {
-    zoomButton.disabled =
-      true;
+  if (zoomButton) {
+    zoomButton.disabled = true;
 
     zoomButton.textContent =
       "Opening…";
   }
 
   try {
-    if (
-      isMobileViewer
-    ) {
+    if (isMobileViewer) {
       void prefetchMobilePageBytes(
         currentPage
       );
@@ -3858,9 +3200,7 @@ async function openImageZoomViewer() {
       source
     );
 
-    if (
-      zoomViewerStatus
-    ) {
+    if (zoomViewerStatus) {
       zoomViewerStatus.textContent =
         `Page ${currentPage} of ${totalPages}`;
     }
@@ -3877,10 +3217,7 @@ async function openImageZoomViewer() {
     await waitForTwoFrames();
 
     resetImageZoom();
-
-  } catch (
-    error
-  ) {
+  } catch (error) {
     console.error(
       "Unable to open enlarged page:",
       error
@@ -3895,11 +3232,8 @@ async function openImageZoomViewer() {
     document.body.classList.add(
       "zoom-viewer-open"
     );
-
   } finally {
-    if (
-      zoomButton
-    ) {
+    if (zoomButton) {
       zoomButton.disabled =
         false;
 
@@ -3909,7 +3243,6 @@ async function openImageZoomViewer() {
   }
 }
 
-
 function closeImageZoomViewer() {
   if (
     !imageZoomViewer ||
@@ -3918,20 +3251,11 @@ function closeImageZoomViewer() {
     return;
   }
 
-  pinchActive =
-    false;
-
-  zoomScale =
-    1;
-
-  zoomGeometry =
-    null;
-
-  zoomBaseWidth =
-    0;
-
-  zoomBaseHeight =
-    0;
+  pinchActive = false;
+  zoomScale = 1;
+  zoomGeometry = null;
+  zoomBaseWidth = 0;
+  zoomBaseHeight = 0;
 
   imageZoomViewer.hidden =
     true;
@@ -3952,10 +3276,8 @@ function closeImageZoomViewer() {
     "style"
   );
 
-  mobileSwipeLocked =
-    false;
+  mobileSwipeLocked = false;
 }
-
 
 /* =========================================================
    ZOOM TOOLBAR INPUT SHIELD
@@ -3965,52 +3287,40 @@ function bindZoomToolbarButton(
   button,
   handler
 ) {
-  if (
-    !button
-  ) {
+  if (!button) {
     return;
   }
 
-  let suppressClickUntil =
-    0;
+  let suppressClickUntil = 0;
 
   button.addEventListener(
     "pointerdown",
-    (
-      event
-    ) => {
+    (event) => {
       if (
         event.pointerType ===
           "mouse" &&
-        event.button !==
-          0
+        event.button !== 0
       ) {
         return;
       }
 
       event.preventDefault();
-
       event.stopPropagation();
 
       suppressClickUntil =
-        Date.now() +
-        750;
+        Date.now() + 750;
 
       handler();
     },
     {
-      passive:
-        false
+      passive: false
     }
   );
 
   button.addEventListener(
     "click",
-    (
-      event
-    ) => {
+    (event) => {
       event.preventDefault();
-
       event.stopPropagation();
 
       if (
@@ -4025,31 +3335,21 @@ function bindZoomToolbarButton(
   );
 }
 
-
-if (
-  imageZoomToolbar
-) {
+if (imageZoomToolbar) {
   [
     "pointerdown",
     "pointermove",
     "pointerup",
     "click"
-  ].forEach(
-    (
-      eventName
-    ) => {
-      imageZoomToolbar.addEventListener(
-        eventName,
-        (
-          event
-        ) => {
-          event.stopPropagation();
-        }
-      );
-    }
-  );
+  ].forEach((eventName) => {
+    imageZoomToolbar.addEventListener(
+      eventName,
+      (event) => {
+        event.stopPropagation();
+      }
+    );
+  });
 }
-
 
 /* =========================================================
    CONTROLS
@@ -4078,9 +3378,7 @@ edgeNext?.addEventListener(
 firstButton?.addEventListener(
   "click",
   async () => {
-    await goToPage(
-      1
-    );
+    await goToPage(1);
 
     closeAllPanels();
 
@@ -4113,13 +3411,10 @@ bindZoomToolbarButton(
   zoomOut
 );
 
-
 window.addEventListener(
   "resize",
   () => {
-    if (
-      !isImageZoomOpen()
-    ) {
+    if (!isImageZoomOpen()) {
       return;
     }
 
@@ -4128,15 +3423,13 @@ window.addEventListener(
 
     calculateZoomBaseSize();
 
-    zoomGeometry =
-      null;
+    zoomGeometry = null;
 
     renderZoomScale(
       previousScale
     );
   }
 );
-
 
 fullscreenButton?.addEventListener(
   "click",
@@ -4148,15 +3441,11 @@ fullscreenButton?.addEventListener(
         await document
           .documentElement
           .requestFullscreen();
-
       } else {
         await document
           .exitFullscreen();
       }
-
-    } catch (
-      error
-    ) {
+    } catch (error) {
       console.error(
         "Fullscreen failed:",
         error
@@ -4164,7 +3453,6 @@ fullscreenButton?.addEventListener(
     }
   }
 );
-
 
 document.addEventListener(
   "fullscreenchange",
@@ -4179,9 +3467,7 @@ document.addEventListener(
       active
     );
 
-    if (
-      fullscreenButton
-    ) {
+    if (fullscreenButton) {
       fullscreenButton.textContent =
         active
           ? "Exit full screen"
@@ -4190,36 +3476,28 @@ document.addEventListener(
   }
 );
 
-
 shareButton?.addEventListener(
   "click",
   async () => {
     const currentPage =
       getCurrentPageNumber();
 
-    const shareData =
-      {
-        title:
-          document.title,
+    const shareData = {
+      title: document.title,
 
-        text:
-          currentPage ===
-            1
-            ? "View the Keswick Discos Wedding Brochure."
-            : `View page ${currentPage} of the Keswick Discos Wedding Brochure.`,
+      text:
+        currentPage === 1
+          ? "View the Keswick Discos Wedding Brochure."
+          : `View page ${currentPage} of the Keswick Discos Wedding Brochure.`,
 
-        url:
-          getShareUrl()
-      };
+      url: getShareUrl()
+    };
 
     try {
-      if (
-        navigator.share
-      ) {
+      if (navigator.share) {
         await navigator.share(
           shareData
         );
-
       } else {
         await navigator
           .clipboard
@@ -4238,13 +3516,10 @@ shareButton?.addEventListener(
           1800
         );
       }
-
-    } catch (
-      error
-    ) {
+    } catch (error) {
       if (
         error.name !==
-          "AbortError"
+        "AbortError"
       ) {
         console.error(
           "Sharing failed:",
@@ -4255,13 +3530,10 @@ shareButton?.addEventListener(
   }
 );
 
-
 pagesButton?.addEventListener(
   "click",
   () => {
-    if (
-      isMobileViewer
-    ) {
+    if (isMobileViewer) {
       toggleMobileThumbnailTray();
 
       return;
@@ -4287,8 +3559,7 @@ pagesButton?.addEventListener(
           centreThumbnail(
             thumbnailContainer,
             ".thumbnail-button",
-            getCurrentPageNumber() -
-            1
+            getCurrentPageNumber() - 1
           );
         },
         60
@@ -4296,7 +3567,6 @@ pagesButton?.addEventListener(
     }
   }
 );
-
 
 moreButton?.addEventListener(
   "click",
@@ -4307,7 +3577,6 @@ moreButton?.addEventListener(
   }
 );
 
-
 contentsButton?.addEventListener(
   "click",
   () => {
@@ -4317,49 +3586,36 @@ contentsButton?.addEventListener(
   }
 );
 
-
 floatingEnquire?.addEventListener(
   "click",
   openContactModal
 );
 
-
 document
   .querySelectorAll(
     "[data-close]"
   )
-  .forEach(
-    (
-      button
-    ) => {
-      button.addEventListener(
-        "click",
-        () => {
-          const targetId =
-            button.dataset.close;
+  .forEach((button) => {
+    button.addEventListener(
+      "click",
+      () => {
+        const targetId =
+          button.dataset.close;
 
-          const target =
-            $(
-              targetId
-            );
+        const target =
+          $(targetId);
 
-          if (
-            targetId ===
-              "contactModal"
-          ) {
-            closeContactModal();
-
-          } else if (
-            target
-          ) {
-            target.hidden =
-              true;
-          }
+        if (
+          targetId ===
+          "contactModal"
+        ) {
+          closeContactModal();
+        } else if (target) {
+          target.hidden = true;
         }
-      );
-    }
-  );
-
+      }
+    );
+  });
 
 copyLinkButton?.addEventListener(
   "click",
@@ -4381,10 +3637,7 @@ copyLinkButton?.addEventListener(
         },
         1600
       );
-
-    } catch (
-      error
-    ) {
+    } catch (error) {
       console.error(
         "Copy failed:",
         error
@@ -4392,7 +3645,6 @@ copyLinkButton?.addEventListener(
     }
   }
 );
-
 
 soundButton?.addEventListener(
   "click",
@@ -4409,7 +3661,6 @@ soundButton?.addEventListener(
   }
 );
 
-
 resetReadingButton?.addEventListener(
   "click",
   () => {
@@ -4417,10 +3668,7 @@ resetReadingButton?.addEventListener(
       localStorage.removeItem(
         "keswickLastPage"
       );
-
-    } catch (
-      error
-    ) {}
+    } catch (error) {}
 
     resetReadingButton.textContent =
       "Saved page cleared";
@@ -4435,7 +3683,6 @@ resetReadingButton?.addEventListener(
   }
 );
 
-
 /*
  * Mobile deliberately has no left/right page swipe.
  *
@@ -4445,19 +3692,15 @@ resetReadingButton?.addEventListener(
  * - Contents
  */
 
-
 /* =========================================================
    KEYBOARD
    ========================================================= */
 
 document.addEventListener(
   "keydown",
-  async (
-    event
-  ) => {
+  async (event) => {
     if (
-      event.key ===
-        "Escape" &&
+      event.key === "Escape" &&
       isImageZoomOpen()
     ) {
       closeImageZoomViewer();
@@ -4465,22 +3708,15 @@ document.addEventListener(
       return;
     }
 
-    if (
-      event.key ===
-      "Escape"
-    ) {
+    if (event.key === "Escape") {
       closeMobileThumbnailTray();
-
       closeAllPanels();
-
       closeContactModal();
 
       return;
     }
 
-    if (
-      isImageZoomOpen()
-    ) {
+    if (isImageZoomOpen()) {
       if (
         event.key === "+" ||
         event.key === "="
@@ -4488,9 +3724,7 @@ document.addEventListener(
         zoomIn();
       }
 
-      if (
-        event.key === "-"
-      ) {
+      if (event.key === "-") {
         zoomOut();
       }
 
@@ -4498,26 +3732,19 @@ document.addEventListener(
     }
 
     if (
-      event.key ===
-      "ArrowLeft"
+      event.key === "ArrowLeft"
     ) {
       await goPrevious();
     }
 
     if (
-      event.key ===
-      "ArrowRight"
+      event.key === "ArrowRight"
     ) {
       await goNext();
     }
 
-    if (
-      event.key ===
-      "Home"
-    ) {
-      await goToPage(
-        1
-      );
+    if (event.key === "Home") {
+      await goToPage(1);
     }
 
     if (
@@ -4528,7 +3755,6 @@ document.addEventListener(
     }
   }
 );
-
 
 /* =========================================================
    START
@@ -4546,9 +3772,7 @@ async function startMobileBrochure(
   mobileRequestedPage =
     startingPage;
 
-  if (
-    loadingProgress
-  ) {
+  if (loadingProgress) {
     loadingProgress.style.width =
       "35%";
   }
@@ -4559,16 +3783,42 @@ async function startMobileBrochure(
     false
   );
 
-  if (
-    loadingProgress
-  ) {
+  /*
+   * The first page is already visible underneath the loading
+   * screen. Before revealing the brochure, cache the opening
+   * eight-page section so fast arrow presses do not outrun
+   * the network around page 6.
+   */
+  if (mobileWarmTimer) {
+    window.clearTimeout(
+      mobileWarmTimer
+    );
+
+    mobileWarmTimer = null;
+  }
+
+  mobileWarmGeneration += 1;
+
+  if (loadingProgress) {
+    loadingProgress.style.width =
+      "62%";
+  }
+
+  await primeInitialMobileBuffer(
+    startingPage
+  );
+
+  scheduleMobileBackgroundWarm(
+    startingPage
+  );
+
+  if (loadingProgress) {
     loadingProgress.style.width =
       "100%";
   }
 
   hideLoadingScreen();
 }
-
 
 async function startDesktopBrochure(
   startingPage
@@ -4584,7 +3834,6 @@ async function startDesktopBrochure(
   );
 }
 
-
 async function startBrochure() {
   try {
     const startingPage =
@@ -4594,9 +3843,7 @@ async function startBrochure() {
 
     createDrawerThumbnails();
 
-    if (
-      isMobileViewer
-    ) {
+    if (isMobileViewer) {
       document.body.classList.add(
         "mobile-viewer-mode"
       );
@@ -4604,7 +3851,6 @@ async function startBrochure() {
       await startMobileBrochure(
         startingPage
       );
-
     } else {
       document.body.classList.add(
         "desktop-viewer-mode"
@@ -4614,31 +3860,21 @@ async function startBrochure() {
         startingPage
       );
     }
-
-  } catch (
-    error
-  ) {
-    console.error(
-      error
-    );
+  } catch (error) {
+    console.error(error);
 
     hideLoadingScreen();
 
-    if (
-      bookStage
-    ) {
+    if (bookStage) {
       bookStage.style.display =
         "none";
     }
 
-    if (
-      errorMessage
-    ) {
+    if (errorMessage) {
       errorMessage.hidden =
         false;
     }
   }
 }
-
 
 startBrochure();
