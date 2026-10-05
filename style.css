@@ -1404,7 +1404,6 @@ a:focus-visible {
 
 .image-zoom-viewer {
   position: fixed;
-
   inset: 0;
 
   z-index: 10000;
@@ -1414,6 +1413,11 @@ a:focus-visible {
   overflow: hidden;
 
   background: #020202;
+
+  isolation: isolate;
+
+  pointer-events:
+    auto !important;
 }
 
 .image-zoom-viewer[hidden] {
@@ -1421,12 +1425,13 @@ a:focus-visible {
 }
 
 .image-zoom-toolbar {
-  position: absolute;
+  position: fixed;
 
-  inset:
-    0 0 auto;
+  top: 0;
+  left: 0;
+  right: 0;
 
-  z-index: 3;
+  z-index: 10050;
 
   display: flex;
   align-items: center;
@@ -1466,6 +1471,12 @@ a:focus-visible {
 
   -webkit-backdrop-filter:
     blur(12px);
+
+  pointer-events:
+    auto !important;
+
+  touch-action:
+    manipulation;
 }
 
 .image-zoom-toolbar > span {
@@ -1476,16 +1487,29 @@ a:focus-visible {
   font-weight: 800;
 
   white-space: nowrap;
+
+  pointer-events: none;
 }
 
 .image-zoom-actions {
+  position: relative;
+
+  z-index: 10051;
+
   display: flex;
   align-items: center;
 
   gap: 5px;
+
+  pointer-events:
+    auto !important;
 }
 
 .image-zoom-toolbar button {
+  position: relative;
+
+  z-index: 10052;
+
   display: grid;
   place-items: center;
 
@@ -1519,6 +1543,18 @@ a:focus-visible {
   font-weight: 800;
 
   cursor: pointer;
+
+  pointer-events:
+    auto !important;
+
+  touch-action:
+    manipulation;
+
+  -webkit-user-select:
+    none;
+
+  user-select:
+    none;
 }
 
 .image-zoom-toolbar button:disabled {
@@ -1544,7 +1580,7 @@ a:focus-visible {
 }
 
 .image-zoom-scroll {
-  position: absolute;
+  position: fixed;
 
   left: 0;
   right: 0;
@@ -1567,16 +1603,22 @@ a:focus-visible {
       )
     );
 
+  z-index: 10010;
+
   overflow: auto;
 
   background: #020202;
 
-  overscroll-behavior: contain;
+  overscroll-behavior:
+    contain;
 
-  -webkit-overflow-scrolling: touch;
+  -webkit-overflow-scrolling:
+    touch;
 
   touch-action:
     pan-x pan-y;
+
+  pointer-events: auto;
 
   scrollbar-width: none;
 }
@@ -1618,7 +1660,7 @@ a:focus-visible {
 }
 
 .image-zoom-help {
-  position: absolute;
+  position: fixed;
 
   left: 50%;
 
@@ -1631,7 +1673,7 @@ a:focus-visible {
       )
     );
 
-  z-index: 3;
+  z-index: 10040;
 
   transform:
     translateX(-50%);
