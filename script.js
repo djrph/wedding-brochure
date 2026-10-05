@@ -86,6 +86,7 @@ const copyLinkButton = $("copyLinkButton");
 const pageSound = $("pageSound");
 
 const imageZoomViewer = $("imageZoomViewer");
+const imageZoomToolbar = imageZoomViewer?.querySelector(".image-zoom-toolbar");
 const imageZoomScroll = $("imageZoomScroll");
 const imageZoomCanvas = $("imageZoomCanvas");
 const zoomPageImage = $("zoomPageImage");
@@ -548,7 +549,7 @@ function attachVerticalTrayGesture(element, direction) {
       const vertical =
         Math.abs(dy) >= 24 &&
         Math.abs(dy) >
-          Math.abs(dx) * 1.15;
+        Math.abs(dx) * 1.15;
 
       if (!vertical) return;
 
@@ -2097,10 +2098,10 @@ function calculateZoomBaseSize() {
   const fit =
     Math.min(
       viewportWidth /
-        zoomPageImage.naturalWidth,
+      zoomPageImage.naturalWidth,
 
       viewportHeight /
-        zoomPageImage.naturalHeight
+      zoomPageImage.naturalHeight
     );
 
   zoomBaseWidth =
@@ -2316,25 +2317,18 @@ function renderZoomScale(
 function resetImageZoom() {
   if (!imageZoomScroll) return;
 
-  zoomScale =
-    1;
+  zoomScale = 1;
 
   calculateZoomBaseSize();
 
-  zoomGeometry =
-    null;
+  zoomGeometry = null;
 
-  renderZoomScale(
-    1
-  );
+  renderZoomScale(1);
 
   window.requestAnimationFrame(
     () => {
-      imageZoomScroll.scrollLeft =
-        0;
-
-      imageZoomScroll.scrollTop =
-        0;
+      imageZoomScroll.scrollLeft = 0;
+      imageZoomScroll.scrollTop = 0;
     }
   );
 }
@@ -2375,8 +2369,7 @@ function initialiseNativeZoomGestures() {
         return;
       }
 
-      pinchActive =
-        true;
+      pinchActive = true;
 
       pinchStartDistance =
         Math.max(
@@ -2448,8 +2441,7 @@ function initialiseNativeZoomGestures() {
       if (
         event.touches.length < 2
       ) {
-        pinchActive =
-          false;
+        pinchActive = false;
       }
     },
     {
@@ -2460,8 +2452,7 @@ function initialiseNativeZoomGestures() {
   imageZoomScroll.addEventListener(
     "touchcancel",
     () => {
-      pinchActive =
-        false;
+      pinchActive = false;
     },
     {
       passive: true
@@ -2659,6 +2650,76 @@ function closeImageZoomViewer() {
 }
 
 /* =========================================================
+   ZOOM TOOLBAR INPUT SHIELD
+   ========================================================= */
+
+function bindZoomToolbarButton(
+  button,
+  handler
+) {
+  if (!button) return;
+
+  let suppressClickUntil = 0;
+
+  button.addEventListener(
+    "pointerdown",
+    (event) => {
+      if (
+        event.pointerType === "mouse" &&
+        event.button !== 0
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      suppressClickUntil =
+        Date.now() +
+        750;
+
+      handler();
+    },
+    {
+      passive: false
+    }
+  );
+
+  button.addEventListener(
+    "click",
+    (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (
+        Date.now() <
+        suppressClickUntil
+      ) {
+        return;
+      }
+
+      handler();
+    }
+  );
+}
+
+if (imageZoomToolbar) {
+  [
+    "pointerdown",
+    "pointermove",
+    "pointerup",
+    "click"
+  ].forEach((eventName) => {
+    imageZoomToolbar.addEventListener(
+      eventName,
+      (event) => {
+        event.stopPropagation();
+      }
+    );
+  });
+}
+
+/* =========================================================
    CONTROLS
    ========================================================= */
 
@@ -2698,23 +2759,23 @@ zoomButton?.addEventListener(
   openImageZoomViewer
 );
 
-closeImageZoomButton?.addEventListener(
-  "click",
+bindZoomToolbarButton(
+  closeImageZoomButton,
   closeImageZoomViewer
 );
 
-resetImageZoomButton?.addEventListener(
-  "click",
+bindZoomToolbarButton(
+  resetImageZoomButton,
   resetImageZoom
 );
 
-zoomInButton?.addEventListener(
-  "click",
+bindZoomToolbarButton(
+  zoomInButton,
   zoomIn
 );
 
-zoomOutButton?.addEventListener(
-  "click",
+bindZoomToolbarButton(
+  zoomOutButton,
   zoomOut
 );
 
@@ -2871,7 +2932,8 @@ pagesButton?.addEventListener(
           centreThumbnail(
             thumbnailContainer,
             ".thumbnail-button",
-            getCurrentPageNumber() - 1
+            getCurrentPageNumber() -
+            1
           );
         },
         60
@@ -2993,15 +3055,15 @@ resetReadingButton?.addEventListener(
    =========================================================
 
    There is deliberately NO left/right page-swipe handler
-   on mobile.
+   on phones.
 
-   Phone navigation is through:
-   - the gold left/right arrows
-   - Pages / thumbnail tray
+   Mobile page navigation is via:
+   - gold previous / next arrows
+   - Pages tray
    - Contents
 
-   This prevents page-turn gestures from competing with
-   the dedicated enlarged reading surface.
+   This prevents the page-turn gesture competing with
+   the dedicated zoom reader.
 
    ========================================================= */
 
