@@ -50,18 +50,22 @@ const contentsSections = [
     title: "Getting Started",
     pages: [2, 3, 4, 5, 6]
   },
+
   {
     title: "Wedding Packages",
     pages: [7, 8, 9, 10, 11, 12, 13, 14]
   },
+
   {
     title: "Entertainment Extras",
     pages: [15, 16, 17, 18, 19, 20]
   },
+
   {
     title: "Lighting",
     pages: [21, 22, 23]
   },
+
   {
     title: "Plan Your Wedding",
     pages: [24, 25, 26]
@@ -69,15 +73,20 @@ const contentsSections = [
 ];
 
 let pageFlip = null;
+
 let mobileCurrentPage = 1;
 let mobileMainImage = null;
 
 let navigationLocked = false;
 let mobileSwipeLocked = false;
-let soundEnabled = false;
-let zoomOpening = false;
 
-let drawerThumbnailObserver = null;
+let soundEnabled = false;
+
+let zoomOpening = false;
+let zoomPanzoom = null;
+let zoomWheelHandler = null;
+let zoomChangeHandler = null;
+
 let drawerThumbnailScrollFrame = null;
 
 let mobileThumbnailScrollFrame = null;
@@ -92,11 +101,17 @@ let swipeStartX = 0;
 let swipeStartY = 0;
 let swipeStartTime = 0;
 
-const desktopPageImages = new Map();
-const desktopPageLoadPromises = new Map();
+const desktopPageImages =
+  new Map();
 
-const mobileBytePrefetchPromises = new Map();
-const mobileReadyImagePromises = new Map();
+const desktopPageLoadPromises =
+  new Map();
+
+const mobileBytePrefetchPromises =
+  new Map();
+
+const mobileReadyImagePromises =
+  new Map();
 
 const $ =
   (id) =>
@@ -273,12 +288,10 @@ function clampPageNumber(
   }
 
 
-  return Math.min(
-    totalPages,
-    Math.max(
-      1,
-      page
-    )
+  return clamp(
+    page,
+    1,
+    totalPages
   );
 }
 
@@ -355,32 +368,6 @@ function isImageZoomOpen() {
 }
 
 
-function scheduleIdle(
-  callback
-) {
-
-  if (
-    "requestIdleCallback" in window
-  ) {
-
-    window.requestIdleCallback(
-      callback,
-      {
-        timeout:
-          1500
-      }
-    );
-
-  } else {
-
-    window.setTimeout(
-      callback,
-      250
-    );
-  }
-}
-
-
 function wait(
   milliseconds
 ) {
@@ -419,6 +406,32 @@ function waitForTwoFrames() {
 }
 
 
+function scheduleIdle(
+  callback
+) {
+
+  if (
+    "requestIdleCallback" in window
+  ) {
+
+    window.requestIdleCallback(
+      callback,
+      {
+        timeout:
+          1500
+      }
+    );
+
+  } else {
+
+    window.setTimeout(
+      callback,
+      250
+    );
+  }
+}
+
+
 function hideLoadingScreen() {
 
   if (
@@ -441,7 +454,7 @@ function hideLoadingScreen() {
 
 
 /* =========================================================
-   PAGE URLS
+   URLS
    ========================================================= */
 
 function getPageFromUrl() {
@@ -528,12 +541,12 @@ function getShareUrl() {
     );
 
 
-  const currentPage =
+  const page =
     getCurrentPageNumber();
 
 
   if (
-    currentPage <= 1
+    page <= 1
   ) {
 
     url.searchParams.delete(
@@ -545,7 +558,7 @@ function getShareUrl() {
     url.searchParams.set(
       "page",
       String(
-        currentPage
+        page
       )
     );
   }
@@ -556,7 +569,7 @@ function getShareUrl() {
 
 
 /* =========================================================
-   PANELS / MODALS
+   PANELS / MODAL
    ========================================================= */
 
 function closeAllPanels() {
@@ -803,14 +816,14 @@ function createDrawerThumbnails() {
 
 
   for (
-    let pageNumber = 1;
-    pageNumber <= totalPages;
-    pageNumber += 1
+    let page = 1;
+    page <= totalPages;
+    page += 1
   ) {
 
     thumbnailContainer.appendChild(
       createThumbnailButton(
-        pageNumber,
+        page,
         "thumbnail-button"
       )
     );
@@ -833,14 +846,14 @@ function createMobileThumbnails() {
 
 
   for (
-    let pageNumber = 1;
-    pageNumber <= totalPages;
-    pageNumber += 1
+    let page = 1;
+    page <= totalPages;
+    page += 1
   ) {
 
     mobileThumbnailContainer.appendChild(
       createThumbnailButton(
-        pageNumber,
+        page,
         "mobile-thumbnail-button"
       )
     );
@@ -946,8 +959,10 @@ function isButtonNearVisible(
 
 function trimThumbnailMemory(
   container,
-  buttonSelector,
-  centrePage
+  selector,
+  centrePage,
+  unloadFar =
+    isMobileViewer
 ) {
 
   if (
@@ -960,7 +975,7 @@ function trimThumbnailMemory(
 
   container
     .querySelectorAll(
-      buttonSelector
+      selector
     )
     .forEach(
       (
@@ -1004,7 +1019,7 @@ function trimThumbnailMemory(
           );
 
         } else if (
-          isMobileViewer
+          unloadFar
         ) {
 
           unloadThumbnailImage(
@@ -1013,131 +1028,6 @@ function trimThumbnailMemory(
         }
       }
     );
-}
-
-
-function initialiseDrawerThumbnailLoading() {
-
-  if (
-    !thumbnailContainer
-  ) {
-
-    return;
-  }
-
-
-  const images =
-    thumbnailContainer.querySelectorAll(
-      "img[data-src]"
-    );
-
-
-  if (
-    "IntersectionObserver" in window
-  ) {
-
-    if (
-      drawerThumbnailObserver
-    ) {
-
-      drawerThumbnailObserver.disconnect();
-    }
-
-
-    drawerThumbnailObserver =
-      new IntersectionObserver(
-        (
-          entries
-        ) => {
-
-          entries.forEach(
-            (
-              entry
-            ) => {
-
-              if (
-                entry.isIntersecting
-              ) {
-
-                loadThumbnailImage(
-                  entry.target
-                );
-              }
-            }
-          );
-        },
-        {
-          root:
-            thumbnailContainer,
-
-          rootMargin:
-            "0px 120px",
-
-          threshold:
-            0.01
-        }
-      );
-
-
-    images.forEach(
-      (
-        image
-      ) => {
-
-        drawerThumbnailObserver.observe(
-          image
-        );
-      }
-    );
-  }
-
-
-  if (
-    !thumbnailContainer
-      .dataset
-      .memoryHandlerAttached
-  ) {
-
-    thumbnailContainer.addEventListener(
-      "scroll",
-      () => {
-
-        if (
-          drawerThumbnailScrollFrame
-        ) {
-
-          return;
-        }
-
-
-        drawerThumbnailScrollFrame =
-          window.requestAnimationFrame(
-            () => {
-
-              drawerThumbnailScrollFrame =
-                null;
-
-
-              trimThumbnailMemory(
-                thumbnailContainer,
-                ".thumbnail-button",
-                getCurrentPageNumber()
-              );
-            }
-          );
-      },
-      {
-        passive:
-          true
-      }
-    );
-
-
-    thumbnailContainer
-      .dataset
-      .memoryHandlerAttached =
-        "true";
-  }
 }
 
 
@@ -1157,14 +1047,14 @@ function centreThumbnail(
   }
 
 
-  const activeButton =
+  const button =
     container.querySelector(
       `${selector}[data-page-index="${pageIndex}"]`
     );
 
 
   if (
-    !activeButton
+    !button
   ) {
 
     return;
@@ -1172,11 +1062,11 @@ function centreThumbnail(
 
 
   const left =
-    activeButton.offsetLeft -
+    button.offsetLeft -
     container.clientWidth /
-    2 +
-    activeButton.clientWidth /
-    2;
+      2 +
+    button.clientWidth /
+      2;
 
 
   container.scrollTo(
@@ -1190,6 +1080,62 @@ function centreThumbnail(
       behavior
     }
   );
+}
+
+
+function initialiseDrawerThumbnailLoading() {
+
+  if (
+    !thumbnailContainer ||
+    thumbnailContainer
+      .dataset
+      .memoryHandlerAttached
+  ) {
+
+    return;
+  }
+
+
+  thumbnailContainer.addEventListener(
+    "scroll",
+    () => {
+
+      if (
+        drawerThumbnailScrollFrame
+      ) {
+
+        return;
+      }
+
+
+      drawerThumbnailScrollFrame =
+        window.requestAnimationFrame(
+          () => {
+
+            drawerThumbnailScrollFrame =
+              null;
+
+
+            trimThumbnailMemory(
+              thumbnailContainer,
+              ".thumbnail-button",
+              getCurrentPageNumber(),
+              false
+            );
+          }
+        );
+    },
+    {
+      passive:
+        true
+    }
+  );
+
+
+  thumbnailContainer
+    .dataset
+    .memoryHandlerAttached =
+      "true";
 }
 
 
@@ -1230,17 +1176,6 @@ function updateMobileTrayText() {
 
 
   if (
-    mobileThumbnailTrayHandle
-  ) {
-
-    mobileThumbnailTrayHandle.setAttribute(
-      "aria-label",
-      "Swipe down or tap to hide page thumbnails"
-    );
-  }
-
-
-  if (
     mobileThumbnailTrayHint
   ) {
 
@@ -1267,14 +1202,7 @@ function openMobileThumbnailTray() {
 
   if (
     !isMobileViewer ||
-    !mobileThumbnailStrip
-  ) {
-
-    return;
-  }
-
-
-  if (
+    !mobileThumbnailStrip ||
     isImageZoomOpen()
   ) {
 
@@ -1329,7 +1257,8 @@ function openMobileThumbnailTray() {
   trimThumbnailMemory(
     mobileThumbnailContainer,
     ".mobile-thumbnail-button",
-    mobileCurrentPage
+    mobileCurrentPage,
+    true
   );
 
 
@@ -1340,7 +1269,7 @@ function openMobileThumbnailTray() {
         mobileThumbnailContainer,
         ".mobile-thumbnail-button",
         mobileCurrentPage -
-        1,
+          1,
         "smooth"
       );
     },
@@ -1452,11 +1381,11 @@ function attachVerticalTrayGesture(
   }
 
 
-  let touchStartY =
+  let startY =
     0;
 
 
-  let touchStartX =
+  let startX =
     0;
 
 
@@ -1475,13 +1404,13 @@ function attachVerticalTrayGesture(
       }
 
 
-      touchStartY =
+      startY =
         event.touches[
           0
         ].clientY;
 
 
-      touchStartX =
+      startX =
         event.touches[
           0
         ].clientX;
@@ -1516,14 +1445,14 @@ function attachVerticalTrayGesture(
         event.changedTouches[
           0
         ].clientY -
-        touchStartY;
+        startY;
 
 
       const deltaX =
         event.changedTouches[
           0
         ].clientX -
-        touchStartX;
+        startX;
 
 
       const verticalEnough =
@@ -1642,7 +1571,8 @@ function initialiseMobileThumbnailTray() {
             trimThumbnailMemory(
               mobileThumbnailContainer,
               ".mobile-thumbnail-button",
-              mobileCurrentPage
+              mobileCurrentPage,
+              true
             );
           }
         );
@@ -1671,14 +1601,11 @@ function initialiseMobileThumbnailTray() {
     () => {
 
       if (
-        mobileTrayGestureMoved
+        !mobileTrayGestureMoved
       ) {
 
-        return;
+        openMobileThumbnailTray();
       }
-
-
-      openMobileThumbnailTray();
     }
   );
 
@@ -1688,14 +1615,11 @@ function initialiseMobileThumbnailTray() {
     () => {
 
       if (
-        mobileTrayGestureMoved
+        !mobileTrayGestureMoved
       ) {
 
-        return;
+        closeMobileThumbnailTray();
       }
-
-
-      closeMobileThumbnailTray();
     }
   );
 }
@@ -1837,17 +1761,17 @@ function buildContents() {
     "";
 
 
-  const coverArea =
+  const home =
     document.createElement(
       "div"
     );
 
 
-  coverArea.className =
+  home.className =
     "contents-home";
 
 
-  coverArea.appendChild(
+  home.appendChild(
     createContentsButton(
       1,
       "contents-cover-button"
@@ -1856,7 +1780,7 @@ function buildContents() {
 
 
   contentsList.appendChild(
-    coverArea
+    home
   );
 
 
@@ -1885,27 +1809,27 @@ function buildContents() {
         "contents-section-heading";
 
 
-      const headingTitle =
+      const title =
         document.createElement(
           "h3"
         );
 
 
-      headingTitle.className =
+      title.className =
         "contents-section-title";
 
 
-      headingTitle.textContent =
+      title.textContent =
         section.title;
 
 
-      const pageRange =
+      const range =
         document.createElement(
           "span"
         );
 
 
-      pageRange.className =
+      range.className =
         "contents-section-range";
 
 
@@ -1922,7 +1846,7 @@ function buildContents() {
         ];
 
 
-      pageRange.textContent =
+      range.textContent =
         firstPage ===
         lastPage
           ? `Page ${firstPage}`
@@ -1930,8 +1854,8 @@ function buildContents() {
 
 
       heading.append(
-        headingTitle,
-        pageRange
+        title,
+        range
       );
 
 
@@ -1947,12 +1871,12 @@ function buildContents() {
 
       section.pages.forEach(
         (
-          pageNumber
+          page
         ) => {
 
           grid.appendChild(
             createContentsButton(
-              pageNumber
+              page
             )
           );
         }
@@ -2001,17 +1925,17 @@ function playPageTurnSound() {
       0.28;
 
 
-    const playPromise =
+    const promise =
       pageSound.play();
 
 
     if (
-      playPromise &&
-      typeof playPromise.catch ===
-      "function"
+      promise &&
+      typeof promise.catch ===
+        "function"
     ) {
 
-      playPromise.catch(
+      promise.catch(
         () => {}
       );
     }
@@ -2050,12 +1974,9 @@ function createDesktopPages() {
 
 
   for (
-    let pageNumber =
-      1;
-    pageNumber <=
-      totalPages;
-    pageNumber +=
-      1
+    let pageNumber = 1;
+    pageNumber <= totalPages;
+    pageNumber += 1
   ) {
 
     const page =
@@ -2075,10 +1996,9 @@ function createDesktopPages() {
 
 
     if (
+      pageNumber === 1 ||
       pageNumber ===
-      1 ||
-      pageNumber ===
-      totalPages
+        totalPages
     ) {
 
       page.classList.add(
@@ -2106,15 +2026,13 @@ function createDesktopPages() {
 
 
     image.loading =
-      pageNumber <=
-      4
+      pageNumber <= 4
         ? "eager"
         : "lazy";
 
 
     image.fetchPriority =
-      pageNumber ===
-      1
+      pageNumber === 1
         ? "high"
         : "auto";
 
@@ -2240,14 +2158,14 @@ function ensureDesktopPageLoaded(
           };
 
 
-        const finishLoaded =
+        const loaded =
           async () => {
 
             try {
 
               if (
                 typeof image.decode ===
-                "function"
+                  "function"
               ) {
 
                 await image.decode();
@@ -2257,7 +2175,7 @@ function ensureDesktopPageLoaded(
               error
             ) {
 
-              // Loaded image remains usable.
+              // Image itself loaded successfully.
             }
 
 
@@ -2292,10 +2210,10 @@ function ensureDesktopPageLoaded(
 
           if (
             image.naturalWidth >
-            0
+              0
           ) {
 
-            finishLoaded();
+            void loaded();
 
           } else {
 
@@ -2311,7 +2229,7 @@ function ensureDesktopPageLoaded(
 
         image.addEventListener(
           "load",
-          finishLoaded,
+          loaded,
           {
             once:
               true
@@ -2361,8 +2279,7 @@ function preloadDesktopAround(
       -preloadBehind;
     offset <=
       preloadAhead;
-    offset +=
-      1
+    offset += 1
   ) {
 
     const candidate =
@@ -2376,7 +2293,7 @@ function preloadDesktopAround(
       )
     ) {
 
-      ensureDesktopPageLoaded(
+      void ensureDesktopPageLoaded(
         candidate
       );
     }
@@ -2392,8 +2309,7 @@ function preloadDesktopForwardFrom(
     () => {
 
       for (
-        let offset =
-          1;
+        let offset = 1;
         offset <=
           preloadAhead;
         offset +=
@@ -2411,7 +2327,7 @@ function preloadDesktopForwardFrom(
           )
         ) {
 
-          ensureDesktopPageLoaded(
+          void ensureDesktopPageLoaded(
             candidate
           );
         }
@@ -2441,7 +2357,7 @@ async function loadDesktopStartupPages(
 
   if (
     startingPage ===
-    1
+      1
   ) {
 
     pages.add(
@@ -2617,12 +2533,12 @@ function initialiseDesktopFlipbook(
 
       if (
         startingPage >
-        1
+          1
       ) {
 
         pageFlip.turnToPage(
           startingPage -
-          1
+            1
         );
       }
 
@@ -2630,41 +2546,41 @@ function initialiseDesktopFlipbook(
       window.setTimeout(
         () => {
 
-          const actualIndex =
+          const index =
             pageFlip.getCurrentPageIndex();
 
 
-          const actualPage =
+          const page =
             clampPageNumber(
-              actualIndex +
-              1
+              index +
+                1
             );
 
 
           updateInterface(
-            actualIndex
+            index
           );
 
 
           updateUrlPage(
-            actualPage
+            page
           );
 
 
           preloadDesktopAround(
-            actualPage
+            page
           );
 
 
           preloadDesktopForwardFrom(
-            actualPage
+            page
           );
 
 
           hideLoadingScreen();
         },
         startingPage >
-        1
+          1
           ? 100
           : 30
       );
@@ -2678,24 +2594,24 @@ function initialiseDesktopFlipbook(
       event
     ) => {
 
-      const pageIndex =
+      const index =
         event.data;
 
 
-      const currentPage =
+      const page =
         clampPageNumber(
-          pageIndex +
-          1
+          index +
+            1
         );
 
 
       updateInterface(
-        pageIndex
+        index
       );
 
 
       updateUrlPage(
-        currentPage
+        page
       );
 
 
@@ -2703,7 +2619,7 @@ function initialiseDesktopFlipbook(
 
 
       preloadDesktopAround(
-        currentPage
+        page
       );
     }
   );
@@ -2716,18 +2632,18 @@ function initialiseDesktopFlipbook(
       window.setTimeout(
         () => {
 
-          const pageIndex =
+          const index =
             pageFlip.getCurrentPageIndex();
 
 
           updateInterface(
-            pageIndex
+            index
           );
 
 
           preloadDesktopAround(
-            pageIndex +
-            1
+            index +
+              1
           );
         },
         120
@@ -2890,7 +2806,7 @@ function waitForReadyImage(
 
             if (
               typeof image.decode ===
-              "function"
+                "function"
             ) {
 
               await image.decode();
@@ -2900,13 +2816,13 @@ function waitForReadyImage(
             error
           ) {
 
-            // Continue if browser rejects decode().
+            // Some browsers reject decode after successful load.
           }
 
 
           if (
             image.naturalWidth >
-            0
+              0
           ) {
 
             resolve(
@@ -2975,10 +2891,10 @@ function waitForReadyImage(
 
             if (
               image.naturalWidth >
-              0
+                0
             ) {
 
-              loaded();
+              void loaded();
 
             } else {
 
@@ -3242,32 +3158,27 @@ async function warmEntireMobileBrochure(
 
 
   for (
-    let pageNumber =
+    let page =
       startingPage +
-      4;
-    pageNumber <=
-      totalPages;
-    pageNumber +=
-      1
+        4;
+    page <= totalPages;
+    page += 1
   ) {
 
     remaining.push(
-      pageNumber
+      page
     );
   }
 
 
   for (
-    let pageNumber =
-      1;
-    pageNumber <
-      startingPage;
-    pageNumber +=
-      1
+    let page = 1;
+    page < startingPage;
+    page += 1
   ) {
 
     remaining.push(
-      pageNumber
+      page
     );
   }
 
@@ -3280,29 +3191,29 @@ async function warmEntireMobileBrochure(
 
       .filter(
         (
-          pageNumber
+          page
         ) => {
 
           return (
             validPageNumber(
-              pageNumber
+              page
             ) &&
-            pageNumber !==
-            startingPage
+            page !==
+              startingPage
           );
         }
       )
 
       .filter(
         (
-          pageNumber,
+          page,
           index,
           array
         ) => {
 
           return (
             array.indexOf(
-              pageNumber
+              page
             ) ===
             index
           );
@@ -3315,15 +3226,15 @@ async function warmEntireMobileBrochure(
 
       while (
         queue.length >
-        0
+          0
       ) {
 
-        const pageNumber =
+        const page =
           queue.shift();
 
 
         await prefetchMobilePageBytes(
-          pageNumber
+          page
         );
 
 
@@ -3506,7 +3417,7 @@ async function showMobilePage(
 
   updateInterface(
     safePage -
-    1
+      1
   );
 
 
@@ -3527,7 +3438,8 @@ async function showMobilePage(
     trimThumbnailMemory(
       mobileThumbnailContainer,
       ".mobile-thumbnail-button",
-      safePage
+      safePage,
+      true
     );
 
 
@@ -3535,7 +3447,7 @@ async function showMobilePage(
       mobileThumbnailContainer,
       ".mobile-thumbnail-button",
       safePage -
-      1,
+        1,
       initial
         ? "auto"
         : "smooth"
@@ -3569,14 +3481,7 @@ async function goToPage(
 ) {
 
   if (
-    isImageZoomOpen()
-  ) {
-
-    return;
-  }
-
-
-  if (
+    isImageZoomOpen() ||
     navigationLocked
   ) {
 
@@ -3596,12 +3501,12 @@ async function goToPage(
 
     if (
       safePage ===
-      mobileCurrentPage
+        mobileCurrentPage
     ) {
 
       updateInterface(
         safePage -
-        1
+          1
       );
 
 
@@ -3670,12 +3575,12 @@ async function goToPage(
 
         ensureDesktopPageLoaded(
           safePage -
-          1
+            1
         ),
 
         ensureDesktopPageLoaded(
           safePage +
-          1
+            1
         )
       ]
     );
@@ -3683,22 +3588,22 @@ async function goToPage(
 
     pageFlip.turnToPage(
       safePage -
-      1
+        1
     );
 
 
-    const actualIndex =
+    const index =
       pageFlip.getCurrentPageIndex();
 
 
     updateInterface(
-      actualIndex
+      index
     );
 
 
     updateUrlPage(
-      actualIndex +
-      1
+      index +
+        1
     );
 
 
@@ -3723,14 +3628,7 @@ async function goToPage(
 async function goPrevious() {
 
   if (
-    isImageZoomOpen()
-  ) {
-
-    return;
-  }
-
-
-  if (
+    isImageZoomOpen() ||
     navigationLocked ||
     (
       isTouchDevice &&
@@ -3749,13 +3647,13 @@ async function goPrevious() {
   const targetPage =
     clampPageNumber(
       currentPage -
-      1
+        1
     );
 
 
   if (
     targetPage ===
-    currentPage
+      currentPage
   ) {
 
     return;
@@ -3820,7 +3718,7 @@ async function goPrevious() {
 
         ensureDesktopPageLoaded(
           targetPage -
-          1
+            1
         )
       ]
     );
@@ -3850,14 +3748,7 @@ async function goPrevious() {
 async function goNext() {
 
   if (
-    isImageZoomOpen()
-  ) {
-
-    return;
-  }
-
-
-  if (
+    isImageZoomOpen() ||
     navigationLocked ||
     (
       isTouchDevice &&
@@ -3876,13 +3767,13 @@ async function goNext() {
   const targetPage =
     clampPageNumber(
       currentPage +
-      1
+        1
     );
 
 
   if (
     targetPage ===
-    currentPage
+      currentPage
   ) {
 
     return;
@@ -3947,7 +3838,7 @@ async function goNext() {
 
         ensureDesktopPageLoaded(
           targetPage +
-          1
+            1
         )
       ]
     );
@@ -3985,7 +3876,7 @@ function updateInterface(
   const currentPage =
     clampPageNumber(
       pageIndex +
-      1
+        1
     );
 
 
@@ -4019,7 +3910,7 @@ function updateInterface(
 
     previousButton.disabled =
       pageIndex <=
-      0;
+        0;
   }
 
 
@@ -4029,8 +3920,8 @@ function updateInterface(
 
     nextButton.disabled =
       pageIndex >=
-      totalPages -
-      1;
+        totalPages -
+        1;
   }
 
 
@@ -4040,7 +3931,7 @@ function updateInterface(
 
     edgePrevious.disabled =
       pageIndex <=
-      0;
+        0;
   }
 
 
@@ -4050,8 +3941,8 @@ function updateInterface(
 
     edgeNext.disabled =
       pageIndex >=
-      totalPages -
-      1;
+        totalPages -
+        1;
   }
 
 
@@ -4069,7 +3960,7 @@ function updateInterface(
           Number(
             button.dataset.pageIndex
           ) ===
-          pageIndex
+            pageIndex
         );
       }
     );
@@ -4089,7 +3980,7 @@ function updateInterface(
           Number(
             button.dataset.pageIndex
           ) ===
-          pageIndex
+            pageIndex
         );
       }
     );
@@ -4109,7 +4000,7 @@ function updateInterface(
           Number(
             button.dataset.pageIndex
           ) ===
-          pageIndex
+            pageIndex
         );
       }
     );
@@ -4123,7 +4014,8 @@ function updateInterface(
     trimThumbnailMemory(
       thumbnailContainer,
       ".thumbnail-button",
-      currentPage
+      currentPage,
+      false
     );
 
 
@@ -4142,156 +4034,108 @@ function updateInterface(
     trimThumbnailMemory(
       mobileThumbnailContainer,
       ".mobile-thumbnail-button",
-      currentPage
+      currentPage,
+      true
     );
   }
 }
 
 
 /* =========================================================
-   IMAGE ZOOM
+   PANZOOM ENLARGED VIEWER
    ========================================================= */
 
-const IMAGE_ZOOM_MIN =
-  1;
-
-const IMAGE_ZOOM_MAX =
-  4;
-
-const IMAGE_ZOOM_DOUBLE_TAP =
-  2.5;
-
-let imageZoomScale =
-  1;
-
-let imageZoomX =
-  0;
-
-let imageZoomY =
-  0;
-
-let imageZoomGesture =
-  null;
-
-let imageZoomLastTap =
-  {
-    time:
-      0,
-
-    x:
-      0,
-
-    y:
-      0
-  };
-
-const imageZoomPointers =
-  new Map();
-
-let touchZoomMode =
-  null;
-
-let touchZoomStart =
-  null;
-
-let touchTapStart =
-  null;
-
-
-function getImageZoomBounds() {
+function destroyZoomPanzoom() {
 
   if (
-    !imageZoomScroll ||
-    !zoomPageImage
+    imageZoomScroll &&
+    zoomWheelHandler
   ) {
 
-    return {
-      maxX:
-        0,
+    imageZoomScroll.removeEventListener(
+      "wheel",
+      zoomWheelHandler
+    );
 
-      maxY:
-        0
-    };
+
+    zoomWheelHandler =
+      null;
   }
 
 
-  const viewportWidth =
-    imageZoomScroll.clientWidth;
+  if (
+    zoomPageImage &&
+    zoomChangeHandler
+  ) {
 
-
-  const viewportHeight =
-    imageZoomScroll.clientHeight;
-
-
-  const baseWidth =
-    zoomPageImage.offsetWidth;
-
-
-  const baseHeight =
-    zoomPageImage.offsetHeight;
-
-
-  const scaledWidth =
-    baseWidth *
-    imageZoomScale;
-
-
-  const scaledHeight =
-    baseHeight *
-    imageZoomScale;
-
-
-  return {
-    maxX:
-      Math.max(
-        0,
-        (
-          scaledWidth -
-          viewportWidth
-        ) /
-        2
-      ),
-
-    maxY:
-      Math.max(
-        0,
-        (
-          scaledHeight -
-          viewportHeight
-        ) /
-        2
-      )
-  };
-}
-
-
-function clampImageZoomPosition() {
-
-  const bounds =
-    getImageZoomBounds();
-
-
-  imageZoomX =
-    clamp(
-      imageZoomX,
-      -bounds.maxX,
-      bounds.maxX
+    zoomPageImage.removeEventListener(
+      "panzoomchange",
+      zoomChangeHandler
     );
 
 
-  imageZoomY =
-    clamp(
-      imageZoomY,
-      -bounds.maxY,
-      bounds.maxY
+    zoomChangeHandler =
+      null;
+  }
+
+
+  if (
+    zoomPanzoom
+  ) {
+
+    try {
+
+      zoomPanzoom.reset(
+        {
+          animate:
+            false
+        }
+      );
+
+
+      zoomPanzoom.destroy();
+
+    } catch (
+      error
+    ) {
+
+      console.warn(
+        "Unable to destroy Panzoom cleanly:",
+        error
+      );
+    }
+
+
+    zoomPanzoom =
+      null;
+  }
+
+
+  if (
+    zoomPageImage
+  ) {
+
+    zoomPageImage.style.transform =
+      "";
+
+
+    zoomPageImage.style.transformOrigin =
+      "";
+  }
+
+
+  if (
+    imageZoomScroll
+  ) {
+
+    imageZoomScroll.classList.remove(
+      "is-zoomed"
     );
+  }
 }
 
 
-function applyImageZoom(
-  animate =
-    false
-) {
+function initialiseZoomPanzoom() {
 
   if (
     !zoomPageImage ||
@@ -4302,1575 +4146,93 @@ function applyImageZoom(
   }
 
 
-  clampImageZoomPosition();
-
-
-  zoomPageImage.style.transition =
-    animate
-      ? "transform 180ms ease"
-      : "none";
-
-
-  zoomPageImage.style.transform =
-    `translate3d(${imageZoomX}px, ${imageZoomY}px, 0) ` +
-    `scale(${imageZoomScale})`;
-
-
-  imageZoomScroll.classList.toggle(
-    "is-zoomed",
-    imageZoomScale >
-      1.01
-  );
-
-
   if (
-    animate
+    typeof window.Panzoom !==
+      "function"
   ) {
 
-    window.setTimeout(
-      () => {
-
-        if (
-          zoomPageImage
-        ) {
-
-          zoomPageImage.style.transition =
-            "";
-        }
-      },
-      190
+    throw new Error(
+      "Panzoom did not load."
     );
-  }
-}
-
-
-function resetImageZoom(
-  animate =
-    false
-) {
-
-  imageZoomScale =
-    1;
-
-
-  imageZoomX =
-    0;
-
-
-  imageZoomY =
-    0;
-
-
-  imageZoomGesture =
-    null;
-
-
-  touchZoomMode =
-    null;
-
-
-  touchZoomStart =
-    null;
-
-
-  touchTapStart =
-    null;
-
-
-  imageZoomPointers.clear();
-
-
-  applyImageZoom(
-    animate
-  );
-}
-
-
-function getPointerDistance(
-  first,
-  second
-) {
-
-  return Math.hypot(
-    second.x -
-      first.x,
-    second.y -
-      first.y
-  );
-}
-
-
-function getPointerMidpoint(
-  first,
-  second
-) {
-
-  return {
-    x:
-      (
-        first.x +
-        second.x
-      ) /
-      2,
-
-    y:
-      (
-        first.y +
-        second.y
-      ) /
-      2
-  };
-}
-
-
-function handleImageZoomDoubleTap(
-  x,
-  y
-) {
-
-  if (
-    !imageZoomScroll
-  ) {
-
-    return;
   }
 
 
-  if (
-    imageZoomScale >
-      1.05
-  ) {
-
-    resetImageZoom(
-      true
-    );
+  destroyZoomPanzoom();
 
 
-    return;
-  }
-
-
-  const rect =
-    imageZoomScroll.getBoundingClientRect();
-
-
-  const centreX =
-    rect.left +
-    rect.width /
-      2;
-
-
-  const centreY =
-    rect.top +
-    rect.height /
-      2;
-
-
-  imageZoomScale =
-    IMAGE_ZOOM_DOUBLE_TAP;
-
-
-  imageZoomX =
-    -(
-      x -
-      centreX
-    ) *
-    (
-      imageZoomScale -
-      1
-    );
-
-
-  imageZoomY =
-    -(
-      y -
-      centreY
-    ) *
-    (
-      imageZoomScale -
-      1
-    );
-
-
-  applyImageZoom(
-    true
-  );
-}
-
-
-/* =========================================================
-   DESKTOP POINTER ZOOM
-   ========================================================= */
-
-function startImageZoomPinch() {
-
-  if (
-    imageZoomPointers.size <
-      2 ||
-    !imageZoomScroll
-  ) {
-
-    return;
-  }
-
-
-  const pointers =
-    Array.from(
-      imageZoomPointers.values()
-    ).slice(
-      0,
-      2
-    );
-
-
-  const midpoint =
-    getPointerMidpoint(
-      pointers[
-        0
-      ],
-      pointers[
-        1
-      ]
-    );
-
-
-  const rect =
-    imageZoomScroll.getBoundingClientRect();
-
-
-  imageZoomGesture =
-    {
-      type:
-        "pinch",
-
-      startDistance:
-        Math.max(
+  zoomPanzoom =
+    window.Panzoom(
+      zoomPageImage,
+      {
+        minScale:
           1,
-          getPointerDistance(
-            pointers[
-              0
-            ],
-            pointers[
-              1
-            ]
-          )
-        ),
 
-      startScale:
-        imageZoomScale,
+        maxScale:
+          4,
 
-      startX:
-        imageZoomX,
+        startScale:
+          1,
 
-      startY:
-        imageZoomY,
+        step:
+          0.25,
 
-      startMidX:
-        midpoint.x,
+        panOnlyWhenZoomed:
+          true,
 
-      startMidY:
-        midpoint.y,
+        pinchAndPan:
+          true,
 
-      centreX:
-        rect.left +
-        rect.width /
-          2,
+        canvas:
+          true,
 
-      centreY:
-        rect.top +
-        rect.height /
-          2
-    };
-}
+        cursor:
+          "grab",
 
+        touchAction:
+          "none",
 
-function attachImageZoomPointerEvents() {
-
-  if (
-    !imageZoomScroll ||
-    !zoomPageImage
-  ) {
-
-    return;
-  }
-
-
-  imageZoomScroll.addEventListener(
-    "pointerdown",
-    (
-      event
-    ) => {
-
-      if (
-        isTouchDevice &&
-        event.pointerType ===
-          "touch"
-      ) {
-
-        return;
-      }
-
-
-      if (
-        imageZoomViewer &&
-        imageZoomViewer.hidden
-      ) {
-
-        return;
-      }
-
-
-      if (
-        event.pointerType ===
-          "mouse" &&
-        event.button !==
-          0
-      ) {
-
-        return;
-      }
-
-
-      event.preventDefault();
-
-
-      event.stopPropagation();
-
-
-      try {
-
-        imageZoomScroll.setPointerCapture(
-          event.pointerId
-        );
-
-      } catch (
-        error
-      ) {
-
-        // Pointer capture is optional.
-      }
-
-
-      imageZoomPointers.set(
-        event.pointerId,
-        {
-          x:
-            event.clientX,
-
-          y:
-            event.clientY,
-
-          startX:
-            event.clientX,
-
-          startY:
-            event.clientY,
-
-          startTime:
-            Date.now()
-        }
-      );
-
-
-      if (
-        imageZoomPointers.size >=
-          2
-      ) {
-
-        startImageZoomPinch();
-
-
-        return;
-      }
-
-
-      imageZoomGesture =
-        {
-          type:
-            "pan",
-
-          pointerId:
-            event.pointerId,
-
-          startPointerX:
-            event.clientX,
-
-          startPointerY:
-            event.clientY,
-
-          startX:
-            imageZoomX,
-
-          startY:
-            imageZoomY
-        };
-    }
-  );
-
-
-  imageZoomScroll.addEventListener(
-    "pointermove",
-    (
-      event
-    ) => {
-
-      if (
-        isTouchDevice &&
-        event.pointerType ===
-          "touch"
-      ) {
-
-        return;
-      }
-
-
-      if (
-        !imageZoomPointers.has(
-          event.pointerId
-        )
-      ) {
-
-        return;
-      }
-
-
-      event.preventDefault();
-
-
-      event.stopPropagation();
-
-
-      const existing =
-        imageZoomPointers.get(
-          event.pointerId
-        );
-
-
-      imageZoomPointers.set(
-        event.pointerId,
-        {
-          ...existing,
-
-          x:
-            event.clientX,
-
-          y:
-            event.clientY
-        }
-      );
-
-
-      if (
-        imageZoomPointers.size >=
-          2
-      ) {
-
-        if (
-          !imageZoomGesture ||
-          imageZoomGesture.type !==
-            "pinch"
-        ) {
-
-          startImageZoomPinch();
-        }
-
-
-        const pointers =
-          Array.from(
-            imageZoomPointers.values()
-          ).slice(
-            0,
-            2
-          );
-
-
-        const distance =
-          Math.max(
-            1,
-            getPointerDistance(
-              pointers[
-                0
-              ],
-              pointers[
-                1
-              ]
-            )
-          );
-
-
-        const midpoint =
-          getPointerMidpoint(
-            pointers[
-              0
-            ],
-            pointers[
-              1
-            ]
-          );
-
-
-        const start =
-          imageZoomGesture;
-
-
-        const newScale =
-          clamp(
-            start.startScale *
-              (
-                distance /
-                start.startDistance
-              ),
-            IMAGE_ZOOM_MIN,
-            IMAGE_ZOOM_MAX
-          );
-
-
-        const ratio =
-          newScale /
-          start.startScale;
-
-
-        imageZoomScale =
-          newScale;
-
-
-        imageZoomX =
-          midpoint.x -
-          start.centreX -
-          ratio *
-            (
-              start.startMidX -
-              start.centreX -
-              start.startX
-            );
-
-
-        imageZoomY =
-          midpoint.y -
-          start.centreY -
-          ratio *
-            (
-              start.startMidY -
-              start.centreY -
-              start.startY
-            );
-
-
-        applyImageZoom(
+        animate:
           false
-        );
-
-
-        return;
       }
-
-
-      if (
-        !imageZoomGesture ||
-        imageZoomGesture.type !==
-          "pan" ||
-        imageZoomScale <=
-          1.01
-      ) {
-
-        return;
-      }
-
-
-      imageZoomX =
-        imageZoomGesture.startX +
-        (
-          event.clientX -
-          imageZoomGesture.startPointerX
-        );
-
-
-      imageZoomY =
-        imageZoomGesture.startY +
-        (
-          event.clientY -
-          imageZoomGesture.startPointerY
-        );
-
-
-      applyImageZoom(
-        false
-      );
-    },
-    {
-      passive:
-        false
-    }
-  );
-
-
-  const endPointer =
-    (
-      event
-    ) => {
-
-      if (
-        isTouchDevice &&
-        event.pointerType ===
-          "touch"
-      ) {
-
-        return;
-      }
-
-
-      event.stopPropagation();
-
-
-      const pointer =
-        imageZoomPointers.get(
-          event.pointerId
-        );
-
-
-      const pointerCountBefore =
-        imageZoomPointers.size;
-
-
-      if (
-        pointer
-      ) {
-
-        const movement =
-          Math.hypot(
-            event.clientX -
-              pointer.startX,
-            event.clientY -
-              pointer.startY
-          );
-
-
-        const duration =
-          Date.now() -
-          pointer.startTime;
-
-
-        if (
-          pointerCountBefore ===
-            1 &&
-          movement <
-            12 &&
-          duration <
-            350
-        ) {
-
-          const now =
-            Date.now();
-
-
-          const previousDistance =
-            Math.hypot(
-              event.clientX -
-                imageZoomLastTap.x,
-              event.clientY -
-                imageZoomLastTap.y
-            );
-
-
-          if (
-            now -
-              imageZoomLastTap.time <
-              330 &&
-            previousDistance <
-              45
-          ) {
-
-            handleImageZoomDoubleTap(
-              event.clientX,
-              event.clientY
-            );
-
-
-            imageZoomLastTap =
-              {
-                time:
-                  0,
-
-                x:
-                  0,
-
-                y:
-                  0
-              };
-
-          } else {
-
-            imageZoomLastTap =
-              {
-                time:
-                  now,
-
-                x:
-                  event.clientX,
-
-                y:
-                  event.clientY
-              };
-          }
-        }
-      }
-
-
-      imageZoomPointers.delete(
-        event.pointerId
-      );
-
-
-      if (
-        imageZoomPointers.size >=
-          2
-      ) {
-
-        startImageZoomPinch();
-
-      } else if (
-        imageZoomPointers.size ===
-          1
-      ) {
-
-        const remainingEntry =
-          Array.from(
-            imageZoomPointers.entries()
-          )[
-            0
-          ];
-
-
-        imageZoomGesture =
-          {
-            type:
-              "pan",
-
-            pointerId:
-              remainingEntry[
-                0
-              ],
-
-            startPointerX:
-              remainingEntry[
-                1
-              ].x,
-
-            startPointerY:
-              remainingEntry[
-                1
-              ].y,
-
-            startX:
-              imageZoomX,
-
-            startY:
-              imageZoomY
-          };
-
-      } else {
-
-        imageZoomGesture =
-          null;
-
-
-        clampImageZoomPosition();
-
-
-        applyImageZoom(
-          true
-        );
-      }
-    };
-
-
-  imageZoomScroll.addEventListener(
-    "pointerup",
-    endPointer
-  );
-
-
-  imageZoomScroll.addEventListener(
-    "pointercancel",
-    endPointer
-  );
-}
-
-
-/* =========================================================
-   MOBILE TOUCH ZOOM + DRAG
-   ========================================================= */
-
-function beginTouchPinch(
-  touches
-) {
-
-  if (
-    !imageZoomScroll ||
-    touches.length <
-      2
-  ) {
-
-    return;
-  }
-
-
-  const first =
-    {
-      x:
-        touches[
-          0
-        ].clientX,
-
-      y:
-        touches[
-          0
-        ].clientY
-    };
-
-
-  const second =
-    {
-      x:
-        touches[
-          1
-        ].clientX,
-
-      y:
-        touches[
-          1
-        ].clientY
-    };
-
-
-  const midpoint =
-    getPointerMidpoint(
-      first,
-      second
     );
 
 
-  const rect =
-    imageZoomScroll.getBoundingClientRect();
-
-
-  touchZoomMode =
-    "pinch";
-
-
-  touchZoomStart =
-    {
-      startDistance:
-        Math.max(
-          1,
-          getPointerDistance(
-            first,
-            second
-          )
-        ),
-
-      startScale:
-        imageZoomScale,
-
-      startX:
-        imageZoomX,
-
-      startY:
-        imageZoomY,
-
-      startMidX:
-        midpoint.x,
-
-      startMidY:
-        midpoint.y,
-
-      centreX:
-        rect.left +
-        rect.width /
-          2,
-
-      centreY:
-        rect.top +
-        rect.height /
-          2
-    };
-
-
-  touchTapStart =
-    null;
-}
-
-
-function beginTouchPan(
-  touch
-) {
-
-  touchZoomMode =
-    "pan";
-
-
-  touchZoomStart =
-    {
-      startPointerX:
-        touch.clientX,
-
-      startPointerY:
-        touch.clientY,
-
-      startX:
-        imageZoomX,
-
-      startY:
-        imageZoomY
-    };
-}
-
-
-function attachMobileImageZoomTouchEvents() {
-
-  if (
-    !isTouchDevice ||
-    !imageZoomScroll
-  ) {
-
-    return;
-  }
-
-
-  imageZoomScroll.addEventListener(
-    "touchstart",
+  zoomChangeHandler =
     (
       event
     ) => {
 
-      if (
-        !isImageZoomOpen()
-      ) {
-
-        return;
-      }
-
-
-      event.preventDefault();
-
-
-      event.stopPropagation();
-
-
-      pageSwipeTracking =
-        false;
-
-
-      if (
-        event.touches.length >=
-          2
-      ) {
-
-        beginTouchPinch(
-          event.touches
+      const scale =
+        event.detail &&
+        Number(
+          event.detail.scale
         );
 
 
-        return;
-      }
-
-
-      if (
-        event.touches.length ===
-          1
-      ) {
-
-        const touch =
-          event.touches[
-            0
-          ];
-
-
-        touchTapStart =
-          {
-            x:
-              touch.clientX,
-
-            y:
-              touch.clientY,
-
-            time:
-              Date.now()
-          };
-
-
-        beginTouchPan(
-          touch
-        );
-      }
-    },
-    {
-      passive:
-        false
-    }
-  );
-
-
-  imageZoomScroll.addEventListener(
-    "touchmove",
-    (
-      event
-    ) => {
-
-      if (
-        !isImageZoomOpen()
-      ) {
-
-        return;
-      }
-
-
-      event.preventDefault();
-
-
-      event.stopPropagation();
-
-
-      pageSwipeTracking =
-        false;
-
-
-      if (
-        event.touches.length >=
-          2
-      ) {
-
-        if (
-          touchZoomMode !==
-          "pinch" ||
-          !touchZoomStart
-        ) {
-
-          beginTouchPinch(
-            event.touches
-          );
-        }
-
-
-        const first =
-          {
-            x:
-              event.touches[
-                0
-              ].clientX,
-
-            y:
-              event.touches[
-                0
-              ].clientY
-          };
-
-
-        const second =
-          {
-            x:
-              event.touches[
-                1
-              ].clientX,
-
-            y:
-              event.touches[
-                1
-              ].clientY
-          };
-
-
-        const distance =
-          Math.max(
-            1,
-            getPointerDistance(
-              first,
-              second
-            )
-          );
-
-
-        const midpoint =
-          getPointerMidpoint(
-            first,
-            second
-          );
-
-
-        const newScale =
-          clamp(
-            touchZoomStart.startScale *
-              (
-                distance /
-                touchZoomStart.startDistance
-              ),
-            IMAGE_ZOOM_MIN,
-            IMAGE_ZOOM_MAX
-          );
-
-
-        const ratio =
-          newScale /
-          touchZoomStart.startScale;
-
-
-        imageZoomScale =
-          newScale;
-
-
-        imageZoomX =
-          midpoint.x -
-          touchZoomStart.centreX -
-          ratio *
-            (
-              touchZoomStart.startMidX -
-              touchZoomStart.centreX -
-              touchZoomStart.startX
-            );
-
-
-        imageZoomY =
-          midpoint.y -
-          touchZoomStart.centreY -
-          ratio *
-            (
-              touchZoomStart.startMidY -
-              touchZoomStart.centreY -
-              touchZoomStart.startY
-            );
-
-
-        applyImageZoom(
-          false
-        );
-
-
-        return;
-      }
-
-
-      if (
-        event.touches.length ===
-          1 &&
-        imageZoomScale >
+      imageZoomScroll.classList.toggle(
+        "is-zoomed",
+        Number.isFinite(
+          scale
+        ) &&
+        scale >
           1.01
-      ) {
-
-        const touch =
-          event.touches[
-            0
-          ];
-
-
-        if (
-          touchZoomMode !==
-            "pan" ||
-          !touchZoomStart
-        ) {
-
-          beginTouchPan(
-            touch
-          );
-        }
-
-
-        if (
-          touchTapStart
-        ) {
-
-          const moved =
-            Math.hypot(
-              touch.clientX -
-                touchTapStart.x,
-              touch.clientY -
-                touchTapStart.y
-            );
-
-
-          if (
-            moved >
-            10
-          ) {
-
-            touchTapStart =
-              null;
-          }
-        }
-
-
-        imageZoomX =
-          touchZoomStart.startX +
-          (
-            touch.clientX -
-            touchZoomStart.startPointerX
-          );
-
-
-        imageZoomY =
-          touchZoomStart.startY +
-          (
-            touch.clientY -
-            touchZoomStart.startPointerY
-          );
-
-
-        applyImageZoom(
-          false
-        );
-      }
-    },
-    {
-      passive:
-        false
-    }
-  );
-
-
-  imageZoomScroll.addEventListener(
-    "touchend",
-    (
-      event
-    ) => {
-
-      if (
-        !isImageZoomOpen()
-      ) {
-
-        return;
-      }
-
-
-      event.preventDefault();
-
-
-      event.stopPropagation();
-
-
-      pageSwipeTracking =
-        false;
-
-
-      if (
-        event.touches.length >=
-          2
-      ) {
-
-        beginTouchPinch(
-          event.touches
-        );
-
-
-        return;
-      }
-
-
-      if (
-        event.touches.length ===
-          1
-      ) {
-
-        beginTouchPan(
-          event.touches[
-            0
-          ]
-        );
-
-
-        touchTapStart =
-          null;
-
-
-        return;
-      }
-
-
-      if (
-        event.touches.length ===
-          0
-      ) {
-
-        if (
-          touchTapStart &&
-          event.changedTouches.length >
-            0
-        ) {
-
-          const touch =
-            event.changedTouches[
-              0
-            ];
-
-
-          const movement =
-            Math.hypot(
-              touch.clientX -
-                touchTapStart.x,
-              touch.clientY -
-                touchTapStart.y
-            );
-
-
-          const duration =
-            Date.now() -
-            touchTapStart.time;
-
-
-          if (
-            movement <
-              12 &&
-            duration <
-              350
-          ) {
-
-            const now =
-              Date.now();
-
-
-            const previousDistance =
-              Math.hypot(
-                touch.clientX -
-                  imageZoomLastTap.x,
-                touch.clientY -
-                  imageZoomLastTap.y
-              );
-
-
-            if (
-              now -
-                imageZoomLastTap.time <
-                330 &&
-              previousDistance <
-                45
-            ) {
-
-              handleImageZoomDoubleTap(
-                touch.clientX,
-                touch.clientY
-              );
-
-
-              imageZoomLastTap =
-                {
-                  time:
-                    0,
-
-                  x:
-                    0,
-
-                  y:
-                    0
-                };
-
-            } else {
-
-              imageZoomLastTap =
-                {
-                  time:
-                    now,
-
-                  x:
-                    touch.clientX,
-
-                  y:
-                    touch.clientY
-                };
-            }
-          }
-        }
-
-
-        touchTapStart =
-          null;
-
-
-        touchZoomMode =
-          null;
-
-
-        touchZoomStart =
-          null;
-
-
-        clampImageZoomPosition();
-
-
-        applyImageZoom(
-          true
-        );
-      }
-    },
-    {
-      passive:
-        false
-    }
-  );
-
-
-  imageZoomScroll.addEventListener(
-    "touchcancel",
-    (
-      event
-    ) => {
-
-      if (
-        !isImageZoomOpen()
-      ) {
-
-        return;
-      }
-
-
-      event.preventDefault();
-
-
-      event.stopPropagation();
-
-
-      pageSwipeTracking =
-        false;
-
-
-      touchTapStart =
-        null;
-
-
-      touchZoomMode =
-        null;
-
-
-      touchZoomStart =
-        null;
-
-
-      clampImageZoomPosition();
-
-
-      applyImageZoom(
-        true
       );
-    },
-    {
-      passive:
-        false
-    }
+    };
+
+
+  zoomPageImage.addEventListener(
+    "panzoomchange",
+    zoomChangeHandler
   );
-}
 
 
-/* =========================================================
-   MOUSE WHEEL ZOOM
-   ========================================================= */
-
-function attachImageZoomWheel() {
-
-  if (
-    !imageZoomScroll
-  ) {
-
-    return;
-  }
+  zoomWheelHandler =
+    zoomPanzoom.zoomWithWheel;
 
 
   imageZoomScroll.addEventListener(
     "wheel",
-    (
-      event
-    ) => {
-
-      if (
-        !isImageZoomOpen()
-      ) {
-
-        return;
-      }
-
-
-      event.preventDefault();
-
-
-      const oldScale =
-        imageZoomScale;
-
-
-      const zoomFactor =
-        Math.exp(
-          -event.deltaY *
-          0.002
-        );
-
-
-      const newScale =
-        clamp(
-          oldScale *
-          zoomFactor,
-          IMAGE_ZOOM_MIN,
-          IMAGE_ZOOM_MAX
-        );
-
-
-      if (
-        Math.abs(
-          newScale -
-          oldScale
-        ) <
-        0.001
-      ) {
-
-        return;
-      }
-
-
-      const rect =
-        imageZoomScroll.getBoundingClientRect();
-
-
-      const centreX =
-        rect.left +
-        rect.width /
-          2;
-
-
-      const centreY =
-        rect.top +
-        rect.height /
-          2;
-
-
-      const ratio =
-        newScale /
-        oldScale;
-
-
-      imageZoomX =
-        event.clientX -
-        centreX -
-        ratio *
-          (
-            event.clientX -
-            centreX -
-            imageZoomX
-          );
-
-
-      imageZoomY =
-        event.clientY -
-        centreY -
-        ratio *
-          (
-            event.clientY -
-            centreY -
-            imageZoomY
-          );
-
-
-      imageZoomScale =
-        newScale;
-
-
-      applyImageZoom(
-        false
-      );
-    },
+    zoomWheelHandler,
     {
       passive:
         false
@@ -5879,16 +4241,24 @@ function attachImageZoomWheel() {
 }
 
 
-attachImageZoomPointerEvents();
+function resetImageZoom() {
 
-attachMobileImageZoomTouchEvents();
+  if (
+    !zoomPanzoom
+  ) {
 
-attachImageZoomWheel();
+    return;
+  }
 
 
-/* =========================================================
-   OPEN / CLOSE ZOOM
-   ========================================================= */
+  zoomPanzoom.reset(
+    {
+      animate:
+        true
+    }
+  );
+}
+
 
 async function openImageZoomViewer() {
 
@@ -6008,9 +4378,7 @@ async function openImageZoomViewer() {
     await waitForTwoFrames();
 
 
-    resetImageZoom(
-      false
-    );
+    initialiseZoomPanzoom();
 
   } catch (
     error
@@ -6022,8 +4390,16 @@ async function openImageZoomViewer() {
     );
 
 
-    zoomPageImage.src =
-      source;
+    destroyZoomPanzoom();
+
+
+    if (
+      zoomPageImage
+    ) {
+
+      zoomPageImage.src =
+        source;
+    }
 
 
     imageZoomViewer.hidden =
@@ -6032,14 +4408,6 @@ async function openImageZoomViewer() {
 
     document.body.classList.add(
       "zoom-viewer-open"
-    );
-
-
-    await waitForTwoFrames();
-
-
-    resetImageZoom(
-      false
     );
 
   } finally {
@@ -6075,9 +4443,7 @@ function closeImageZoomViewer() {
   }
 
 
-  resetImageZoom(
-    false
-  );
+  destroyZoomPanzoom();
 
 
   imageZoomViewer.hidden =
@@ -6201,12 +4567,7 @@ if (
 
   resetImageZoomButton.addEventListener(
     "click",
-    () => {
-
-      resetImageZoom(
-        true
-      );
-    }
+    resetImageZoom
   );
 }
 
@@ -6216,11 +4577,15 @@ window.addEventListener(
   () => {
 
     if (
-      isImageZoomOpen()
+      isImageZoomOpen() &&
+      zoomPanzoom
     ) {
 
-      resetImageZoom(
-        false
+      zoomPanzoom.reset(
+        {
+          animate:
+            false
+        }
       );
     }
   }
@@ -6269,7 +4634,7 @@ document.addEventListener(
   "fullscreenchange",
   () => {
 
-    const fullscreenActive =
+    const active =
       Boolean(
         document.fullscreenElement
       );
@@ -6277,7 +4642,7 @@ document.addEventListener(
 
     document.body.classList.toggle(
       "fullscreen-mode",
-      fullscreenActive
+      active
     );
 
 
@@ -6286,7 +4651,7 @@ document.addEventListener(
     ) {
 
       fullscreenButton.textContent =
-        fullscreenActive
+        active
           ? "Exit full screen"
           : "Full screen";
     }
@@ -6312,8 +4677,7 @@ if (
             document.title,
 
           text:
-            currentPage ===
-              1
+            currentPage === 1
               ? "View the Keswick Discos Wedding Brochure."
               : `View page ${currentPage} of the Keswick Discos Wedding Brochure.`,
 
@@ -6361,7 +4725,7 @@ if (
 
         if (
           error.name !==
-          "AbortError"
+            "AbortError"
         ) {
 
           console.error(
@@ -6410,7 +4774,8 @@ if (
         trimThumbnailMemory(
           thumbnailContainer,
           ".thumbnail-button",
-          getCurrentPageNumber()
+          getCurrentPageNumber(),
+          false
         );
 
 
@@ -6500,7 +4865,7 @@ document
 
           if (
             targetId ===
-            "contactModal"
+              "contactModal"
           ) {
 
             closeContactModal();
@@ -6746,15 +5111,14 @@ if (
       const horizontalSwipe =
         Math.abs(
           deltaX
-        ) >=
-          45 &&
+        ) >= 45 &&
         Math.abs(
           deltaX
         ) >
-          Math.abs(
-            deltaY
-          ) *
-          1.25 &&
+        Math.abs(
+          deltaY
+        ) *
+        1.25 &&
         elapsed <=
           800;
 
@@ -6826,7 +5190,7 @@ document.addEventListener(
 
     if (
       event.key ===
-      "Escape"
+        "Escape"
     ) {
 
       closeMobileThumbnailTray();
@@ -6852,7 +5216,7 @@ document.addEventListener(
 
     if (
       event.key ===
-      "ArrowLeft"
+        "ArrowLeft"
     ) {
 
       await goPrevious();
@@ -6861,7 +5225,7 @@ document.addEventListener(
 
     if (
       event.key ===
-      "ArrowRight"
+        "ArrowRight"
     ) {
 
       await goNext();
@@ -6870,7 +5234,7 @@ document.addEventListener(
 
     if (
       event.key ===
-      "Home"
+        "Home"
     ) {
 
       await goToPage(
