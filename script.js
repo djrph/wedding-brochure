@@ -5,9 +5,32 @@ const isMobileViewer = window.matchMedia("(max-width: 700px)").matches;
 
 const totalPages = 26;
 const brochureVersion = "20261003-1";
+const pdfVersion = "20261007-1";
 const pageWidth = 600;
 const pageHeight = 848;
 const pageTurnLockTime = 950;
+
+const PDFJS_VERSION = "6.4.299";
+const PDFJS_BASE_URL =
+  `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/`;
+
+const PDFJS_MODULE_URL =
+  `${PDFJS_BASE_URL}build/pdf.min.mjs`;
+
+const PDFJS_WORKER_URL =
+  `${PDFJS_BASE_URL}build/pdf.worker.min.mjs`;
+
+const PDFJS_CMAP_URL =
+  `${PDFJS_BASE_URL}cmaps/`;
+
+const PDFJS_ICC_URL =
+  `${PDFJS_BASE_URL}iccs/`;
+
+const PDFJS_STANDARD_FONT_URL =
+  `${PDFJS_BASE_URL}standard_fonts/`;
+
+const PDFJS_WASM_URL =
+  `${PDFJS_BASE_URL}wasm/`;
 
 const pageTitles = {
   1: "Cover",
@@ -27,155 +50,320 @@ const pageTitles = {
   15: "Wedding Entertainment Extras",
   16: "DJ & Sax",
   17: "Live Entertainment",
-  18: "Cold Spark Experience",
-  19: "Wedding Karaoke",
-  20: "Personalised LED Foam Sticks",
+  18: "Wedding Karaoke",
+  19: "Personalised LED Foam Sticks",
+  20: "Cold Spark Experience",
   21: "Bespoke Wedding Lighting",
-  22: "Mood Uplighting",
-  23: "Wedding Lighting Options",
+  22: "Wedding Lighting Options",
+  23: "Mood Uplighting",
   24: "What Couples Say",
   25: "Create Your Wedding Package",
   26: "Let's Plan Your Wedding"
 };
 
 const contentsSections = [
-  { title: "Getting Started", pages: [2, 3, 4, 5, 6] },
-  { title: "Wedding Packages", pages: [7, 8, 9, 10, 11, 12, 13, 14] },
-  { title: "Entertainment Extras", pages: [15, 16, 17, 18, 19, 20] },
-  { title: "Lighting", pages: [21, 22, 23] },
-  { title: "Plan Your Wedding", pages: [24, 25, 26] }
+  {
+    title: "Getting Started",
+    pages: [2, 3, 4, 5, 6]
+  },
+  {
+    title: "Wedding Packages",
+    pages: [7, 8, 9, 10, 11, 12, 13, 14]
+  },
+  {
+    title: "Entertainment Extras",
+    pages: [15, 16, 17, 18, 19, 20]
+  },
+  {
+    title: "Lighting",
+    pages: [21, 22, 23]
+  },
+  {
+    title: "Plan Your Wedding",
+    pages: [24, 25, 26]
+  }
 ];
 
-const $ = (id) => document.getElementById(id);
+const $ = (id) =>
+  document.getElementById(id);
 
-const bookElement = $("book");
-const bookStage = $("bookStage");
-const zoomContainer = $("zoomContainer");
-const thumbnailContainer = $("thumbnails");
-const mobileThumbnailLauncher = $("mobileThumbnailLauncher");
-const mobileThumbnailStrip = $("mobileThumbnailStrip");
-const mobileThumbnailContainer = $("mobileThumbnails");
-const mobileThumbnailHandle = $("mobileThumbnailHandle");
-const mobileThumbnailHint = $("mobileThumbnailHint");
-const mobileThumbnailTrayHandle = $("mobileThumbnailTrayHandle");
-const mobileThumbnailTrayHint = $("mobileThumbnailTrayHint");
-const contentsList = $("contentsList");
-const pageStatus = $("pageStatus");
-const loadingScreen = $("loadingScreen");
-const loadingProgress = $("loadingProgress");
-const errorMessage = $("errorMessage");
-const pageProgress = $("pageProgress");
-const previousButton = $("previousButton");
-const nextButton = $("nextButton");
-const firstButton = $("firstButton");
-const fullscreenButton = $("fullscreenButton");
-const shareButton = $("shareButton");
-const soundButton = $("soundButton");
-const resetReadingButton = $("resetReadingButton");
-const edgePrevious = $("edgePrevious");
-const edgeNext = $("edgeNext");
-const pagesButton = $("pagesButton");
-const moreButton = $("moreButton");
-const contentsButton = $("contentsButton");
-const floatingEnquire = $("floatingEnquire");
-const contactModal = $("contactModal");
-const thumbnailPanel = $("thumbnailPanel");
-const morePanel = $("morePanel");
-const contentsPanel = $("contentsPanel");
-const copyLinkButton = $("copyLinkButton");
-const pageSound = $("pageSound");
+const bookElement =
+  $("book");
 
-const imageZoomViewer = $("imageZoomViewer");
+const bookStage =
+  $("bookStage");
+
+const zoomContainer =
+  $("zoomContainer");
+
+const thumbnailContainer =
+  $("thumbnails");
+
+const mobileThumbnailLauncher =
+  $("mobileThumbnailLauncher");
+
+const mobileThumbnailStrip =
+  $("mobileThumbnailStrip");
+
+const mobileThumbnailContainer =
+  $("mobileThumbnails");
+
+const mobileThumbnailHandle =
+  $("mobileThumbnailHandle");
+
+const mobileThumbnailHint =
+  $("mobileThumbnailHint");
+
+const mobileThumbnailTrayHandle =
+  $("mobileThumbnailTrayHandle");
+
+const mobileThumbnailTrayHint =
+  $("mobileThumbnailTrayHint");
+
+const contentsList =
+  $("contentsList");
+
+const pageStatus =
+  $("pageStatus");
+
+const loadingScreen =
+  $("loadingScreen");
+
+const loadingProgress =
+  $("loadingProgress");
+
+const errorMessage =
+  $("errorMessage");
+
+const pageProgress =
+  $("pageProgress");
+
+const previousButton =
+  $("previousButton");
+
+const nextButton =
+  $("nextButton");
+
+const firstButton =
+  $("firstButton");
+
+const fullscreenButton =
+  $("fullscreenButton");
+
+const shareButton =
+  $("shareButton");
+
+const soundButton =
+  $("soundButton");
+
+const resetReadingButton =
+  $("resetReadingButton");
+
+const edgePrevious =
+  $("edgePrevious");
+
+const edgeNext =
+  $("edgeNext");
+
+const pagesButton =
+  $("pagesButton");
+
+const moreButton =
+  $("moreButton");
+
+const contentsButton =
+  $("contentsButton");
+
+const floatingEnquire =
+  $("floatingEnquire");
+
+const contactModal =
+  $("contactModal");
+
+const thumbnailPanel =
+  $("thumbnailPanel");
+
+const morePanel =
+  $("morePanel");
+
+const contentsPanel =
+  $("contentsPanel");
+
+const copyLinkButton =
+  $("copyLinkButton");
+
+const pageSound =
+  $("pageSound");
+
+const imageZoomViewer =
+  $("imageZoomViewer");
+
 const imageZoomToolbar =
-  imageZoomViewer?.querySelector(".image-zoom-toolbar");
+  imageZoomViewer?.querySelector(
+    ".image-zoom-toolbar"
+  );
 
-const imageZoomScroll = $("imageZoomScroll");
-const imageZoomCanvas = $("imageZoomCanvas");
-const zoomPageImage = $("zoomPageImage");
-const closeImageZoomButton = $("closeImageZoom");
-const resetImageZoomButton = $("resetImageZoom");
-const zoomInButton = $("zoomInButton");
-const zoomOutButton = $("zoomOutButton");
-const zoomViewerStatus = $("zoomViewerStatus");
-const zoomButton = $("zoomButton");
+const imageZoomScroll =
+  $("imageZoomScroll");
+
+const imageZoomCanvas =
+  $("imageZoomCanvas");
+
+const zoomPageImage =
+  $("zoomPageImage");
+
+const closeImageZoomButton =
+  $("closeImageZoom");
+
+const resetImageZoomButton =
+  $("resetImageZoom");
+
+const zoomInButton =
+  $("zoomInButton");
+
+const zoomOutButton =
+  $("zoomOutButton");
+
+const zoomViewerStatus =
+  $("zoomViewerStatus");
+
+const zoomButton =
+  $("zoomButton");
+
 
 let pageFlip = null;
-let mobileCurrentPage = 1;
-let mobileMainImage = null;
-
 let navigationLocked = false;
-let mobileSwipeLocked = false;
 let soundEnabled = false;
+
+let mobileCurrentPage = 1;
+let mobileRequestedPage = 1;
+let mobileLastDirection = 1;
+let mobileNavigationTimer = null;
+let mobileNavigationRequestId = 0;
+let mobileSwipeLocked = false;
+let mobilePageFrame = null;
+let mobilePageHost = null;
 
 let mobileThumbnailTrayOpen = false;
 let mobileTrayGestureMoved = false;
 let mobileThumbnailUnloadTimer = null;
 
-/*
- * Fast mobile navigation state.
- *
- * mobileCurrentPage   = page currently displayed
- * mobileRequestedPage = page the user most recently asked for
- */
-let mobileRequestedPage = 1;
-let mobileNavigationTimer = null;
-let mobileNavigationRequestId = 0;
-let mobileLastDirection = 1;
+let pdfjsLibPromise = null;
+let mobilePdfLoadingTask = null;
+let mobilePdfRenderTask = null;
 
-let mobileWarmTimer = null;
-let mobileWarmGeneration = 0;
+const mobilePdfPrefetchPromises =
+  new Map();
 
-const desktopPageImages = new Map();
-const desktopPageLoadPromises = new Map();
+const desktopPageImages =
+  new Map();
 
-const mobileBytePrefetchPromises = new Map();
-const mobileReadyImagePromises = new Map();
+const desktopPageLoadPromises =
+  new Map();
+
 
 /* =========================================================
    HELPERS
    ========================================================= */
 
-function clamp(value, min, max) {
-  return Math.min(max, Math.max(min, value));
+function clamp(
+  value,
+  min,
+  max
+) {
+  return Math.min(
+    max,
+    Math.max(
+      min,
+      value
+    )
+  );
 }
 
-function clampPageNumber(value) {
-  const page = Number.parseInt(value, 10);
+
+function clampPageNumber(
+  value
+) {
+  const page =
+    Number.parseInt(
+      value,
+      10
+    );
 
   return Number.isFinite(page)
-    ? clamp(page, 1, totalPages)
+    ? clamp(
+        page,
+        1,
+        totalPages
+      )
     : 1;
 }
 
-function validPageNumber(pageNumber) {
+
+function validPageNumber(
+  pageNumber
+) {
   return (
-    Number.isInteger(pageNumber) &&
+    Number.isInteger(
+      pageNumber
+    ) &&
     pageNumber >= 1 &&
     pageNumber <= totalPages
   );
 }
 
-function imagePath(pageNumber) {
-  return `pages/page${pageNumber}.jpg?v=${brochureVersion}`;
+
+function imagePath(
+  pageNumber
+) {
+  return (
+    `pages/page${pageNumber}.jpg` +
+    `?v=${brochureVersion}`
+  );
 }
 
-function getPageTitle(pageNumber) {
-  return pageTitles[pageNumber] || `Page ${pageNumber}`;
+
+function pdfPath(
+  pageNumber
+) {
+  return (
+    `pdf-pages/page${pageNumber}.pdf` +
+    `?v=${pdfVersion}`
+  );
 }
+
+
+function getPageTitle(
+  pageNumber
+) {
+  return (
+    pageTitles[
+      pageNumber
+    ] ||
+    `Page ${pageNumber}`
+  );
+}
+
 
 function getCurrentPageNumber() {
-  if (isMobileViewer) {
+  if (
+    isMobileViewer
+  ) {
     return mobileCurrentPage;
   }
 
-  if (!pageFlip) {
+  if (
+    !pageFlip
+  ) {
     return 1;
   }
 
   return clampPageNumber(
-    pageFlip.getCurrentPageIndex() + 1
+    pageFlip.getCurrentPageIndex() +
+    1
   );
 }
+
 
 function isImageZoomOpen() {
   return Boolean(
@@ -184,36 +372,56 @@ function isImageZoomOpen() {
   );
 }
 
-function wait(milliseconds) {
-  return new Promise((resolve) => {
-    window.setTimeout(
-      resolve,
-      milliseconds
-    );
-  });
+
+function wait(
+  milliseconds
+) {
+  return new Promise(
+    (
+      resolve
+    ) => {
+      window.setTimeout(
+        resolve,
+        milliseconds
+      );
+    }
+  );
 }
+
 
 function waitForTwoFrames() {
-  return new Promise((resolve) => {
-    window.requestAnimationFrame(() => {
+  return new Promise(
+    (
+      resolve
+    ) => {
       window.requestAnimationFrame(
-        resolve
+        () => {
+          window.requestAnimationFrame(
+            resolve
+          );
+        }
       );
-    });
-  });
+    }
+  );
 }
 
+
 function hideLoadingScreen() {
-  if (!loadingScreen) {
+  if (
+    !loadingScreen
+  ) {
     return;
   }
 
-  window.requestAnimationFrame(() => {
-    loadingScreen.classList.add(
-      "hidden"
-    );
-  });
+  window.requestAnimationFrame(
+    () => {
+      loadingScreen.classList.add(
+        "hidden"
+      );
+    }
+  );
 }
+
 
 /* =========================================================
    URLS
@@ -223,32 +431,47 @@ function getPageFromUrl() {
   const value =
     new URLSearchParams(
       window.location.search
-    ).get("page");
+    ).get(
+      "page"
+    );
 
   return value
-    ? clampPageNumber(value)
+    ? clampPageNumber(
+        value
+      )
     : null;
 }
 
+
 function getStartingPage() {
-  return getPageFromUrl() ?? 1;
+  return (
+    getPageFromUrl() ??
+    1
+  );
 }
 
-function updateUrlPage(pageNumber) {
+
+function updateUrlPage(
+  pageNumber
+) {
   try {
     const url =
       new URL(
         window.location.href
       );
 
-    if (pageNumber <= 1) {
+    if (
+      pageNumber <= 1
+    ) {
       url.searchParams.delete(
         "page"
       );
     } else {
       url.searchParams.set(
         "page",
-        String(pageNumber)
+        String(
+          pageNumber
+        )
       );
     }
 
@@ -257,13 +480,17 @@ function updateUrlPage(pageNumber) {
       "",
       url
     );
-  } catch (error) {
+
+  } catch (
+    error
+  ) {
     console.warn(
       "Unable to update brochure URL:",
       error
     );
   }
 }
+
 
 function getShareUrl() {
   const url =
@@ -274,77 +501,109 @@ function getShareUrl() {
   const page =
     getCurrentPageNumber();
 
-  if (page <= 1) {
+  if (
+    page <= 1
+  ) {
     url.searchParams.delete(
       "page"
     );
   } else {
     url.searchParams.set(
       "page",
-      String(page)
+      String(
+        page
+      )
     );
   }
 
   return url.toString();
 }
 
+
 /* =========================================================
    PANELS / MODALS
    ========================================================= */
 
 function closeAllPanels() {
-  if (thumbnailPanel) {
-    thumbnailPanel.hidden = true;
+  if (
+    thumbnailPanel
+  ) {
+    thumbnailPanel.hidden =
+      true;
   }
 
-  if (morePanel) {
-    morePanel.hidden = true;
+  if (
+    morePanel
+  ) {
+    morePanel.hidden =
+      true;
   }
 
-  if (contentsPanel) {
-    contentsPanel.hidden = true;
+  if (
+    contentsPanel
+  ) {
+    contentsPanel.hidden =
+      true;
   }
 }
 
-function togglePanel(panel) {
-  if (!panel) {
+
+function togglePanel(
+  panel
+) {
+  if (
+    !panel
+  ) {
     return;
   }
 
-  if (isMobileViewer) {
+  if (
+    isMobileViewer
+  ) {
     closeMobileThumbnailTray();
   }
 
-  const open = panel.hidden;
+  const open =
+    panel.hidden;
 
   closeAllPanels();
 
-  panel.hidden = !open;
+  panel.hidden =
+    !open;
 }
 
+
 function openContactModal() {
-  if (!contactModal) {
+  if (
+    !contactModal
+  ) {
     return;
   }
 
   closeMobileThumbnailTray();
 
-  contactModal.hidden = false;
+  contactModal.hidden =
+    false;
 
   document.body.style.overflow =
     "hidden";
 }
 
+
 function closeContactModal() {
-  if (!contactModal) {
+  if (
+    !contactModal
+  ) {
     return;
   }
 
-  contactModal.hidden = true;
+  contactModal.hidden =
+    true;
 
   document.body.style.overflow =
     "";
 }
+
 
 /* =========================================================
    THUMBNAILS
@@ -359,14 +618,22 @@ function createThumbnailButton(
       "button"
     );
 
-  button.type = "button";
-  button.className = className;
+  button.type =
+    "button";
+
+  button.className =
+    className;
 
   button.dataset.pageIndex =
-    String(pageNumber - 1);
+    String(
+      pageNumber -
+      1
+    );
 
   button.dataset.pageNumber =
-    String(pageNumber);
+    String(
+      pageNumber
+    );
 
   button.setAttribute(
     "aria-label",
@@ -379,13 +646,22 @@ function createThumbnailButton(
     );
 
   image.dataset.src =
-    imagePath(pageNumber);
+    imagePath(
+      pageNumber
+    );
 
-  image.alt = "";
-  image.decoding = "async";
-  image.loading = "lazy";
+  image.alt =
+    "";
 
-  button.appendChild(image);
+  image.decoding =
+    "async";
+
+  image.loading =
+    "lazy";
+
+  button.appendChild(
+    image
+  );
 
   if (
     className ===
@@ -400,9 +676,13 @@ function createThumbnailButton(
       "mobile-thumbnail-number";
 
     number.textContent =
-      String(pageNumber);
+      String(
+        pageNumber
+      );
 
-    button.appendChild(number);
+    button.appendChild(
+      number
+    );
   }
 
   button.addEventListener(
@@ -426,8 +706,11 @@ function createThumbnailButton(
   return button;
 }
 
+
 function createDrawerThumbnails() {
-  if (!thumbnailContainer) {
+  if (
+    !thumbnailContainer
+  ) {
     return;
   }
 
@@ -448,8 +731,11 @@ function createDrawerThumbnails() {
   }
 }
 
+
 function createMobileThumbnails() {
-  if (!mobileThumbnailContainer) {
+  if (
+    !mobileThumbnailContainer
+  ) {
     return;
   }
 
@@ -470,33 +756,47 @@ function createMobileThumbnails() {
   }
 }
 
-function loadThumbnailImage(image) {
+
+function loadThumbnailImage(
+  image
+) {
   if (
     !image ||
     !image.dataset.src ||
-    image.hasAttribute("src")
+    image.hasAttribute(
+      "src"
+    )
   ) {
     return;
   }
 
-  image.src = image.dataset.src;
+  image.src =
+    image.dataset.src;
 }
+
 
 function unloadThumbnailImage(
   image
 ) {
   if (
     !image ||
-    !image.hasAttribute("src")
+    !image.hasAttribute(
+      "src"
+    )
   ) {
     return;
   }
 
-  image.removeAttribute("src");
+  image.removeAttribute(
+    "src"
+  );
 }
 
+
 function unloadAllMobileThumbnailImages() {
-  if (!mobileThumbnailContainer) {
+  if (
+    !mobileThumbnailContainer
+  ) {
     return;
   }
 
@@ -509,12 +809,16 @@ function unloadAllMobileThumbnailImages() {
     );
 }
 
+
 function isButtonNearVisible(
   container,
   button,
   margin = 120
 ) {
-  if (!container || !button) {
+  if (
+    !container ||
+    !button
+  ) {
     return false;
   }
 
@@ -526,64 +830,84 @@ function isButtonNearVisible(
 
   return (
     buttonRect.right >=
-      containerRect.left - margin &&
+      containerRect.left -
+      margin &&
     buttonRect.left <=
-      containerRect.right + margin
+      containerRect.right +
+      margin
   );
 }
+
 
 function trimThumbnailMemory(
   container,
   selector,
   centrePage,
-  unloadFar = isMobileViewer
+  unloadFar =
+    isMobileViewer
 ) {
-  if (!container) {
+  if (
+    !container
+  ) {
     return;
   }
 
   container
-    .querySelectorAll(selector)
-    .forEach((button) => {
-      const pageNumber =
-        Number(
-          button.dataset.pageNumber
-        );
+    .querySelectorAll(
+      selector
+    )
+    .forEach(
+      (
+        button
+      ) => {
+        const pageNumber =
+          Number(
+            button.dataset.pageNumber
+          );
 
-      const image =
-        button.querySelector(
-          "img[data-src]"
-        );
+        const image =
+          button.querySelector(
+            "img[data-src]"
+          );
 
-      const useful =
-        Math.abs(
-          pageNumber -
-          centrePage
-        ) <= 3 ||
-        isButtonNearVisible(
-          container,
-          button
-        );
+        const useful =
+          Math.abs(
+            pageNumber -
+            centrePage
+          ) <= 3 ||
+          isButtonNearVisible(
+            container,
+            button
+          );
 
-      if (useful) {
-        loadThumbnailImage(
-          image
-        );
-      } else if (unloadFar) {
-        unloadThumbnailImage(
-          image
-        );
+        if (
+          useful
+        ) {
+          loadThumbnailImage(
+            image
+          );
+        } else if (
+          unloadFar
+        ) {
+          unloadThumbnailImage(
+            image
+          );
+        }
       }
-    });
+    );
 }
+
 
 function centreThumbnail(
   container,
   selector,
   pageIndex,
-  behavior = "smooth"
+  behavior =
+    "smooth"
 ) {
-  if (!container) {
+  if (
+    !container
+  ) {
     return;
   }
 
@@ -592,30 +916,41 @@ function centreThumbnail(
       `${selector}[data-page-index="${pageIndex}"]`
     );
 
-  if (!button) {
+  if (
+    !button
+  ) {
     return;
   }
 
   const left =
     button.offsetLeft -
-    container.clientWidth / 2 +
-    button.clientWidth / 2;
+    container.clientWidth /
+      2 +
+    button.clientWidth /
+      2;
 
-  container.scrollTo({
-    left: Math.max(
-      0,
-      left
-    ),
-    behavior
-  });
+  container.scrollTo(
+    {
+      left:
+        Math.max(
+          0,
+          left
+        ),
+
+      behavior
+    }
+  );
 }
+
 
 /* =========================================================
    MOBILE PAGE TRAY
    ========================================================= */
 
 function updateMobileTrayText() {
-  if (mobileThumbnailHandle) {
+  if (
+    mobileThumbnailHandle
+  ) {
     mobileThumbnailHandle.setAttribute(
       "aria-expanded",
       String(
@@ -631,17 +966,23 @@ function updateMobileTrayText() {
     );
   }
 
-  if (mobileThumbnailHint) {
+  if (
+    mobileThumbnailHint
+  ) {
     mobileThumbnailHint.textContent =
       "Swipe up for pages";
   }
 
-  if (mobileThumbnailTrayHint) {
+  if (
+    mobileThumbnailTrayHint
+  ) {
     mobileThumbnailTrayHint.textContent =
       "Swipe down to hide";
   }
 
-  if (mobileThumbnailStrip) {
+  if (
+    mobileThumbnailStrip
+  ) {
     mobileThumbnailStrip.setAttribute(
       "aria-hidden",
       String(
@@ -650,6 +991,7 @@ function updateMobileTrayText() {
     );
   }
 }
+
 
 function openMobileThumbnailTray() {
   if (
@@ -660,7 +1002,9 @@ function openMobileThumbnailTray() {
     return;
   }
 
-  if (mobileThumbnailUnloadTimer) {
+  if (
+    mobileThumbnailUnloadTimer
+  ) {
     clearTimeout(
       mobileThumbnailUnloadTimer
     );
@@ -671,7 +1015,8 @@ function openMobileThumbnailTray() {
 
   closeAllPanels();
 
-  mobileThumbnailTrayOpen = true;
+  mobileThumbnailTrayOpen =
+    true;
 
   mobileThumbnailStrip.classList.add(
     "open"
@@ -694,20 +1039,28 @@ function openMobileThumbnailTray() {
     true
   );
 
-  window.setTimeout(() => {
-    centreThumbnail(
-      mobileThumbnailContainer,
-      ".mobile-thumbnail-button",
-      mobileCurrentPage - 1,
-      "smooth"
-    );
-  }, 80);
+  window.setTimeout(
+    () => {
+      centreThumbnail(
+        mobileThumbnailContainer,
+        ".mobile-thumbnail-button",
+        mobileCurrentPage -
+        1,
+        "smooth"
+      );
+    },
+    80
+  );
 }
 
+
 function closeMobileThumbnailTray(
-  unload = true
+  unload =
+    true
 ) {
-  if (!mobileThumbnailStrip) {
+  if (
+    !mobileThumbnailStrip
+  ) {
     return;
   }
 
@@ -728,72 +1081,98 @@ function closeMobileThumbnailTray(
 
   updateMobileTrayText();
 
-  if (mobileThumbnailUnloadTimer) {
+  if (
+    mobileThumbnailUnloadTimer
+  ) {
     clearTimeout(
       mobileThumbnailUnloadTimer
     );
   }
 
-  if (unload) {
+  if (
+    unload
+  ) {
     mobileThumbnailUnloadTimer =
-      window.setTimeout(() => {
-        if (
-          !mobileThumbnailTrayOpen
-        ) {
-          unloadAllMobileThumbnailImages();
-        }
+      window.setTimeout(
+        () => {
+          if (
+            !mobileThumbnailTrayOpen
+          ) {
+            unloadAllMobileThumbnailImages();
+          }
 
-        mobileThumbnailUnloadTimer =
-          null;
-      }, 240);
+          mobileThumbnailUnloadTimer =
+            null;
+        },
+        240
+      );
   }
 }
 
+
 function toggleMobileThumbnailTray() {
-  if (mobileThumbnailTrayOpen) {
+  if (
+    mobileThumbnailTrayOpen
+  ) {
     closeMobileThumbnailTray();
   } else {
     openMobileThumbnailTray();
   }
 }
 
+
 function attachVerticalTrayGesture(
   element,
   direction
 ) {
-  if (!element) {
+  if (
+    !element
+  ) {
     return;
   }
 
-  let startX = 0;
-  let startY = 0;
+  let startX =
+    0;
+
+  let startY =
+    0;
 
   element.addEventListener(
     "touchstart",
-    (event) => {
+    (
+      event
+    ) => {
       if (
-        event.touches.length !== 1
+        event.touches.length !==
+        1
       ) {
         return;
       }
 
       startX =
-        event.touches[0].clientX;
+        event.touches[
+          0
+        ].clientX;
 
       startY =
-        event.touches[0].clientY;
+        event.touches[
+          0
+        ].clientY;
 
       mobileTrayGestureMoved =
         false;
     },
     {
-      passive: true
+      passive:
+        true
     }
   );
 
   element.addEventListener(
     "touchend",
-    (event) => {
+    (
+      event
+    ) => {
       if (
         event.changedTouches.length !==
         1
@@ -802,25 +1181,40 @@ function attachVerticalTrayGesture(
       }
 
       const deltaX =
-        event.changedTouches[0].clientX -
+        event.changedTouches[
+          0
+        ].clientX -
         startX;
 
       const deltaY =
-        event.changedTouches[0].clientY -
+        event.changedTouches[
+          0
+        ].clientY -
         startY;
 
       const verticalEnough =
-        Math.abs(deltaY) >= 24 &&
-        Math.abs(deltaY) >
-        Math.abs(deltaX) * 1.15;
+        Math.abs(
+          deltaY
+        ) >= 24 &&
+        Math.abs(
+          deltaY
+        ) >
+        Math.abs(
+          deltaX
+        ) *
+        1.15;
 
-      if (!verticalEnough) {
+      if (
+        !verticalEnough
+      ) {
         return;
       }
 
       if (
-        direction === "open" &&
-        deltaY < 0
+        direction ===
+          "open" &&
+        deltaY <
+          0
       ) {
         mobileTrayGestureMoved =
           true;
@@ -829,8 +1223,10 @@ function attachVerticalTrayGesture(
       }
 
       if (
-        direction === "close" &&
-        deltaY > 0
+        direction ===
+          "close" &&
+        deltaY >
+          0
       ) {
         mobileTrayGestureMoved =
           true;
@@ -838,18 +1234,25 @@ function attachVerticalTrayGesture(
         closeMobileThumbnailTray();
       }
 
-      if (mobileTrayGestureMoved) {
-        window.setTimeout(() => {
-          mobileTrayGestureMoved =
-            false;
-        }, 350);
+      if (
+        mobileTrayGestureMoved
+      ) {
+        window.setTimeout(
+          () => {
+            mobileTrayGestureMoved =
+              false;
+          },
+          350
+        );
       }
     },
     {
-      passive: true
+      passive:
+        true
     }
   );
 }
+
 
 function initialiseMobileThumbnailTray() {
   if (
@@ -868,21 +1271,26 @@ function initialiseMobileThumbnailTray() {
   mobileThumbnailContainer.addEventListener(
     "scroll",
     () => {
-      if (!mobileThumbnailTrayOpen) {
+      if (
+        !mobileThumbnailTrayOpen
+      ) {
         return;
       }
 
-      window.requestAnimationFrame(() => {
-        trimThumbnailMemory(
-          mobileThumbnailContainer,
-          ".mobile-thumbnail-button",
-          mobileCurrentPage,
-          true
-        );
-      });
+      window.requestAnimationFrame(
+        () => {
+          trimThumbnailMemory(
+            mobileThumbnailContainer,
+            ".mobile-thumbnail-button",
+            mobileCurrentPage,
+            true
+          );
+        }
+      );
     },
     {
-      passive: true
+      passive:
+        true
     }
   );
 
@@ -899,7 +1307,9 @@ function initialiseMobileThumbnailTray() {
   mobileThumbnailHandle.addEventListener(
     "click",
     () => {
-      if (!mobileTrayGestureMoved) {
+      if (
+        !mobileTrayGestureMoved
+      ) {
         openMobileThumbnailTray();
       }
     }
@@ -908,12 +1318,15 @@ function initialiseMobileThumbnailTray() {
   mobileThumbnailTrayHandle.addEventListener(
     "click",
     () => {
-      if (!mobileTrayGestureMoved) {
+      if (
+        !mobileTrayGestureMoved
+      ) {
         closeMobileThumbnailTray();
       }
     }
   );
 }
+
 
 /* =========================================================
    CONTENTS
@@ -921,20 +1334,25 @@ function initialiseMobileThumbnailTray() {
 
 function createContentsButton(
   pageNumber,
-  extraClass = ""
+  extraClass =
+    ""
 ) {
   const button =
     document.createElement(
       "button"
     );
 
-  button.type = "button";
+  button.type =
+    "button";
 
   button.className =
     `contents-button ${extraClass}`.trim();
 
   button.dataset.pageIndex =
-    String(pageNumber - 1);
+    String(
+      pageNumber -
+      1
+    );
 
   button.setAttribute(
     "aria-label",
@@ -985,7 +1403,8 @@ function createContentsButton(
     "true"
   );
 
-  arrow.textContent = "›";
+  arrow.textContent =
+    "›";
 
   button.append(
     copy,
@@ -1008,12 +1427,16 @@ function createContentsButton(
   return button;
 }
 
+
 function buildContents() {
-  if (!contentsList) {
+  if (
+    !contentsList
+  ) {
     return;
   }
 
-  contentsList.innerHTML = "";
+  contentsList.innerHTML =
+    "";
 
   const home =
     document.createElement(
@@ -1030,10 +1453,14 @@ function buildContents() {
     )
   );
 
-  contentsList.appendChild(home);
+  contentsList.appendChild(
+    home
+  );
 
   contentsSections.forEach(
-    (section) => {
+    (
+      section
+    ) => {
       const sectionElement =
         document.createElement(
           "section"
@@ -1070,15 +1497,19 @@ function buildContents() {
         "contents-section-range";
 
       const firstPage =
-        section.pages[0];
+        section.pages[
+          0
+        ];
 
       const lastPage =
         section.pages[
-          section.pages.length - 1
+          section.pages.length -
+          1
         ];
 
       range.textContent =
-        firstPage === lastPage
+        firstPage ===
+        lastPage
           ? `Page ${firstPage}`
           : `Pages ${firstPage}–${lastPage}`;
 
@@ -1096,7 +1527,9 @@ function buildContents() {
         "contents-section-grid";
 
       section.pages.forEach(
-        (page) => {
+        (
+          page
+        ) => {
           grid.appendChild(
             createContentsButton(
               page
@@ -1117,6 +1550,7 @@ function buildContents() {
   );
 }
 
+
 /* =========================================================
    SOUND
    ========================================================= */
@@ -1131,8 +1565,12 @@ function playPageTurnSound() {
 
   try {
     pageSound.pause();
-    pageSound.currentTime = 0;
-    pageSound.volume = 0.28;
+
+    pageSound.currentTime =
+      0;
+
+    pageSound.volume =
+      0.28;
 
     const promise =
       pageSound.play();
@@ -1142,9 +1580,14 @@ function playPageTurnSound() {
       typeof promise.catch ===
         "function"
     ) {
-      promise.catch(() => {});
+      promise.catch(
+        () => {}
+      );
     }
-  } catch (error) {
+
+  } catch (
+    error
+  ) {
     console.warn(
       "Page sound unavailable:",
       error
@@ -1152,16 +1595,20 @@ function playPageTurnSound() {
   }
 }
 
+
 /* =========================================================
-   DESKTOP FLIPBOOK
+   DESKTOP FLIPBOOK — JPEG READER
    ========================================================= */
 
 function createDesktopPages() {
-  if (!bookElement) {
+  if (
+    !bookElement
+  ) {
     return;
   }
 
-  bookElement.innerHTML = "";
+  bookElement.innerHTML =
+    "";
 
   desktopPageImages.clear();
 
@@ -1175,14 +1622,19 @@ function createDesktopPages() {
         "div"
       );
 
-    page.className = "page";
+    page.className =
+      "page";
 
     page.dataset.pageNumber =
-      String(pageNumber);
+      String(
+        pageNumber
+      );
 
     if (
-      pageNumber === 1 ||
-      pageNumber === totalPages
+      pageNumber ===
+        1 ||
+      pageNumber ===
+        totalPages
     ) {
       page.classList.add(
         "page-cover"
@@ -1200,20 +1652,25 @@ function createDesktopPages() {
     image.alt =
       `${getPageTitle(pageNumber)} — Keswick Discos Wedding Brochure`;
 
-    image.decoding = "async";
+    image.decoding =
+      "async";
 
     image.loading =
-      pageNumber <= 4
+      pageNumber <=
+        4
         ? "eager"
         : "lazy";
 
     image.fetchPriority =
-      pageNumber === 1
+      pageNumber ===
+        1
         ? "high"
         : "auto";
 
     image.dataset.src =
-      imagePath(pageNumber);
+      imagePath(
+        pageNumber
+      );
 
     image.dataset.loadState =
       "waiting";
@@ -1226,7 +1683,9 @@ function createDesktopPages() {
       image
     );
 
-    page.appendChild(image);
+    page.appendChild(
+      image
+    );
 
     bookElement.appendChild(
       page
@@ -1234,10 +1693,15 @@ function createDesktopPages() {
   }
 }
 
+
 function ensureDesktopPageLoaded(
   pageNumber
 ) {
-  if (!validPageNumber(pageNumber)) {
+  if (
+    !validPageNumber(
+      pageNumber
+    )
+  ) {
     return Promise.resolve();
   }
 
@@ -1246,7 +1710,9 @@ function ensureDesktopPageLoaded(
       pageNumber
     );
 
-  if (!image) {
+  if (
+    !image
+  ) {
     return Promise.resolve();
   }
 
@@ -1268,81 +1734,110 @@ function ensureDesktopPageLoaded(
   }
 
   const promise =
-    new Promise((resolve) => {
-      let settled = false;
+    new Promise(
+      (
+        resolve
+      ) => {
+        let settled =
+          false;
 
-      const finish = (state) => {
-        if (settled) {
+        const finish =
+          (
+            state
+          ) => {
+            if (
+              settled
+            ) {
+              return;
+            }
+
+            settled =
+              true;
+
+            image.dataset.loadState =
+              state;
+
+            desktopPageLoadPromises.delete(
+              pageNumber
+            );
+
+            resolve();
+          };
+
+        const loaded =
+          async () => {
+            try {
+              if (
+                typeof image.decode ===
+                  "function"
+              ) {
+                await image.decode();
+              }
+
+            } catch (
+              error
+            ) {}
+
+            finish(
+              "loaded"
+            );
+          };
+
+        image.dataset.loadState =
+          "loading";
+
+        image.loading =
+          "eager";
+
+        if (
+          !image.getAttribute(
+            "src"
+          )
+        ) {
+          image.src =
+            image.dataset.src;
+        }
+
+        if (
+          image.complete
+        ) {
+          if (
+            image.naturalWidth >
+              0
+          ) {
+            void loaded();
+          } else {
+            finish(
+              "error"
+            );
+          }
+
           return;
         }
 
-        settled = true;
-
-        image.dataset.loadState =
-          state;
-
-        desktopPageLoadPromises.delete(
-          pageNumber
+        image.addEventListener(
+          "load",
+          loaded,
+          {
+            once:
+              true
+          }
         );
 
-        resolve();
-      };
-
-      const loaded = async () => {
-        try {
-          if (
-            typeof image.decode ===
-            "function"
-          ) {
-            await image.decode();
+        image.addEventListener(
+          "error",
+          () => {
+            finish(
+              "error"
+            );
+          },
+          {
+            once:
+              true
           }
-        } catch (error) {}
-
-        finish("loaded");
-      };
-
-      image.dataset.loadState =
-        "loading";
-
-      image.loading = "eager";
-
-      if (
-        !image.getAttribute("src")
-      ) {
-        image.src =
-          image.dataset.src;
+        );
       }
-
-      if (image.complete) {
-        if (
-          image.naturalWidth > 0
-        ) {
-          void loaded();
-        } else {
-          finish("error");
-        }
-
-        return;
-      }
-
-      image.addEventListener(
-        "load",
-        loaded,
-        {
-          once: true
-        }
-      );
-
-      image.addEventListener(
-        "error",
-        () => {
-          finish("error");
-        },
-        {
-          once: true
-        }
-      );
-    });
+    );
 
   desktopPageLoadPromises.set(
     pageNumber,
@@ -1351,6 +1846,7 @@ function ensureDesktopPageLoaded(
 
   return promise;
 }
+
 
 function preloadDesktopAround(
   pageNumber
@@ -1361,12 +1857,15 @@ function preloadDesktopAround(
     );
 
   for (
-    let offset = -2;
-    offset <= 6;
+    let offset =
+      -2;
+    offset <=
+      6;
     offset += 1
   ) {
     const candidate =
-      current + offset;
+      current +
+      offset;
 
     if (
       validPageNumber(
@@ -1380,19 +1879,30 @@ function preloadDesktopAround(
   }
 }
 
+
 async function loadDesktopStartupPages(
   startingPage
 ) {
   const pages =
-    new Set([
-      startingPage,
-      startingPage - 1,
-      startingPage + 1,
-      startingPage + 2
-    ]);
+    new Set(
+      [
+        startingPage,
+        startingPage -
+          1,
+        startingPage +
+          1,
+        startingPage +
+          2
+      ]
+    );
 
-  if (startingPage === 1) {
-    pages.add(3);
+  if (
+    startingPage ===
+      1
+  ) {
+    pages.add(
+      3
+    );
   }
 
   const criticalPages =
@@ -1400,23 +1910,31 @@ async function loadDesktopStartupPages(
       validPageNumber
     );
 
-  let complete = 0;
+  let complete =
+    0;
 
-  if (loadingProgress) {
+  if (
+    loadingProgress
+  ) {
     loadingProgress.style.width =
       "8%";
   }
 
   await Promise.all(
     criticalPages.map(
-      async (pageNumber) => {
+      async (
+        pageNumber
+      ) => {
         await ensureDesktopPageLoaded(
           pageNumber
         );
 
-        complete += 1;
+        complete +=
+          1;
 
-        if (loadingProgress) {
+        if (
+          loadingProgress
+        ) {
           loadingProgress.style.width =
             `${Math.round(
               8 +
@@ -1431,6 +1949,7 @@ async function loadDesktopStartupPages(
     )
   );
 }
+
 
 function initialiseDesktopFlipbook(
   startingPage
@@ -1448,26 +1967,62 @@ function initialiseDesktopFlipbook(
     new St.PageFlip(
       bookElement,
       {
-        width: pageWidth,
-        height: pageHeight,
-        size: "stretch",
-        minWidth: 280,
-        maxWidth: pageWidth,
-        minHeight: 396,
-        maxHeight: pageHeight,
-        showCover: true,
-        usePortrait: true,
-        autoSize: true,
-        drawShadow: true,
-        maxShadowOpacity: 0.45,
-        flippingTime: 850,
-        mobileScrollSupport: false,
-        clickEventForward: true,
+        width:
+          pageWidth,
+
+        height:
+          pageHeight,
+
+        size:
+          "stretch",
+
+        minWidth:
+          280,
+
+        maxWidth:
+          pageWidth,
+
+        minHeight:
+          396,
+
+        maxHeight:
+          pageHeight,
+
+        showCover:
+          true,
+
+        usePortrait:
+          true,
+
+        autoSize:
+          true,
+
+        drawShadow:
+          true,
+
+        maxShadowOpacity:
+          0.45,
+
+        flippingTime:
+          850,
+
+        mobileScrollSupport:
+          false,
+
+        clickEventForward:
+          true,
+
         useMouseEvents:
           !isTouchDevice,
-        swipeDistance: 30,
-        showPageCorners: true,
-        disableFlipByClick: false
+
+        swipeDistance:
+          30,
+
+        showPageCorners:
+          true,
+
+        disableFlipByClick:
+          false
       }
     );
 
@@ -1480,16 +2035,20 @@ function initialiseDesktopFlipbook(
   pageFlip.on(
     "init",
     () => {
-      if (zoomContainer) {
+      if (
+        zoomContainer
+      ) {
         zoomContainer.style.transform =
           "none";
       }
 
       if (
-        startingPage > 1
+        startingPage >
+          1
       ) {
         pageFlip.turnToPage(
-          startingPage - 1
+          startingPage -
+          1
         );
       }
 
@@ -1500,15 +2059,26 @@ function initialiseDesktopFlipbook(
 
           const page =
             clampPageNumber(
-              index + 1
+              index +
+              1
             );
 
-          updateInterface(index);
-          updateUrlPage(page);
-          preloadDesktopAround(page);
+          updateInterface(
+            index
+          );
+
+          updateUrlPage(
+            page
+          );
+
+          preloadDesktopAround(
+            page
+          );
+
           hideLoadingScreen();
         },
-        startingPage > 1
+        startingPage >
+          1
           ? 100
           : 30
       );
@@ -1517,19 +2087,31 @@ function initialiseDesktopFlipbook(
 
   pageFlip.on(
     "flip",
-    (event) => {
+    (
+      event
+    ) => {
       const index =
         event.data;
 
       const page =
         clampPageNumber(
-          index + 1
+          index +
+          1
         );
 
-      updateInterface(index);
-      updateUrlPage(page);
+      updateInterface(
+        index
+      );
+
+      updateUrlPage(
+        page
+      );
+
       playPageTurnSound();
-      preloadDesktopAround(page);
+
+      preloadDesktopAround(
+        page
+      );
     }
   );
 
@@ -1541,10 +2123,13 @@ function initialiseDesktopFlipbook(
           const index =
             pageFlip.getCurrentPageIndex();
 
-          updateInterface(index);
+          updateInterface(
+            index
+          );
 
           preloadDesktopAround(
-            index + 1
+            index +
+            1
           );
         },
         120
@@ -1553,64 +2138,113 @@ function initialiseDesktopFlipbook(
   );
 }
 
+
 /* =========================================================
-   MOBILE IMAGE CACHE
+   PDF.JS MOBILE READER
    ========================================================= */
 
-function prefetchMobilePageBytes(
+async function ensurePdfJs() {
+  if (
+    !pdfjsLibPromise
+  ) {
+    pdfjsLibPromise =
+      import(
+        PDFJS_MODULE_URL
+      ).then(
+        (
+          pdfjsLib
+        ) => {
+          pdfjsLib
+            .GlobalWorkerOptions
+            .workerSrc =
+              PDFJS_WORKER_URL;
+
+          return pdfjsLib;
+        }
+      );
+  }
+
+  return pdfjsLibPromise;
+}
+
+
+function prefetchMobilePdf(
   pageNumber
 ) {
   if (
-    !validPageNumber(pageNumber)
+    !validPageNumber(
+      pageNumber
+    ) ||
+    pageNumber ===
+      1
   ) {
-    return Promise.resolve(false);
+    return Promise.resolve(
+      false
+    );
   }
 
   if (
-    mobileBytePrefetchPromises.has(
+    mobilePdfPrefetchPromises.has(
       pageNumber
     )
   ) {
-    return mobileBytePrefetchPromises.get(
+    return mobilePdfPrefetchPromises.get(
       pageNumber
     );
   }
 
   const promise =
     fetch(
-      imagePath(pageNumber),
+      pdfPath(
+        pageNumber
+      ),
       {
-        cache: "force-cache",
-        credentials: "same-origin"
+        cache:
+          "force-cache",
+
+        credentials:
+          "same-origin"
       }
     )
 
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(
-            `Unable to prefetch page ${pageNumber}`
-          );
+      .then(
+        (
+          response
+        ) => {
+          if (
+            !response.ok
+          ) {
+            throw new Error(
+              `Unable to prefetch PDF page ${pageNumber}`
+            );
+          }
+
+          return response.arrayBuffer();
         }
+      )
 
-        return response.arrayBuffer();
-      })
+      .then(
+        () => true
+      )
 
-      .then(() => true)
-
-      .catch((error) => {
-        console.warn(
-          `Background prefetch failed for page ${pageNumber}:`,
+      .catch(
+        (
           error
-        );
+        ) => {
+          console.warn(
+            `PDF prefetch failed for page ${pageNumber}:`,
+            error
+          );
 
-        mobileBytePrefetchPromises.delete(
-          pageNumber
-        );
+          mobilePdfPrefetchPromises.delete(
+            pageNumber
+          );
 
-        return false;
-      });
+          return false;
+        }
+      );
 
-  mobileBytePrefetchPromises.set(
+  mobilePdfPrefetchPromises.set(
     pageNumber,
     promise
   );
@@ -1618,125 +2252,118 @@ function prefetchMobilePageBytes(
   return promise;
 }
 
-function waitForReadyImage(
-  image,
-  source
+
+function preloadMobileAround(
+  pageNumber,
+  direction =
+    mobileLastDirection
 ) {
-  return new Promise(
-    (resolve, reject) => {
-      let settled = false;
+  const candidates =
+    direction >=
+      0
+      ? [
+          pageNumber + 1,
+          pageNumber + 2,
+          pageNumber + 3,
+          pageNumber - 1
+        ]
+      : [
+          pageNumber - 1,
+          pageNumber - 2,
+          pageNumber - 3,
+          pageNumber + 1
+        ];
 
-      const cleanup = () => {
-        image.removeEventListener(
-          "load",
-          loaded
-        );
-
-        image.removeEventListener(
-          "error",
-          failed
-        );
-      };
-
-      const loaded = async () => {
-        if (settled) {
-          return;
-        }
-
-        settled = true;
-
-        cleanup();
-
-        try {
-          if (
-            typeof image.decode ===
-            "function"
-          ) {
-            await image.decode();
-          }
-        } catch (error) {}
-
-        if (
-          image.naturalWidth > 0
-        ) {
-          resolve(image);
-        } else {
-          reject(
-            new Error(
-              "Image loaded without usable dimensions."
-            )
-          );
-        }
-      };
-
-      const failed = () => {
-        if (settled) {
-          return;
-        }
-
-        settled = true;
-
-        cleanup();
-
-        reject(
-          new Error(
-            `Unable to load ${source}`
-          )
-        );
-      };
-
-      image.addEventListener(
-        "load",
-        loaded
-      );
-
-      image.addEventListener(
-        "error",
-        failed
-      );
-
-      image.src = source;
-
-      if (image.complete) {
-        window.queueMicrotask(
-          () => {
-            if (
-              image.naturalWidth > 0
-            ) {
-              void loaded();
-            } else {
-              failed();
-            }
-          }
+  candidates.forEach(
+    (
+      candidate
+    ) => {
+      if (
+        validPageNumber(
+          candidate
+        ) &&
+        candidate >=
+          2
+      ) {
+        void prefetchMobilePdf(
+          candidate
         );
       }
     }
   );
 }
 
-function prepareMobilePageImage(
-  pageNumber
-) {
+
+function cancelActiveMobilePdfWork() {
   if (
-    !validPageNumber(pageNumber)
+    mobilePdfRenderTask
   ) {
-    return Promise.reject(
-      new Error(
-        "Invalid brochure page."
-      )
-    );
+    try {
+      mobilePdfRenderTask.cancel();
+    } catch (
+      error
+    ) {}
+
+    mobilePdfRenderTask =
+      null;
   }
 
   if (
-    mobileReadyImagePromises.has(
-      pageNumber
-    )
+    mobilePdfLoadingTask
   ) {
-    return mobileReadyImagePromises.get(
-      pageNumber
-    );
+    try {
+      void mobilePdfLoadingTask.destroy();
+    } catch (
+      error
+    ) {}
+
+    mobilePdfLoadingTask =
+      null;
+  }
+}
+
+
+function createMobileViewer() {
+  if (
+    !bookElement
+  ) {
+    return;
   }
 
+  bookElement.innerHTML =
+    "";
+
+  bookElement.classList.add(
+    "mobile-book"
+  );
+
+  mobilePageFrame =
+    document.createElement(
+      "div"
+    );
+
+  mobilePageFrame.className =
+    "mobile-page-frame";
+
+  mobilePageHost =
+    document.createElement(
+      "div"
+    );
+
+  mobilePageHost.className =
+    "mobile-page-host";
+
+  mobilePageFrame.appendChild(
+    mobilePageHost
+  );
+
+  bookElement.appendChild(
+    mobilePageFrame
+  );
+}
+
+
+async function prepareMobileCover() {
   const image =
     new Image();
 
@@ -1744,393 +2371,309 @@ function prepareMobilePageImage(
     "mobile-page-image";
 
   image.alt =
-    `${getPageTitle(pageNumber)} — Keswick Discos Wedding Brochure`;
+    `${getPageTitle(1)} — Keswick Discos Wedding Brochure`;
 
-  image.decoding = "async";
-  image.loading = "eager";
-  image.fetchPriority = "high";
-  image.draggable = false;
+  image.decoding =
+    "async";
 
-  const promise =
-    waitForReadyImage(
-      image,
-      imagePath(pageNumber)
+  image.loading =
+    "eager";
+
+  image.fetchPriority =
+    "high";
+
+  image.draggable =
+    false;
+
+  await waitForReadyImage(
+    image,
+    imagePath(
+      1
     )
-
-      .catch((error) => {
-        mobileReadyImagePromises.delete(
-          pageNumber
-        );
-
-        throw error;
-      });
-
-  mobileReadyImagePromises.set(
-    pageNumber,
-    promise
   );
 
-  return promise;
+  return image;
 }
 
-/*
- * Initial mobile fast buffer.
- *
- * We cache up to eight brochure pages at startup, but only
- * keep the nearest few decoded. This avoids the old page-6
- * network pause without holding the whole 26-page brochure
- * in decoded image memory.
- */
-async function primeInitialMobileBuffer(
-  startingPage
-) {
-  if (!isMobileViewer) {
-    return;
-  }
 
-  const pages = [];
-
-  for (
-    let page = startingPage;
-    page <= totalPages &&
-    pages.length < 8;
-    page += 1
-  ) {
-    pages.push(page);
-  }
-
-  for (
-    let page = startingPage - 1;
-    page >= 1 &&
-    pages.length < 8;
-    page -= 1
-  ) {
-    pages.push(page);
-  }
-
-  const queue =
-    pages.filter((page) => {
-      return (
-        page !== startingPage
-      );
-    });
-
-  /*
-   * Three small cache workers give the opening section a
-   * quick head start without flooding the connection.
-   */
-  const worker = async () => {
-    while (queue.length > 0) {
-      const page =
-        queue.shift();
-
-      await prefetchMobilePageBytes(
-        page
-      );
-    }
-  };
-
-  await Promise.all([
-    worker(),
-    worker(),
-    worker()
-  ]);
-
-  /*
-   * Keep the next three pages decoded as well. The remaining
-   * pages in the eight-page buffer stay in the browser cache
-   * and can be decoded very quickly if requested.
-   */
-  const readyPages = [
-    startingPage + 1,
-    startingPage + 2,
-    startingPage + 3
-  ].filter(
-    validPageNumber
-  );
-
-  await Promise.all(
-    readyPages.map((page) => {
-      return prepareMobilePageImage(
-        page
-      ).catch(
-        () => null
-      );
-    })
-  );
-}
-
-/*
- * Keeps the most useful nearby pages decoded and ready.
- *
- * Going forward:
- * previous page + next page + page after next
- *
- * Going backwards:
- * next page + previous page + page before previous
- */
-function preloadMobileAround(
+async function prepareMobilePdfCanvas(
   pageNumber,
-  direction =
-    mobileLastDirection
+  requestId
 ) {
-  const readyCandidates =
-    direction >= 0
-      ? [
-          pageNumber - 1,
-          pageNumber + 1,
-          pageNumber + 2
-        ]
-      : [
-          pageNumber + 1,
-          pageNumber - 1,
-          pageNumber - 2
-        ];
+  const pdfjsLib =
+    await ensurePdfJs();
 
-  const byteCandidates =
-    direction >= 0
-      ? [
-          pageNumber + 3,
-          pageNumber + 4
-        ]
-      : [
-          pageNumber - 3,
-          pageNumber - 4
-        ];
-
-  readyCandidates.forEach(
-    (candidate) => {
-      if (
-        validPageNumber(candidate)
-      ) {
-        void prepareMobilePageImage(
-          candidate
-        ).catch(
-          () => {}
-        );
-      }
-    }
-  );
-
-  byteCandidates.forEach(
-    (candidate) => {
-      if (
-        validPageNumber(candidate)
-      ) {
-        void prefetchMobilePageBytes(
-          candidate
-        );
-      }
-    }
-  );
-
-  const keepReady =
-    new Set([
-      pageNumber,
-      ...readyCandidates.filter(
-        validPageNumber
-      )
-    ]);
-
-  for (
-    const page
-    of mobileReadyImagePromises.keys()
-  ) {
-    if (
-      !keepReady.has(page)
-    ) {
-      mobileReadyImagePromises.delete(
-        page
-      );
-    }
-  }
-}
-
-/*
- * The rest of the brochure is NOT fetched immediately.
- *
- * We wait until the reader has stopped navigating for
- * 2.5 seconds before low-priority background warming begins.
- */
-function scheduleMobileBackgroundWarm(
-  startingPage
-) {
-  if (!isMobileViewer) {
-    return;
-  }
-
-  if (mobileWarmTimer) {
-    window.clearTimeout(
-      mobileWarmTimer
-    );
-  }
-
-  mobileWarmGeneration += 1;
-
-  const generation =
-    mobileWarmGeneration;
-
-  mobileWarmTimer =
-    window.setTimeout(
-      () => {
-        mobileWarmTimer = null;
-
-        void warmEntireMobileBrochure(
-          startingPage,
-          generation
-        );
-      },
-      2500
-    );
-}
-
-async function warmEntireMobileBrochure(
-  startingPage,
-  generation
-) {
   if (
-    !isMobileViewer ||
-    generation !==
-      mobileWarmGeneration
+    requestId !==
+      mobileNavigationRequestId
   ) {
-    return;
+    return null;
   }
 
-  const connection =
-    navigator.connection ||
-    navigator.mozConnection ||
-    navigator.webkitConnection;
+  const loadingTask =
+    pdfjsLib.getDocument(
+      {
+        url:
+          pdfPath(
+            pageNumber
+          ),
 
-  if (connection?.saveData) {
-    return;
-  }
+        cMapUrl:
+          PDFJS_CMAP_URL,
 
-  const direction =
-    mobileLastDirection >= 0
-      ? 1
-      : -1;
+        cMapPacked:
+          true,
 
-  const queue = [];
+        iccUrl:
+          PDFJS_ICC_URL,
 
-  for (
-    let distance = 1;
-    distance < totalPages;
-    distance += 1
-  ) {
-    const forward =
-      startingPage +
-      distance * direction;
+        standardFontDataUrl:
+          PDFJS_STANDARD_FONT_URL,
 
-    const backward =
-      startingPage -
-      distance * direction;
-
-    if (
-      validPageNumber(forward)
-    ) {
-      queue.push(forward);
-    }
-
-    if (
-      validPageNumber(backward)
-    ) {
-      queue.push(backward);
-    }
-  }
-
-  /*
-   * One low-priority worker only.
-   *
-   * The moment the user navigates again,
-   * mobileWarmGeneration changes and this stops.
-   */
-  for (const page of queue) {
-    if (
-      generation !==
-      mobileWarmGeneration
-    ) {
-      return;
-    }
-
-    await prefetchMobilePageBytes(
-      page
+        wasmUrl:
+          PDFJS_WASM_URL
+      }
     );
 
+  mobilePdfLoadingTask =
+    loadingTask;
+
+  let pdfDocument =
+    null;
+
+  let pdfPage =
+    null;
+
+  try {
+    pdfDocument =
+      await loadingTask.promise;
+
     if (
-      generation !==
-      mobileWarmGeneration
+      requestId !==
+        mobileNavigationRequestId
     ) {
-      return;
+      return null;
     }
 
-    await wait(120);
-  }
-}
+    pdfPage =
+      await pdfDocument.getPage(
+        1
+      );
 
-/* =========================================================
-   MOBILE VIEWER
-   ========================================================= */
+    if (
+      requestId !==
+        mobileNavigationRequestId
+    ) {
+      return null;
+    }
 
-function createMobileViewer() {
-  if (!bookElement) {
-    return;
-  }
+    const rect =
+      mobilePageFrame
+        ?.getBoundingClientRect();
 
-  bookElement.innerHTML = "";
+    const availableWidth =
+      Math.max(
+        1,
+        rect?.width ||
+        bookElement?.clientWidth ||
+        window.innerWidth
+      );
 
-  bookElement.classList.add(
-    "mobile-book"
-  );
+    const availableHeight =
+      Math.max(
+        1,
+        rect?.height ||
+        bookElement?.clientHeight ||
+        window.innerHeight
+      );
 
-  const frame =
-    document.createElement(
-      "div"
-    );
+    const baseViewport =
+      pdfPage.getViewport(
+        {
+          scale:
+            1
+        }
+      );
 
-  frame.className =
-    "mobile-page-frame";
+    const fitScale =
+      Math.min(
+        availableWidth /
+          baseViewport.width,
 
-  mobileMainImage =
-    document.createElement(
+        availableHeight /
+          baseViewport.height
+      );
+
+    /*
+     * Two device pixels per CSS pixel is enough for
+     * sharp phone viewing without creating enormous
+     * decoded canvases.
+     */
+    const outputScale =
+      Math.min(
+        window.devicePixelRatio ||
+        1,
+        2
+      );
+
+    const viewport =
+      pdfPage.getViewport(
+        {
+          scale:
+            fitScale *
+            outputScale
+        }
+      );
+
+    const canvas =
+      document.createElement(
+        "canvas"
+      );
+
+    canvas.className =
+      "mobile-pdf-canvas";
+
+    canvas.setAttribute(
+      "role",
       "img"
     );
 
-  mobileMainImage.className =
-    "mobile-page-image";
+    canvas.setAttribute(
+      "aria-label",
+      `${getPageTitle(pageNumber)} — Keswick Discos Wedding Brochure`
+    );
 
-  mobileMainImage.decoding =
-    "async";
+    canvas.width =
+      Math.max(
+        1,
+        Math.ceil(
+          viewport.width
+        )
+      );
 
-  mobileMainImage.loading =
-    "eager";
+    canvas.height =
+      Math.max(
+        1,
+        Math.ceil(
+          viewport.height
+        )
+      );
 
-  mobileMainImage.draggable =
-    false;
+    canvas.style.width =
+      `${viewport.width / outputScale}px`;
 
-  frame.appendChild(
-    mobileMainImage
-  );
+    canvas.style.height =
+      `${viewport.height / outputScale}px`;
 
-  bookElement.appendChild(
-    frame
-  );
+    const context =
+      canvas.getContext(
+        "2d",
+        {
+          alpha:
+            false
+        }
+      );
+
+    if (
+      !context
+    ) {
+      throw new Error(
+        "Canvas rendering is not available."
+      );
+    }
+
+    context.imageSmoothingEnabled =
+      true;
+
+    context.imageSmoothingQuality =
+      "high";
+
+    const renderTask =
+      pdfPage.render(
+        {
+          canvasContext:
+            context,
+
+          viewport,
+
+          background:
+            "rgb(255,255,255)"
+        }
+      );
+
+    mobilePdfRenderTask =
+      renderTask;
+
+    await renderTask.promise;
+
+    if (
+      requestId !==
+        mobileNavigationRequestId
+    ) {
+      return null;
+    }
+
+    return canvas;
+
+  } catch (
+    error
+  ) {
+    if (
+      requestId !==
+        mobileNavigationRequestId ||
+      error?.name ===
+        "RenderingCancelledException"
+    ) {
+      return null;
+    }
+
+    throw error;
+
+  } finally {
+    try {
+      pdfPage?.cleanup();
+    } catch (
+      error
+    ) {}
+
+    if (
+      mobilePdfRenderTask
+    ) {
+      mobilePdfRenderTask =
+        null;
+    }
+
+    if (
+      mobilePdfLoadingTask ===
+      loadingTask
+    ) {
+      mobilePdfLoadingTask =
+        null;
+    }
+
+    try {
+      await pdfDocument?.destroy();
+    } catch (
+      error
+    ) {}
+  }
 }
 
-/*
- * Actually loads and displays a mobile page.
- *
- * requestId stops an older, slower page load from replacing
- * a newer page request.
- */
+
 async function commitMobilePageRequest(
   pageNumber,
   requestId,
   {
-    initial = false,
-    playSound = false
+    initial =
+      false,
+
+    playSound =
+      false
   } = {}
 ) {
-  if (!mobileMainImage) {
+  if (
+    !mobilePageHost
+  ) {
     return false;
   }
 
@@ -2147,14 +2690,22 @@ async function commitMobilePageRequest(
       `Loading page ${safePage}…`;
   }
 
-  let nextImage;
+  let preparedNode =
+    null;
 
   try {
-    nextImage =
-      await prepareMobilePageImage(
-        safePage
-      );
-  } catch (error) {
+    preparedNode =
+      safePage ===
+        1
+        ? await prepareMobileCover()
+        : await prepareMobilePdfCanvas(
+            safePage,
+            requestId
+          );
+
+  } catch (
+    error
+  ) {
     console.error(
       `Unable to prepare page ${safePage}:`,
       error
@@ -2169,18 +2720,17 @@ async function commitMobilePageRequest(
         `Page ${mobileCurrentPage} of ${totalPages}`;
     }
 
-    if (initial) {
+    if (
+      initial
+    ) {
       throw error;
     }
 
     return false;
   }
 
-  /*
-   * The user may have pressed another arrow while this
-   * image was loading. In that case, don't show this one.
-   */
   if (
+    !preparedNode ||
     requestId !==
       mobileNavigationRequestId ||
     safePage !==
@@ -2189,23 +2739,20 @@ async function commitMobilePageRequest(
     return false;
   }
 
-  if (
-    mobileMainImage?.parentNode
-  ) {
-    mobileMainImage.parentNode.replaceChild(
-      nextImage,
-      mobileMainImage
-    );
-  }
-
-  mobileMainImage =
-    nextImage;
+  /*
+   * The old page stays visible until the new PDF has
+   * completely rendered. This avoids a blank flash.
+   */
+  mobilePageHost.replaceChildren(
+    preparedNode
+  );
 
   mobileCurrentPage =
     safePage;
 
   updateInterface(
-    safePage - 1
+    safePage -
+    1
   );
 
   updateUrlPage(
@@ -2230,42 +2777,39 @@ async function commitMobilePageRequest(
     centreThumbnail(
       mobileThumbnailContainer,
       ".mobile-thumbnail-button",
-      safePage - 1,
+      safePage -
+      1,
       initial
         ? "auto"
         : "smooth"
     );
   }
 
-  if (playSound) {
+  if (
+    playSound
+  ) {
     playPageTurnSound();
   }
-
-  scheduleMobileBackgroundWarm(
-    safePage
-  );
 
   return true;
 }
 
-/*
- * Direct page selection from:
- * - Contents
- * - thumbnail tray
- * - First page
- * - initial opening
- */
+
 async function showMobilePage(
   pageNumber,
-  initial = false,
-  playSound = false
+  initial =
+    false,
+  playSound =
+    false
 ) {
   const safePage =
     clampPageNumber(
       pageNumber
     );
 
-  if (mobileNavigationTimer) {
+  if (
+    mobileNavigationTimer
+  ) {
     window.clearTimeout(
       mobileNavigationTimer
     );
@@ -2274,23 +2818,11 @@ async function showMobilePage(
       null;
   }
 
-  if (mobileWarmTimer) {
-    window.clearTimeout(
-      mobileWarmTimer
-    );
-
-    mobileWarmTimer =
-      null;
-  }
-
-  /*
-   * Invalidates any old page load and any background warm.
-   */
-  mobileWarmGeneration += 1;
+  cancelActiveMobilePdfWork();
 
   mobileLastDirection =
     safePage >=
-      mobileCurrentPage
+      mobileRequestedPage
       ? 1
       : -1;
 
@@ -2310,23 +2842,7 @@ async function showMobilePage(
   );
 }
 
-/*
- * Fast arrow navigation.
- *
- * Example:
- * Current page = 4
- *
- * tap ›
- * requested = 5
- *
- * tap › quickly
- * requested = 6
- *
- * tap › quickly
- * requested = 7
- *
- * Only page 7 becomes the final high-priority load.
- */
+
 function queueMobileRelativeNavigation(
   delta
 ) {
@@ -2345,7 +2861,8 @@ function queueMobileRelativeNavigation(
 
   const targetPage =
     clampPageNumber(
-      basePage + delta
+      basePage +
+      delta
     );
 
   if (
@@ -2356,50 +2873,41 @@ function queueMobileRelativeNavigation(
   }
 
   mobileLastDirection =
-    delta >= 0
+    delta >=
+      0
       ? 1
       : -1;
 
   mobileRequestedPage =
     targetPage;
 
-  /*
-   * Changes immediately on every tap.
-   * Any older page load now becomes stale.
-   */
   const requestId =
     ++mobileNavigationRequestId;
 
-  if (pageStatus) {
+  /*
+   * Stop an obsolete PDF parse/render immediately.
+   */
+  cancelActiveMobilePdfWork();
+
+  if (
+    pageStatus
+  ) {
     pageStatus.textContent =
       `Loading page ${targetPage}…`;
   }
 
-  if (mobileNavigationTimer) {
+  if (
+    mobileNavigationTimer
+  ) {
     window.clearTimeout(
       mobileNavigationTimer
     );
   }
 
-  if (mobileWarmTimer) {
-    window.clearTimeout(
-      mobileWarmTimer
-    );
-
-    mobileWarmTimer = null;
-  }
-
   /*
-   * Stop any low-priority background downloading while
-   * the reader is actively changing pages.
-   */
-  mobileWarmGeneration += 1;
-
-  /*
-   * Tiny 85ms debounce:
-   * several quick arrow taps load the final requested page.
-   *
-   * A normal single tap still feels immediate.
+   * A very short debounce means:
+   * page 4 + › › › quickly = render page 7,
+   * rather than wasting time rendering 5 and 6 first.
    */
   mobileNavigationTimer =
     window.setTimeout(
@@ -2411,14 +2919,18 @@ function queueMobileRelativeNavigation(
           targetPage,
           requestId,
           {
-            initial: false,
-            playSound: true
+            initial:
+              false,
+
+            playSound:
+              true
           }
         );
       },
-      85
+      70
     );
 }
+
 
 /* =========================================================
    NAVIGATION
@@ -2427,7 +2939,9 @@ function queueMobileRelativeNavigation(
 async function goToPage(
   pageNumber
 ) {
-  if (isImageZoomOpen()) {
+  if (
+    isImageZoomOpen()
+  ) {
     return;
   }
 
@@ -2436,7 +2950,9 @@ async function goToPage(
       pageNumber
     );
 
-  if (isMobileViewer) {
+  if (
+    isMobileViewer
+  ) {
     if (
       safePage ===
         mobileRequestedPage &&
@@ -2462,44 +2978,59 @@ async function goToPage(
     return;
   }
 
-  navigationLocked = true;
+  navigationLocked =
+    true;
 
   try {
-    await Promise.all([
-      ensureDesktopPageLoaded(
-        safePage
-      ),
-      ensureDesktopPageLoaded(
-        safePage - 1
-      ),
-      ensureDesktopPageLoaded(
-        safePage + 1
-      )
-    ]);
+    await Promise.all(
+      [
+        ensureDesktopPageLoaded(
+          safePage
+        ),
+
+        ensureDesktopPageLoaded(
+          safePage -
+          1
+        ),
+
+        ensureDesktopPageLoaded(
+          safePage +
+          1
+        )
+      ]
+    );
 
     pageFlip.turnToPage(
-      safePage - 1
+      safePage -
+      1
     );
 
     preloadDesktopAround(
       safePage
     );
+
   } finally {
     window.setTimeout(
       () => {
-        navigationLocked = false;
+        navigationLocked =
+          false;
       },
       180
     );
   }
 }
 
+
 async function goPrevious() {
-  if (isImageZoomOpen()) {
+  if (
+    isImageZoomOpen()
+  ) {
     return;
   }
 
-  if (isMobileViewer) {
+  if (
+    isMobileViewer
+  ) {
     queueMobileRelativeNavigation(
       -1
     );
@@ -2519,14 +3050,19 @@ async function goPrevious() {
 
   const target =
     clampPageNumber(
-      current - 1
+      current -
+      1
     );
 
-  if (target === current) {
+  if (
+    target ===
+      current
+  ) {
     return;
   }
 
-  navigationLocked = true;
+  navigationLocked =
+    true;
 
   try {
     await ensureDesktopPageLoaded(
@@ -2538,22 +3074,29 @@ async function goPrevious() {
     preloadDesktopAround(
       target
     );
+
   } finally {
     window.setTimeout(
       () => {
-        navigationLocked = false;
+        navigationLocked =
+          false;
       },
       pageTurnLockTime
     );
   }
 }
 
+
 async function goNext() {
-  if (isImageZoomOpen()) {
+  if (
+    isImageZoomOpen()
+  ) {
     return;
   }
 
-  if (isMobileViewer) {
+  if (
+    isMobileViewer
+  ) {
     queueMobileRelativeNavigation(
       1
     );
@@ -2573,14 +3116,19 @@ async function goNext() {
 
   const target =
     clampPageNumber(
-      current + 1
+      current +
+      1
     );
 
-  if (target === current) {
+  if (
+    target ===
+      current
+  ) {
     return;
   }
 
-  navigationLocked = true;
+  navigationLocked =
+    true;
 
   try {
     await ensureDesktopPageLoaded(
@@ -2592,15 +3140,18 @@ async function goNext() {
     preloadDesktopAround(
       target
     );
+
   } finally {
     window.setTimeout(
       () => {
-        navigationLocked = false;
+        navigationLocked =
+          false;
       },
       pageTurnLockTime
     );
   }
 }
+
 
 /* =========================================================
    INTERFACE
@@ -2611,77 +3162,135 @@ function updateInterface(
 ) {
   const page =
     clampPageNumber(
-      pageIndex + 1
+      pageIndex +
+      1
     );
 
-  if (pageStatus) {
+  if (
+    pageStatus
+  ) {
     pageStatus.textContent =
       `Page ${page} of ${totalPages}`;
   }
 
-  if (pageProgress) {
+  if (
+    pageProgress
+  ) {
     pageProgress.style.width =
-      `${(page / totalPages) * 100}%`;
+      `${
+        (
+          page /
+          totalPages
+        ) *
+        100
+      }%`;
   }
 
-  if (previousButton) {
+  if (
+    previousButton
+  ) {
     previousButton.disabled =
-      pageIndex <= 0;
+      pageIndex <=
+      0;
   }
 
-  if (nextButton) {
+  if (
+    nextButton
+  ) {
     nextButton.disabled =
       pageIndex >=
-      totalPages - 1;
+      totalPages -
+      1;
   }
 
-  if (edgePrevious) {
+  if (
+    edgePrevious
+  ) {
     edgePrevious.disabled =
-      pageIndex <= 0;
+      pageIndex <=
+      0;
   }
 
-  if (edgeNext) {
+  if (
+    edgeNext
+  ) {
     edgeNext.disabled =
       pageIndex >=
-      totalPages - 1;
+      totalPages -
+      1;
   }
 
   document
     .querySelectorAll(
       ".thumbnail-button, .mobile-thumbnail-button, .contents-button"
     )
-    .forEach((button) => {
-      button.classList.toggle(
-        "active",
-        Number(
-          button.dataset.pageIndex
-        ) === pageIndex
-      );
-    });
+    .forEach(
+      (
+        button
+      ) => {
+        button.classList.toggle(
+          "active",
+          Number(
+            button.dataset.pageIndex
+          ) ===
+          pageIndex
+        );
+      }
+    );
 }
 
+
 /* =========================================================
-   ISOLATED NATIVE ZOOM READER
+   DEDICATED ZOOM READER
+
+   Zoom deliberately still uses the full-resolution JPEG.
+   It is only one page at a time, so we keep the existing
+   reliable native-scroll zoom reader separate from PDF.js.
    ========================================================= */
 
-const ZOOM_MIN = 1;
-const ZOOM_MAX = 4;
-const ZOOM_STEP = 0.5;
+const ZOOM_MIN =
+  1;
 
-let zoomScale = 1;
-let zoomBaseWidth = 0;
-let zoomBaseHeight = 0;
-let zoomGeometry = null;
+const ZOOM_MAX =
+  4;
 
-let pinchStartDistance = 0;
-let pinchStartScale = 1;
-let pinchActive = false;
+const ZOOM_STEP =
+  0.5;
+
+let zoomScale =
+  1;
+
+let zoomBaseWidth =
+  0;
+
+let zoomBaseHeight =
+  0;
+
+let zoomGeometry =
+  null;
+
+let pinchStartDistance =
+  0;
+
+let pinchStartScale =
+  1;
+
+let pinchActive =
+  false;
+
 
 function touchDistance(
   touches
 ) {
-  const first = touches[0];
-  const second = touches[1];
+  const first =
+    touches[
+      0
+    ];
+
+  const second =
+    touches[
+      1
+    ];
 
   return Math.hypot(
     second.clientX -
@@ -2692,6 +3301,7 @@ function touchDistance(
   );
 }
 
+
 function touchMidpoint(
   touches,
   rect
@@ -2700,8 +3310,12 @@ function touchMidpoint(
     x:
       (
         (
-          touches[0].clientX +
-          touches[1].clientX
+          touches[
+            0
+          ].clientX +
+          touches[
+            1
+          ].clientX
         ) /
         2
       ) -
@@ -2710,14 +3324,139 @@ function touchMidpoint(
     y:
       (
         (
-          touches[0].clientY +
-          touches[1].clientY
+          touches[
+            0
+          ].clientY +
+          touches[
+            1
+          ].clientY
         ) /
         2
       ) -
       rect.top
   };
 }
+
+
+function waitForReadyImage(
+  image,
+  source
+) {
+  return new Promise(
+    (
+      resolve,
+      reject
+    ) => {
+      let settled =
+        false;
+
+      const cleanup =
+        () => {
+          image.removeEventListener(
+            "load",
+            loaded
+          );
+
+          image.removeEventListener(
+            "error",
+            failed
+          );
+        };
+
+      const loaded =
+        async () => {
+          if (
+            settled
+          ) {
+            return;
+          }
+
+          settled =
+            true;
+
+          cleanup();
+
+          try {
+            if (
+              typeof image.decode ===
+                "function"
+            ) {
+              await image.decode();
+            }
+
+          } catch (
+            error
+          ) {}
+
+          if (
+            image.naturalWidth >
+              0
+          ) {
+            resolve(
+              image
+            );
+          } else {
+            reject(
+              new Error(
+                "Image loaded without usable dimensions."
+              )
+            );
+          }
+        };
+
+      const failed =
+        () => {
+          if (
+            settled
+          ) {
+            return;
+          }
+
+          settled =
+            true;
+
+          cleanup();
+
+          reject(
+            new Error(
+              `Unable to load ${source}`
+            )
+          );
+        };
+
+      image.addEventListener(
+        "load",
+        loaded
+      );
+
+      image.addEventListener(
+        "error",
+        failed
+      );
+
+      image.src =
+        source;
+
+      if (
+        image.complete
+      ) {
+        window.queueMicrotask(
+          () => {
+            if (
+              image.naturalWidth >
+                0
+            ) {
+              void loaded();
+            } else {
+              failed();
+            }
+          }
+        );
+      }
+    }
+  );
+}
+
 
 function calculateZoomBaseSize() {
   if (
@@ -2758,6 +3497,7 @@ function calculateZoomBaseSize() {
       fit
     );
 }
+
 
 function getGeometryForScale(
   scale
@@ -2820,10 +3560,13 @@ function getGeometryForScale(
   };
 }
 
+
 function renderZoomScale(
   scale,
-  focalX = null,
-  focalY = null
+  focalX =
+    null,
+  focalY =
+    null
 ) {
   if (
     !imageZoomScroll ||
@@ -2938,42 +3681,60 @@ function renderZoomScale(
 
   imageZoomScroll.classList.toggle(
     "is-zoomed",
-    zoomScale > 1.01
+    zoomScale >
+      1.01
   );
 
-  if (zoomOutButton) {
+  if (
+    zoomOutButton
+  ) {
     zoomOutButton.disabled =
       zoomScale <=
-      ZOOM_MIN + 0.01;
+      ZOOM_MIN +
+      0.01;
   }
 
-  if (zoomInButton) {
+  if (
+    zoomInButton
+  ) {
     zoomInButton.disabled =
       zoomScale >=
-      ZOOM_MAX - 0.01;
+      ZOOM_MAX -
+      0.01;
   }
 }
 
+
 function resetImageZoom() {
-  if (!imageZoomScroll) {
+  if (
+    !imageZoomScroll
+  ) {
     return;
   }
 
-  zoomScale = 1;
+  zoomScale =
+    1;
 
   calculateZoomBaseSize();
 
-  zoomGeometry = null;
+  zoomGeometry =
+    null;
 
-  renderZoomScale(1);
+  renderZoomScale(
+    1
+  );
 
   window.requestAnimationFrame(
     () => {
-      imageZoomScroll.scrollLeft = 0;
-      imageZoomScroll.scrollTop = 0;
+      imageZoomScroll.scrollLeft =
+        0;
+
+      imageZoomScroll.scrollTop =
+        0;
     }
   );
 }
+
 
 function zoomIn() {
   renderZoomScale(
@@ -2982,12 +3743,14 @@ function zoomIn() {
   );
 }
 
+
 function zoomOut() {
   renderZoomScale(
     zoomScale -
     ZOOM_STEP
   );
 }
+
 
 function initialiseNativeZoomGestures() {
   if (
@@ -3003,15 +3766,19 @@ function initialiseNativeZoomGestures() {
 
   imageZoomScroll.addEventListener(
     "touchstart",
-    (event) => {
+    (
+      event
+    ) => {
       if (
         !isImageZoomOpen() ||
-        event.touches.length !== 2
+        event.touches.length !==
+        2
       ) {
         return;
       }
 
-      pinchActive = true;
+      pinchActive =
+        true;
 
       pinchStartDistance =
         Math.max(
@@ -3025,17 +3792,21 @@ function initialiseNativeZoomGestures() {
         zoomScale;
     },
     {
-      passive: true
+      passive:
+        true
     }
   );
 
   imageZoomScroll.addEventListener(
     "touchmove",
-    (event) => {
+    (
+      event
+    ) => {
       if (
         !isImageZoomOpen() ||
         !pinchActive ||
-        event.touches.length !== 2
+        event.touches.length !==
+        2
       ) {
         return;
       }
@@ -3073,38 +3844,50 @@ function initialiseNativeZoomGestures() {
       );
     },
     {
-      passive: false
+      passive:
+        false
     }
   );
 
   imageZoomScroll.addEventListener(
     "touchend",
-    (event) => {
+    (
+      event
+    ) => {
       if (
-        event.touches.length < 2
+        event.touches.length <
+        2
       ) {
-        pinchActive = false;
+        pinchActive =
+          false;
       }
     },
     {
-      passive: true
+      passive:
+        true
     }
   );
 
   imageZoomScroll.addEventListener(
     "touchcancel",
     () => {
-      pinchActive = false;
+      pinchActive =
+        false;
     },
     {
-      passive: true
+      passive:
+        true
     }
   );
 
   imageZoomScroll.addEventListener(
     "wheel",
-    (event) => {
-      if (!isImageZoomOpen()) {
+    (
+      event
+    ) => {
+      if (
+        !isImageZoomOpen()
+      ) {
         return;
       }
 
@@ -3122,22 +3905,26 @@ function initialiseNativeZoomGestures() {
         rect.top;
 
       const direction =
-        event.deltaY < 0
+        event.deltaY <
+        0
           ? 1
           : -1;
 
       renderZoomScale(
         zoomScale +
-        direction * 0.25,
+        direction *
+        0.25,
         focalX,
         focalY
       );
     },
     {
-      passive: false
+      passive:
+        false
     }
   );
 }
+
 
 async function openImageZoomViewer() {
   if (
@@ -3154,7 +3941,8 @@ async function openImageZoomViewer() {
 
   closeAllPanels();
 
-  mobileSwipeLocked = true;
+  mobileSwipeLocked =
+    true;
 
   const currentPage =
     getCurrentPageNumber();
@@ -3168,19 +3956,20 @@ async function openImageZoomViewer() {
     zoomButton?.textContent ||
     "Zoom";
 
-  if (zoomButton) {
-    zoomButton.disabled = true;
+  if (
+    zoomButton
+  ) {
+    zoomButton.disabled =
+      true;
 
     zoomButton.textContent =
       "Opening…";
   }
 
   try {
-    if (isMobileViewer) {
-      void prefetchMobilePageBytes(
-        currentPage
-      );
-    } else {
+    if (
+      !isMobileViewer
+    ) {
       await ensureDesktopPageLoaded(
         currentPage
       );
@@ -3200,7 +3989,9 @@ async function openImageZoomViewer() {
       source
     );
 
-    if (zoomViewerStatus) {
+    if (
+      zoomViewerStatus
+    ) {
       zoomViewerStatus.textContent =
         `Page ${currentPage} of ${totalPages}`;
     }
@@ -3217,7 +4008,10 @@ async function openImageZoomViewer() {
     await waitForTwoFrames();
 
     resetImageZoom();
-  } catch (error) {
+
+  } catch (
+    error
+  ) {
     console.error(
       "Unable to open enlarged page:",
       error
@@ -3232,8 +4026,11 @@ async function openImageZoomViewer() {
     document.body.classList.add(
       "zoom-viewer-open"
     );
+
   } finally {
-    if (zoomButton) {
+    if (
+      zoomButton
+    ) {
       zoomButton.disabled =
         false;
 
@@ -3243,6 +4040,7 @@ async function openImageZoomViewer() {
   }
 }
 
+
 function closeImageZoomViewer() {
   if (
     !imageZoomViewer ||
@@ -3251,11 +4049,20 @@ function closeImageZoomViewer() {
     return;
   }
 
-  pinchActive = false;
-  zoomScale = 1;
-  zoomGeometry = null;
-  zoomBaseWidth = 0;
-  zoomBaseHeight = 0;
+  pinchActive =
+    false;
+
+  zoomScale =
+    1;
+
+  zoomGeometry =
+    null;
+
+  zoomBaseWidth =
+    0;
+
+  zoomBaseHeight =
+    0;
 
   imageZoomViewer.hidden =
     true;
@@ -3276,8 +4083,10 @@ function closeImageZoomViewer() {
     "style"
   );
 
-  mobileSwipeLocked = false;
+  mobileSwipeLocked =
+    false;
 }
+
 
 /* =========================================================
    ZOOM TOOLBAR INPUT SHIELD
@@ -3287,40 +4096,52 @@ function bindZoomToolbarButton(
   button,
   handler
 ) {
-  if (!button) {
+  if (
+    !button
+  ) {
     return;
   }
 
-  let suppressClickUntil = 0;
+  let suppressClickUntil =
+    0;
 
   button.addEventListener(
     "pointerdown",
-    (event) => {
+    (
+      event
+    ) => {
       if (
         event.pointerType ===
           "mouse" &&
-        event.button !== 0
+        event.button !==
+          0
       ) {
         return;
       }
 
       event.preventDefault();
+
       event.stopPropagation();
 
       suppressClickUntil =
-        Date.now() + 750;
+        Date.now() +
+        750;
 
       handler();
     },
     {
-      passive: false
+      passive:
+        false
     }
   );
 
   button.addEventListener(
     "click",
-    (event) => {
+    (
+      event
+    ) => {
       event.preventDefault();
+
       event.stopPropagation();
 
       if (
@@ -3335,21 +4156,31 @@ function bindZoomToolbarButton(
   );
 }
 
-if (imageZoomToolbar) {
+
+if (
+  imageZoomToolbar
+) {
   [
     "pointerdown",
     "pointermove",
     "pointerup",
     "click"
-  ].forEach((eventName) => {
-    imageZoomToolbar.addEventListener(
-      eventName,
-      (event) => {
-        event.stopPropagation();
-      }
-    );
-  });
+  ].forEach(
+    (
+      eventName
+    ) => {
+      imageZoomToolbar.addEventListener(
+        eventName,
+        (
+          event
+        ) => {
+          event.stopPropagation();
+        }
+      );
+    }
+  );
 }
+
 
 /* =========================================================
    CONTROLS
@@ -3375,10 +4206,13 @@ edgeNext?.addEventListener(
   goNext
 );
 
+
 firstButton?.addEventListener(
   "click",
   async () => {
-    await goToPage(1);
+    await goToPage(
+      1
+    );
 
     closeAllPanels();
 
@@ -3386,50 +4220,76 @@ firstButton?.addEventListener(
   }
 );
 
+
 zoomButton?.addEventListener(
   "click",
   openImageZoomViewer
 );
+
 
 bindZoomToolbarButton(
   closeImageZoomButton,
   closeImageZoomViewer
 );
 
+
 bindZoomToolbarButton(
   resetImageZoomButton,
   resetImageZoom
 );
+
 
 bindZoomToolbarButton(
   zoomInButton,
   zoomIn
 );
 
+
 bindZoomToolbarButton(
   zoomOutButton,
   zoomOut
 );
 
+
 window.addEventListener(
   "resize",
   () => {
-    if (!isImageZoomOpen()) {
+    if (
+      isImageZoomOpen()
+    ) {
+      const previousScale =
+        zoomScale;
+
+      calculateZoomBaseSize();
+
+      zoomGeometry =
+        null;
+
+      renderZoomScale(
+        previousScale
+      );
+
       return;
     }
 
-    const previousScale =
-      zoomScale;
-
-    calculateZoomBaseSize();
-
-    zoomGeometry = null;
-
-    renderZoomScale(
-      previousScale
-    );
+    /*
+     * Re-render a PDF page to the new phone dimensions
+     * after orientation / viewport changes.
+     */
+    if (
+      isMobileViewer &&
+      mobileCurrentPage >=
+        2
+    ) {
+      void showMobilePage(
+        mobileCurrentPage,
+        true,
+        false
+      );
+    }
   }
 );
+
 
 fullscreenButton?.addEventListener(
   "click",
@@ -3441,11 +4301,15 @@ fullscreenButton?.addEventListener(
         await document
           .documentElement
           .requestFullscreen();
+
       } else {
         await document
           .exitFullscreen();
       }
-    } catch (error) {
+
+    } catch (
+      error
+    ) {
       console.error(
         "Fullscreen failed:",
         error
@@ -3453,6 +4317,7 @@ fullscreenButton?.addEventListener(
     }
   }
 );
+
 
 document.addEventListener(
   "fullscreenchange",
@@ -3467,7 +4332,9 @@ document.addEventListener(
       active
     );
 
-    if (fullscreenButton) {
+    if (
+      fullscreenButton
+    ) {
       fullscreenButton.textContent =
         active
           ? "Exit full screen"
@@ -3476,28 +4343,36 @@ document.addEventListener(
   }
 );
 
+
 shareButton?.addEventListener(
   "click",
   async () => {
     const currentPage =
       getCurrentPageNumber();
 
-    const shareData = {
-      title: document.title,
+    const shareData =
+      {
+        title:
+          document.title,
 
-      text:
-        currentPage === 1
-          ? "View the Keswick Discos Wedding Brochure."
-          : `View page ${currentPage} of the Keswick Discos Wedding Brochure.`,
+        text:
+          currentPage ===
+            1
+            ? "View the Keswick Discos Wedding Brochure."
+            : `View page ${currentPage} of the Keswick Discos Wedding Brochure.`,
 
-      url: getShareUrl()
-    };
+        url:
+          getShareUrl()
+      };
 
     try {
-      if (navigator.share) {
+      if (
+        navigator.share
+      ) {
         await navigator.share(
           shareData
         );
+
       } else {
         await navigator
           .clipboard
@@ -3516,10 +4391,13 @@ shareButton?.addEventListener(
           1800
         );
       }
-    } catch (error) {
+
+    } catch (
+      error
+    ) {
       if (
         error.name !==
-        "AbortError"
+          "AbortError"
       ) {
         console.error(
           "Sharing failed:",
@@ -3530,10 +4408,13 @@ shareButton?.addEventListener(
   }
 );
 
+
 pagesButton?.addEventListener(
   "click",
   () => {
-    if (isMobileViewer) {
+    if (
+      isMobileViewer
+    ) {
       toggleMobileThumbnailTray();
 
       return;
@@ -3559,7 +4440,8 @@ pagesButton?.addEventListener(
           centreThumbnail(
             thumbnailContainer,
             ".thumbnail-button",
-            getCurrentPageNumber() - 1
+            getCurrentPageNumber() -
+            1
           );
         },
         60
@@ -3567,6 +4449,7 @@ pagesButton?.addEventListener(
     }
   }
 );
+
 
 moreButton?.addEventListener(
   "click",
@@ -3577,6 +4460,7 @@ moreButton?.addEventListener(
   }
 );
 
+
 contentsButton?.addEventListener(
   "click",
   () => {
@@ -3586,36 +4470,49 @@ contentsButton?.addEventListener(
   }
 );
 
+
 floatingEnquire?.addEventListener(
   "click",
   openContactModal
 );
 
+
 document
   .querySelectorAll(
     "[data-close]"
   )
-  .forEach((button) => {
-    button.addEventListener(
-      "click",
-      () => {
-        const targetId =
-          button.dataset.close;
+  .forEach(
+    (
+      button
+    ) => {
+      button.addEventListener(
+        "click",
+        () => {
+          const targetId =
+            button.dataset.close;
 
-        const target =
-          $(targetId);
+          const target =
+            $(
+              targetId
+            );
 
-        if (
-          targetId ===
-          "contactModal"
-        ) {
-          closeContactModal();
-        } else if (target) {
-          target.hidden = true;
+          if (
+            targetId ===
+              "contactModal"
+          ) {
+            closeContactModal();
+
+          } else if (
+            target
+          ) {
+            target.hidden =
+              true;
+          }
         }
-      }
-    );
-  });
+      );
+    }
+  );
+
 
 copyLinkButton?.addEventListener(
   "click",
@@ -3637,7 +4534,10 @@ copyLinkButton?.addEventListener(
         },
         1600
       );
-    } catch (error) {
+
+    } catch (
+      error
+    ) {
       console.error(
         "Copy failed:",
         error
@@ -3645,6 +4545,7 @@ copyLinkButton?.addEventListener(
     }
   }
 );
+
 
 soundButton?.addEventListener(
   "click",
@@ -3661,6 +4562,7 @@ soundButton?.addEventListener(
   }
 );
 
+
 resetReadingButton?.addEventListener(
   "click",
   () => {
@@ -3668,7 +4570,10 @@ resetReadingButton?.addEventListener(
       localStorage.removeItem(
         "keswickLastPage"
       );
-    } catch (error) {}
+
+    } catch (
+      error
+    ) {}
 
     resetReadingButton.textContent =
       "Saved page cleared";
@@ -3683,8 +4588,9 @@ resetReadingButton?.addEventListener(
   }
 );
 
+
 /*
- * Mobile deliberately has no left/right page swipe.
+ * Mobile deliberately has NO left/right page swipe.
  *
  * Page navigation:
  * - gold previous / next buttons
@@ -3692,15 +4598,19 @@ resetReadingButton?.addEventListener(
  * - Contents
  */
 
+
 /* =========================================================
    KEYBOARD
    ========================================================= */
 
 document.addEventListener(
   "keydown",
-  async (event) => {
+  async (
+    event
+  ) => {
     if (
-      event.key === "Escape" &&
+      event.key ===
+        "Escape" &&
       isImageZoomOpen()
     ) {
       closeImageZoomViewer();
@@ -3708,15 +4618,22 @@ document.addEventListener(
       return;
     }
 
-    if (event.key === "Escape") {
+    if (
+      event.key ===
+      "Escape"
+    ) {
       closeMobileThumbnailTray();
+
       closeAllPanels();
+
       closeContactModal();
 
       return;
     }
 
-    if (isImageZoomOpen()) {
+    if (
+      isImageZoomOpen()
+    ) {
       if (
         event.key === "+" ||
         event.key === "="
@@ -3724,7 +4641,9 @@ document.addEventListener(
         zoomIn();
       }
 
-      if (event.key === "-") {
+      if (
+        event.key === "-"
+      ) {
         zoomOut();
       }
 
@@ -3732,19 +4651,26 @@ document.addEventListener(
     }
 
     if (
-      event.key === "ArrowLeft"
+      event.key ===
+      "ArrowLeft"
     ) {
       await goPrevious();
     }
 
     if (
-      event.key === "ArrowRight"
+      event.key ===
+      "ArrowRight"
     ) {
       await goNext();
     }
 
-    if (event.key === "Home") {
-      await goToPage(1);
+    if (
+      event.key ===
+      "Home"
+    ) {
+      await goToPage(
+        1
+      );
     }
 
     if (
@@ -3755,6 +4681,7 @@ document.addEventListener(
     }
   }
 );
+
 
 /* =========================================================
    START
@@ -3772,9 +4699,11 @@ async function startMobileBrochure(
   mobileRequestedPage =
     startingPage;
 
-  if (loadingProgress) {
+  if (
+    loadingProgress
+  ) {
     loadingProgress.style.width =
-      "35%";
+      "30%";
   }
 
   await showMobilePage(
@@ -3783,42 +4712,76 @@ async function startMobileBrochure(
     false
   );
 
+  if (
+    loadingProgress
+  ) {
+    loadingProgress.style.width =
+      "68%";
+  }
+
   /*
-   * The first page is already visible underneath the loading
-   * screen. Before revealing the brochure, cache the opening
-   * eight-page section so fast arrow presses do not outrun
-   * the network around page 6.
+   * If opening on the cover, quietly prepare PDF.js
+   * and cache pages 2 and 3 before the user gets there.
+   *
+   * We cap the extra opening wait at 900 ms.
    */
-  if (mobileWarmTimer) {
-    window.clearTimeout(
-      mobileWarmTimer
+  if (
+    startingPage ===
+      1
+  ) {
+    const readiness =
+      Promise.all(
+        [
+          ensurePdfJs()
+            .catch(
+              () => null
+            ),
+
+          prefetchMobilePdf(
+            2
+          ),
+
+          prefetchMobilePdf(
+            3
+          )
+        ]
+      );
+
+    await Promise.race(
+      [
+        readiness,
+        wait(
+          900
+        )
+      ]
     );
 
-    mobileWarmTimer = null;
+  } else {
+    void ensurePdfJs()
+      .catch(
+        () => null
+      );
   }
 
-  mobileWarmGeneration += 1;
-
-  if (loadingProgress) {
-    loadingProgress.style.width =
-      "62%";
-  }
-
-  await primeInitialMobileBuffer(
-    startingPage
+  /*
+   * Only nearby compressed PDFs are prefetched.
+   * We no longer decode a long run of full-size JPEGs.
+   */
+  preloadMobileAround(
+    startingPage,
+    1
   );
 
-  scheduleMobileBackgroundWarm(
-    startingPage
-  );
-
-  if (loadingProgress) {
+  if (
+    loadingProgress
+  ) {
     loadingProgress.style.width =
       "100%";
   }
 
   hideLoadingScreen();
 }
+
 
 async function startDesktopBrochure(
   startingPage
@@ -3834,6 +4797,7 @@ async function startDesktopBrochure(
   );
 }
 
+
 async function startBrochure() {
   try {
     const startingPage =
@@ -3843,7 +4807,9 @@ async function startBrochure() {
 
     createDrawerThumbnails();
 
-    if (isMobileViewer) {
+    if (
+      isMobileViewer
+    ) {
       document.body.classList.add(
         "mobile-viewer-mode"
       );
@@ -3851,6 +4817,7 @@ async function startBrochure() {
       await startMobileBrochure(
         startingPage
       );
+
     } else {
       document.body.classList.add(
         "desktop-viewer-mode"
@@ -3860,21 +4827,31 @@ async function startBrochure() {
         startingPage
       );
     }
-  } catch (error) {
-    console.error(error);
+
+  } catch (
+    error
+  ) {
+    console.error(
+      error
+    );
 
     hideLoadingScreen();
 
-    if (bookStage) {
+    if (
+      bookStage
+    ) {
       bookStage.style.display =
         "none";
     }
 
-    if (errorMessage) {
+    if (
+      errorMessage
+    ) {
       errorMessage.hidden =
         false;
     }
   }
 }
+
 
 startBrochure();
