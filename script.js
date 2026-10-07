@@ -6,6 +6,7 @@ const isMobileViewer = window.matchMedia("(max-width: 700px)").matches;
 const totalPages = 26;
 const brochureVersion = "20261003-1";
 const pdfVersion = "20261007-3";
+const thumbnailVersion = "20261007-4";
 const pageWidth = 600;
 const pageHeight = 848;
 const pageTurnLockTime = 950;
@@ -155,6 +156,10 @@ function imagePath(pageNumber) {
   return `pages/page${pageNumber}.jpg?v=${brochureVersion}`;
 }
 
+function thumbnailPath(pageNumber) {
+  return `thumbnails/page${pageNumber}.webp?v=${thumbnailVersion}`;
+}
+
 function combinedPdfPath() {
   return `pdf-pages/mobile-brochure-fixed.pdf?v=${pdfVersion}`;
 }
@@ -204,8 +209,13 @@ function getStartingPage() {
 function updateUrlPage(pageNumber) {
   try {
     const url = new URL(window.location.href);
-    if (pageNumber <= 1) url.searchParams.delete("page");
-    else url.searchParams.set("page", String(pageNumber));
+
+    if (pageNumber <= 1) {
+      url.searchParams.delete("page");
+    } else {
+      url.searchParams.set("page", String(pageNumber));
+    }
+
     window.history.replaceState({}, "", url);
   } catch (error) {
     console.warn("Unable to update brochure URL:", error);
@@ -215,8 +225,13 @@ function updateUrlPage(pageNumber) {
 function getShareUrl() {
   const url = new URL(window.location.href);
   const page = getCurrentPageNumber();
-  if (page <= 1) url.searchParams.delete("page");
-  else url.searchParams.set("page", String(page));
+
+  if (page <= 1) {
+    url.searchParams.delete("page");
+  } else {
+    url.searchParams.set("page", String(page));
+  }
+
   return url.toString();
 }
 
@@ -232,21 +247,30 @@ function closeAllPanels() {
 
 function togglePanel(panel) {
   if (!panel) return;
-  if (isMobileViewer) closeMobileThumbnailTray();
+
+  if (isMobileViewer) {
+    closeMobileThumbnailTray();
+  }
+
   const open = panel.hidden;
+
   closeAllPanels();
+
   panel.hidden = !open;
 }
 
 function openContactModal() {
   if (!contactModal) return;
+
   closeMobileThumbnailTray();
+
   contactModal.hidden = false;
   document.body.style.overflow = "hidden";
 }
 
 function closeContactModal() {
   if (!contactModal) return;
+
   contactModal.hidden = true;
   document.body.style.overflow = "";
 }
@@ -257,30 +281,44 @@ function closeContactModal() {
 
 function createThumbnailButton(pageNumber, className) {
   const button = document.createElement("button");
+
   button.type = "button";
   button.className = className;
   button.dataset.pageIndex = String(pageNumber - 1);
   button.dataset.pageNumber = String(pageNumber);
-  button.setAttribute("aria-label", `Go to ${getPageTitle(pageNumber)}, page ${pageNumber}`);
+
+  button.setAttribute(
+    "aria-label",
+    `Go to ${getPageTitle(pageNumber)}, page ${pageNumber}`
+  );
 
   const image = document.createElement("img");
-  image.dataset.src = imagePath(pageNumber);
+
+  image.src = thumbnailPath(pageNumber);
   image.alt = "";
   image.decoding = "async";
-  image.loading = "lazy";
+  image.loading = "eager";
+  image.fetchPriority = "low";
+
   button.appendChild(image);
 
   if (className === "mobile-thumbnail-button") {
     const number = document.createElement("span");
+
     number.className = "mobile-thumbnail-number";
     number.textContent = String(pageNumber);
+
     button.appendChild(number);
   }
 
   button.addEventListener("click", async () => {
     await goToPage(pageNumber);
-    if (className === "mobile-thumbnail-button") closeMobileThumbnailTray();
-    else closeAllPanels();
+
+    if (className === "mobile-thumbnail-button") {
+      closeMobileThumbnailTray();
+    } else {
+      closeAllPanels();
+    }
   });
 
   return button;
@@ -288,6 +326,7 @@ function createThumbnailButton(pageNumber, className) {
 
 function createDrawerThumbnails() {
   if (!thumbnailContainer) return;
+
   thumbnailContainer.innerHTML = "";
 
   for (let page = 1; page <= totalPages; page += 1) {
@@ -299,6 +338,7 @@ function createDrawerThumbnails() {
 
 function createMobileThumbnails() {
   if (!mobileThumbnailContainer) return;
+
   mobileThumbnailContainer.innerHTML = "";
 
   for (let page = 1; page <= totalPages; page += 1) {
@@ -309,57 +349,30 @@ function createMobileThumbnails() {
 }
 
 function loadThumbnailImage(image) {
-  if (!image || !image.dataset.src || image.hasAttribute("src")) return;
-  image.src = image.dataset.src;
+  if (!image || image.hasAttribute("src")) return;
+
+  const button = image.closest("[data-page-number]");
+  const pageNumber = Number(button?.dataset.pageNumber);
+
+  if (validPageNumber(pageNumber)) {
+    image.src = thumbnailPath(pageNumber);
+  }
 }
 
-function unloadThumbnailImage(image) {
-  if (!image || !image.hasAttribute("src")) return;
-  image.removeAttribute("src");
-}
+/*
+ * The WebP thumbnails are tiny, so we deliberately keep them
+ * loaded instead of throwing them away and reloading them.
+ */
+function unloadThumbnailImage(image) {}
 
-function unloadAllMobileThumbnailImages() {
-  if (!mobileThumbnailContainer) return;
+function unloadAllMobileThumbnailImages() {}
 
-  mobileThumbnailContainer
-    .querySelectorAll("img[data-src]")
-    .forEach(unloadThumbnailImage);
-}
-
-function isButtonNearVisible(container, button, margin = 120) {
-  if (!container || !button) return false;
-
-  const containerRect = container.getBoundingClientRect();
-  const buttonRect = button.getBoundingClientRect();
-
-  return (
-    buttonRect.right >= containerRect.left - margin &&
-    buttonRect.left <= containerRect.right + margin
-  );
-}
-
-function trimThumbnailMemory(
-  container,
-  selector,
-  centrePage,
-  unloadFar = isMobileViewer
-) {
+function trimThumbnailMemory(container, selector) {
   if (!container) return;
 
-  container.querySelectorAll(selector).forEach((button) => {
-    const pageNumber = Number(button.dataset.pageNumber);
-    const image = button.querySelector("img[data-src]");
-
-    const useful =
-      Math.abs(pageNumber - centrePage) <= 3 ||
-      isButtonNearVisible(container, button);
-
-    if (useful) {
-      loadThumbnailImage(image);
-    } else if (unloadFar) {
-      unloadThumbnailImage(image);
-    }
-  });
+  container
+    .querySelectorAll(`${selector} img`)
+    .forEach(loadThumbnailImage);
 }
 
 function centreThumbnail(
@@ -510,6 +523,7 @@ function attachVerticalTrayGesture(element, direction) {
 
       startX = event.touches[0].clientX;
       startY = event.touches[0].clientY;
+
       mobileTrayGestureMoved = false;
     },
     {
@@ -718,77 +732,73 @@ function buildContents() {
 
   contentsList.appendChild(home);
 
-  contentsSections.forEach(
-    (section) => {
-      const sectionElement =
-        document.createElement("section");
+  contentsSections.forEach((section) => {
+    const sectionElement =
+      document.createElement("section");
 
-      sectionElement.className =
-        "contents-section";
+    sectionElement.className =
+      "contents-section";
 
-      const heading =
-        document.createElement("div");
+    const heading =
+      document.createElement("div");
 
-      heading.className =
-        "contents-section-heading";
+    heading.className =
+      "contents-section-heading";
 
-      const title =
-        document.createElement("h3");
+    const title =
+      document.createElement("h3");
 
-      title.className =
-        "contents-section-title";
+    title.className =
+      "contents-section-title";
 
-      title.textContent =
-        section.title;
+    title.textContent =
+      section.title;
 
-      const range =
-        document.createElement("span");
+    const range =
+      document.createElement("span");
 
-      range.className =
-        "contents-section-range";
+    range.className =
+      "contents-section-range";
 
-      const firstPage =
-        section.pages[0];
+    const firstPage =
+      section.pages[0];
 
-      const lastPage =
-        section.pages[
-          section.pages.length - 1
-        ];
+    const lastPage =
+      section.pages[
+        section.pages.length - 1
+      ];
 
-      range.textContent =
-        firstPage === lastPage
-          ? `Page ${firstPage}`
-          : `Pages ${firstPage}–${lastPage}`;
+    range.textContent =
+      firstPage === lastPage
+        ? `Page ${firstPage}`
+        : `Pages ${firstPage}–${lastPage}`;
 
-      heading.append(
-        title,
-        range
+    heading.append(
+      title,
+      range
+    );
+
+    const grid =
+      document.createElement("div");
+
+    grid.className =
+      "contents-section-grid";
+
+    section.pages.forEach((page) => {
+      grid.appendChild(
+        createContentsButton(page)
       );
+    });
 
-      const grid =
-        document.createElement("div");
+    sectionElement.append(
+      heading,
+      grid
+    );
 
-      grid.className =
-        "contents-section-grid";
-
-      section.pages.forEach(
-        (page) => {
-          grid.appendChild(
-            createContentsButton(page)
-          );
-        }
-      );
-
-      sectionElement.append(
-        heading,
-        grid
-      );
-
-      contentsList.appendChild(
-        sectionElement
-      );
-    }
-  );
+    contentsList.appendChild(
+      sectionElement
+    );
+  });
 }
 
 /* =========================================================
@@ -1940,10 +1950,6 @@ function scheduleMobileWarmAround(
             continue;
           }
 
-          /*
-           * A foreground/prime render always wins
-           * over background warming.
-           */
           if (mobilePdfRenderTask) {
             return;
           }
@@ -2203,10 +2209,6 @@ function queueMobileRelativeNavigation(delta) {
           targetPage
         );
 
-  /*
-   * A cached previous/next page can be committed immediately.
-   * This is what makes reverse navigation feel instant.
-   */
   if (cached) {
     mobilePageHost.replaceChildren(
       cached
@@ -2513,22 +2515,18 @@ function updateInterface(pageIndex) {
     .querySelectorAll(
       ".thumbnail-button, .mobile-thumbnail-button, .contents-button"
     )
-    .forEach(
-      (button) => {
-        button.classList.toggle(
-          "active",
-          Number(
-            button.dataset.pageIndex
-          ) === pageIndex
-        );
-      }
-    );
+    .forEach((button) => {
+      button.classList.toggle(
+        "active",
+        Number(
+          button.dataset.pageIndex
+        ) === pageIndex
+      );
+    });
 }
 
 /* =========================================================
    DEDICATED ZOOM READER
-   Uses the existing full-resolution JPEG for a single page.
-   This keeps zoom isolated from the PDF.js mobile reader.
    ========================================================= */
 
 const ZOOM_MIN = 1;
@@ -2621,7 +2619,6 @@ function waitForReadyImage(
           image.naturalWidth > 0
         ) {
           resolve(image);
-
         } else {
           reject(
             new Error(
@@ -2665,7 +2662,6 @@ function waitForReadyImage(
               0
             ) {
               void loaded();
-
             } else {
               failed();
             }
@@ -3296,16 +3292,14 @@ if (imageZoomToolbar) {
     "pointermove",
     "pointerup",
     "click"
-  ].forEach(
-    (eventName) => {
-      imageZoomToolbar.addEventListener(
-        eventName,
-        (event) => {
-          event.stopPropagation();
-        }
-      );
-    }
-  );
+  ].forEach((eventName) => {
+    imageZoomToolbar.addEventListener(
+      eventName,
+      (event) => {
+        event.stopPropagation();
+      }
+    );
+  });
 }
 
 /* =========================================================
@@ -3407,7 +3401,6 @@ fullscreenButton?.addEventListener(
         await document
           .documentElement
           .requestFullscreen();
-
       } else {
         await document
           .exitFullscreen();
@@ -3566,31 +3559,29 @@ document
   .querySelectorAll(
     "[data-close]"
   )
-  .forEach(
-    (button) => {
-      button.addEventListener(
-        "click",
-        () => {
-          const targetId =
-            button.dataset.close;
+  .forEach((button) => {
+    button.addEventListener(
+      "click",
+      () => {
+        const targetId =
+          button.dataset.close;
 
-          const target =
-            $(targetId);
+        const target =
+          $(targetId);
 
-          if (
-            targetId ===
-            "contactModal"
-          ) {
-            closeContactModal();
+        if (
+          targetId ===
+          "contactModal"
+        ) {
+          closeContactModal();
 
-          } else if (target) {
-            target.hidden =
-              true;
-          }
+        } else if (target) {
+          target.hidden =
+            true;
         }
-      );
-    }
-  );
+      }
+    );
+  });
 
 copyLinkButton?.addEventListener(
   "click",
@@ -3763,11 +3754,6 @@ async function startMobileBrochure(startingPage) {
         "52%";
     }
 
-    /*
-     * While the cover is visible, open the one combined PDF and
-     * try to render page 2 into the small cache. We wait only a
-     * short time, so a slow connection never traps the loading screen.
-     */
     const prime =
       primeMobilePdfPage(2);
 
@@ -3826,8 +3812,6 @@ async function startBrochure() {
 
     buildContents();
 
-    createDrawerThumbnails();
-
     if (isMobileViewer) {
       document.body.classList.add(
         "mobile-viewer-mode"
@@ -3838,6 +3822,8 @@ async function startBrochure() {
       );
 
     } else {
+      createDrawerThumbnails();
+
       document.body.classList.add(
         "desktop-viewer-mode"
       );
