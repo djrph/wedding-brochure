@@ -130,7 +130,9 @@ let mobilePdfRenderTask = null;
 let mobilePdfRenderPage = null;
 let mobileWarmTimer = null;
 let mobileWarmGeneration = 0;
+
 const mobileRenderedPageCache = new Map();
+const mobileThumbnailPrimePromises = new Map();
 
 const desktopPageImages = new Map();
 const desktopPageLoadPromises = new Map();
@@ -149,7 +151,9 @@ function clampPageNumber(value) {
 }
 
 function validPageNumber(pageNumber) {
-  return Number.isInteger(pageNumber) && pageNumber >= 1 && pageNumber <= totalPages;
+  return Number.isInteger(pageNumber) &&
+    pageNumber >= 1 &&
+    pageNumber <= totalPages;
 }
 
 function imagePath(pageNumber) {
@@ -169,28 +173,48 @@ function getPageTitle(pageNumber) {
 }
 
 function getCurrentPageNumber() {
-  if (isMobileViewer) return mobileCurrentPage;
-  if (!pageFlip) return 1;
-  return clampPageNumber(pageFlip.getCurrentPageIndex() + 1);
+  if (isMobileViewer) {
+    return mobileCurrentPage;
+  }
+
+  if (!pageFlip) {
+    return 1;
+  }
+
+  return clampPageNumber(
+    pageFlip.getCurrentPageIndex() + 1
+  );
 }
 
 function isImageZoomOpen() {
-  return Boolean(imageZoomViewer && !imageZoomViewer.hidden);
+  return Boolean(
+    imageZoomViewer &&
+    !imageZoomViewer.hidden
+  );
 }
 
 function wait(milliseconds) {
-  return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, milliseconds);
+  });
 }
 
 function waitForTwoFrames() {
   return new Promise((resolve) => {
-    window.requestAnimationFrame(() => window.requestAnimationFrame(resolve));
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(resolve);
+    });
   });
 }
 
 function hideLoadingScreen() {
-  if (!loadingScreen) return;
-  window.requestAnimationFrame(() => loadingScreen.classList.add("hidden"));
+  if (!loadingScreen) {
+    return;
+  }
+
+  window.requestAnimationFrame(() => {
+    loadingScreen.classList.add("hidden");
+  });
 }
 
 /* =========================================================
@@ -198,8 +222,14 @@ function hideLoadingScreen() {
    ========================================================= */
 
 function getPageFromUrl() {
-  const value = new URLSearchParams(window.location.search).get("page");
-  return value ? clampPageNumber(value) : null;
+  const value =
+    new URLSearchParams(
+      window.location.search
+    ).get("page");
+
+  return value
+    ? clampPageNumber(value)
+    : null;
 }
 
 function getStartingPage() {
@@ -208,28 +238,46 @@ function getStartingPage() {
 
 function updateUrlPage(pageNumber) {
   try {
-    const url = new URL(window.location.href);
+    const url =
+      new URL(window.location.href);
 
     if (pageNumber <= 1) {
       url.searchParams.delete("page");
     } else {
-      url.searchParams.set("page", String(pageNumber));
+      url.searchParams.set(
+        "page",
+        String(pageNumber)
+      );
     }
 
-    window.history.replaceState({}, "", url);
+    window.history.replaceState(
+      {},
+      "",
+      url
+    );
+
   } catch (error) {
-    console.warn("Unable to update brochure URL:", error);
+    console.warn(
+      "Unable to update brochure URL:",
+      error
+    );
   }
 }
 
 function getShareUrl() {
-  const url = new URL(window.location.href);
-  const page = getCurrentPageNumber();
+  const url =
+    new URL(window.location.href);
+
+  const page =
+    getCurrentPageNumber();
 
   if (page <= 1) {
     url.searchParams.delete("page");
   } else {
-    url.searchParams.set("page", String(page));
+    url.searchParams.set(
+      "page",
+      String(page)
+    );
   }
 
   return url.toString();
@@ -240,39 +288,59 @@ function getShareUrl() {
    ========================================================= */
 
 function closeAllPanels() {
-  if (thumbnailPanel) thumbnailPanel.hidden = true;
-  if (morePanel) morePanel.hidden = true;
-  if (contentsPanel) contentsPanel.hidden = true;
+  if (thumbnailPanel) {
+    thumbnailPanel.hidden = true;
+  }
+
+  if (morePanel) {
+    morePanel.hidden = true;
+  }
+
+  if (contentsPanel) {
+    contentsPanel.hidden = true;
+  }
 }
 
 function togglePanel(panel) {
-  if (!panel) return;
+  if (!panel) {
+    return;
+  }
 
   if (isMobileViewer) {
     closeMobileThumbnailTray();
   }
 
-  const open = panel.hidden;
+  const open =
+    panel.hidden;
 
   closeAllPanels();
 
-  panel.hidden = !open;
+  panel.hidden =
+    !open;
 }
 
 function openContactModal() {
-  if (!contactModal) return;
+  if (!contactModal) {
+    return;
+  }
 
   closeMobileThumbnailTray();
 
   contactModal.hidden = false;
-  document.body.style.overflow = "hidden";
+
+  document.body.style.overflow =
+    "hidden";
 }
 
 function closeContactModal() {
-  if (!contactModal) return;
+  if (!contactModal) {
+    return;
+  }
 
   contactModal.hidden = true;
-  document.body.style.overflow = "";
+
+  document.body.style.overflow =
+    "";
 }
 
 /* =========================================================
@@ -280,99 +348,297 @@ function closeContactModal() {
    ========================================================= */
 
 function createThumbnailButton(pageNumber, className) {
-  const button = document.createElement("button");
+  const button =
+    document.createElement("button");
 
-  button.type = "button";
-  button.className = className;
-  button.dataset.pageIndex = String(pageNumber - 1);
-  button.dataset.pageNumber = String(pageNumber);
+  button.type =
+    "button";
+
+  button.className =
+    className;
+
+  button.dataset.pageIndex =
+    String(pageNumber - 1);
+
+  button.dataset.pageNumber =
+    String(pageNumber);
 
   button.setAttribute(
     "aria-label",
     `Go to ${getPageTitle(pageNumber)}, page ${pageNumber}`
   );
 
-  const image = document.createElement("img");
+  const image =
+    document.createElement("img");
 
-  image.src = thumbnailPath(pageNumber);
-  image.alt = "";
-  image.decoding = "async";
-  image.loading = "eager";
-  image.fetchPriority = "low";
+  image.src =
+    thumbnailPath(pageNumber);
 
-  button.appendChild(image);
+  image.alt =
+    "";
 
-  if (className === "mobile-thumbnail-button") {
-    const number = document.createElement("span");
+  image.decoding =
+    "async";
 
-    number.className = "mobile-thumbnail-number";
-    number.textContent = String(pageNumber);
+  image.loading =
+    "eager";
 
-    button.appendChild(number);
+  image.fetchPriority =
+    "auto";
+
+  button.appendChild(
+    image
+  );
+
+  if (
+    className ===
+    "mobile-thumbnail-button"
+  ) {
+    const number =
+      document.createElement("span");
+
+    number.className =
+      "mobile-thumbnail-number";
+
+    number.textContent =
+      String(pageNumber);
+
+    button.appendChild(
+      number
+    );
   }
 
-  button.addEventListener("click", async () => {
-    await goToPage(pageNumber);
+  let primeTimer =
+    null;
 
-    if (className === "mobile-thumbnail-button") {
-      closeMobileThumbnailTray();
-    } else {
-      closeAllPanels();
+  let pointerStartX =
+    0;
+
+  let pointerStartY =
+    0;
+
+  const clearPrimeTimer =
+    () => {
+      if (
+        primeTimer !== null
+      ) {
+        window.clearTimeout(
+          primeTimer
+        );
+
+        primeTimer =
+          null;
+      }
+    };
+
+  if (
+    className ===
+    "mobile-thumbnail-button"
+  ) {
+    button.addEventListener(
+      "pointerdown",
+      (event) => {
+        if (
+          event.pointerType ===
+          "mouse"
+        ) {
+          return;
+        }
+
+        pointerStartX =
+          event.clientX;
+
+        pointerStartY =
+          event.clientY;
+
+        clearPrimeTimer();
+
+        /*
+         * Give a genuine tap a small head-start without
+         * rendering random pages while horizontally scrolling.
+         */
+        primeTimer =
+          window.setTimeout(
+            () => {
+              primeTimer =
+                null;
+
+              void primeMobileThumbnailPage(
+                pageNumber
+              );
+            },
+            45
+          );
+      },
+      {
+        passive: true
+      }
+    );
+
+    button.addEventListener(
+      "pointermove",
+      (event) => {
+        if (
+          Math.abs(
+            event.clientX -
+            pointerStartX
+          ) > 10 ||
+          Math.abs(
+            event.clientY -
+            pointerStartY
+          ) > 10
+        ) {
+          clearPrimeTimer();
+        }
+      },
+      {
+        passive: true
+      }
+    );
+
+    button.addEventListener(
+      "pointercancel",
+      clearPrimeTimer,
+      {
+        passive: true
+      }
+    );
+  }
+
+  button.addEventListener(
+    "click",
+    () => {
+      clearPrimeTimer();
+
+      if (
+        className ===
+        "mobile-thumbnail-button"
+      ) {
+        /*
+         * Begin the sharp render immediately, but do not make
+         * the visible interface wait for it.
+         */
+        void primeMobileThumbnailPage(
+          pageNumber
+        );
+
+        void navigateMobileThumbnailPage(
+          pageNumber
+        );
+
+        return;
+      }
+
+      void (async () => {
+        await goToPage(
+          pageNumber
+        );
+
+        closeAllPanels();
+      })();
     }
-  });
+  );
 
   return button;
 }
 
 function createDrawerThumbnails() {
-  if (!thumbnailContainer) return;
+  if (!thumbnailContainer) {
+    return;
+  }
 
-  thumbnailContainer.innerHTML = "";
+  thumbnailContainer.innerHTML =
+    "";
 
-  for (let page = 1; page <= totalPages; page += 1) {
+  for (
+    let page = 1;
+    page <= totalPages;
+    page += 1
+  ) {
     thumbnailContainer.appendChild(
-      createThumbnailButton(page, "thumbnail-button")
+      createThumbnailButton(
+        page,
+        "thumbnail-button"
+      )
     );
   }
 }
 
 function createMobileThumbnails() {
-  if (!mobileThumbnailContainer) return;
+  if (!mobileThumbnailContainer) {
+    return;
+  }
 
-  mobileThumbnailContainer.innerHTML = "";
+  mobileThumbnailContainer.innerHTML =
+    "";
 
-  for (let page = 1; page <= totalPages; page += 1) {
+  for (
+    let page = 1;
+    page <= totalPages;
+    page += 1
+  ) {
     mobileThumbnailContainer.appendChild(
-      createThumbnailButton(page, "mobile-thumbnail-button")
+      createThumbnailButton(
+        page,
+        "mobile-thumbnail-button"
+      )
     );
   }
 }
 
 function loadThumbnailImage(image) {
-  if (!image || image.hasAttribute("src")) return;
+  if (
+    !image ||
+    image.hasAttribute("src")
+  ) {
+    return;
+  }
 
-  const button = image.closest("[data-page-number]");
-  const pageNumber = Number(button?.dataset.pageNumber);
+  const button =
+    image.closest(
+      "[data-page-number]"
+    );
 
-  if (validPageNumber(pageNumber)) {
-    image.src = thumbnailPath(pageNumber);
+  const pageNumber =
+    Number(
+      button?.dataset.pageNumber
+    );
+
+  if (
+    validPageNumber(
+      pageNumber
+    )
+  ) {
+    image.src =
+      thumbnailPath(
+        pageNumber
+      );
   }
 }
 
 /*
- * The WebP thumbnails are tiny, so we deliberately keep them
- * loaded instead of throwing them away and reloading them.
+ * The WebP thumbnails are tiny, so we deliberately
+ * keep them loaded rather than unloading and reloading.
  */
 function unloadThumbnailImage(image) {}
 
 function unloadAllMobileThumbnailImages() {}
 
-function trimThumbnailMemory(container, selector) {
-  if (!container) return;
+function trimThumbnailMemory(
+  container,
+  selector
+) {
+  if (!container) {
+    return;
+  }
 
   container
-    .querySelectorAll(`${selector} img`)
-    .forEach(loadThumbnailImage);
+    .querySelectorAll(
+      `${selector} img`
+    )
+    .forEach(
+      loadThumbnailImage
+    );
 }
 
 function centreThumbnail(
@@ -381,13 +647,18 @@ function centreThumbnail(
   pageIndex,
   behavior = "smooth"
 ) {
-  if (!container) return;
+  if (!container) {
+    return;
+  }
 
-  const button = container.querySelector(
-    `${selector}[data-page-index="${pageIndex}"]`
-  );
+  const button =
+    container.querySelector(
+      `${selector}[data-page-index="${pageIndex}"]`
+    );
 
-  if (!button) return;
+  if (!button) {
+    return;
+  }
 
   const left =
     button.offsetLeft -
@@ -395,7 +666,10 @@ function centreThumbnail(
     button.clientWidth / 2;
 
   container.scrollTo({
-    left: Math.max(0, left),
+    left: Math.max(
+      0,
+      left
+    ),
     behavior
   });
 }
@@ -408,7 +682,9 @@ function updateMobileTrayText() {
   if (mobileThumbnailHandle) {
     mobileThumbnailHandle.setAttribute(
       "aria-expanded",
-      String(mobileThumbnailTrayOpen)
+      String(
+        mobileThumbnailTrayOpen
+      )
     );
 
     mobileThumbnailHandle.setAttribute(
@@ -420,17 +696,21 @@ function updateMobileTrayText() {
   }
 
   if (mobileThumbnailHint) {
-    mobileThumbnailHint.textContent = "Swipe up for pages";
+    mobileThumbnailHint.textContent =
+      "Swipe up for pages";
   }
 
   if (mobileThumbnailTrayHint) {
-    mobileThumbnailTrayHint.textContent = "Swipe down to hide";
+    mobileThumbnailTrayHint.textContent =
+      "Swipe down to hide";
   }
 
   if (mobileThumbnailStrip) {
     mobileThumbnailStrip.setAttribute(
       "aria-hidden",
-      String(!mobileThumbnailTrayOpen)
+      String(
+        !mobileThumbnailTrayOpen
+      )
     );
   }
 }
@@ -444,74 +724,121 @@ function openMobileThumbnailTray() {
     return;
   }
 
-  if (mobileThumbnailUnloadTimer) {
-    clearTimeout(mobileThumbnailUnloadTimer);
-    mobileThumbnailUnloadTimer = null;
+  if (
+    mobileThumbnailUnloadTimer
+  ) {
+    clearTimeout(
+      mobileThumbnailUnloadTimer
+    );
+
+    mobileThumbnailUnloadTimer =
+      null;
   }
 
   closeAllPanels();
 
-  mobileThumbnailTrayOpen = true;
+  mobileThumbnailTrayOpen =
+    true;
 
-  mobileThumbnailStrip.classList.add("open");
-  mobileThumbnailLauncher?.classList.add("tray-open");
-  document.body.classList.add("mobile-pages-open");
+  mobileThumbnailStrip.classList.add(
+    "open"
+  );
+
+  mobileThumbnailLauncher?.classList.add(
+    "tray-open"
+  );
+
+  document.body.classList.add(
+    "mobile-pages-open"
+  );
 
   updateMobileTrayText();
 
   trimThumbnailMemory(
     mobileThumbnailContainer,
-    ".mobile-thumbnail-button",
-    mobileCurrentPage,
-    true
+    ".mobile-thumbnail-button"
   );
 
-  window.setTimeout(() => {
-    centreThumbnail(
-      mobileThumbnailContainer,
-      ".mobile-thumbnail-button",
-      mobileCurrentPage - 1,
-      "smooth"
-    );
-  }, 80);
+  window.setTimeout(
+    () => {
+      centreThumbnail(
+        mobileThumbnailContainer,
+        ".mobile-thumbnail-button",
+        mobileCurrentPage - 1,
+        "smooth"
+      );
+    },
+    80
+  );
 }
 
-function closeMobileThumbnailTray(unload = true) {
-  if (!mobileThumbnailStrip) return;
+function closeMobileThumbnailTray(
+  unload = true
+) {
+  if (!mobileThumbnailStrip) {
+    return;
+  }
 
-  mobileThumbnailTrayOpen = false;
+  mobileThumbnailTrayOpen =
+    false;
 
-  mobileThumbnailStrip.classList.remove("open");
-  mobileThumbnailLauncher?.classList.remove("tray-open");
-  document.body.classList.remove("mobile-pages-open");
+  mobileThumbnailStrip.classList.remove(
+    "open"
+  );
+
+  mobileThumbnailLauncher?.classList.remove(
+    "tray-open"
+  );
+
+  document.body.classList.remove(
+    "mobile-pages-open"
+  );
 
   updateMobileTrayText();
 
-  if (mobileThumbnailUnloadTimer) {
-    clearTimeout(mobileThumbnailUnloadTimer);
+  if (
+    mobileThumbnailUnloadTimer
+  ) {
+    clearTimeout(
+      mobileThumbnailUnloadTimer
+    );
   }
 
   if (unload) {
-    mobileThumbnailUnloadTimer = window.setTimeout(() => {
-      if (!mobileThumbnailTrayOpen) {
-        unloadAllMobileThumbnailImages();
-      }
+    mobileThumbnailUnloadTimer =
+      window.setTimeout(
+        () => {
+          if (
+            !mobileThumbnailTrayOpen
+          ) {
+            unloadAllMobileThumbnailImages();
+          }
 
-      mobileThumbnailUnloadTimer = null;
-    }, 240);
+          mobileThumbnailUnloadTimer =
+            null;
+        },
+        240
+      );
   }
 }
 
 function toggleMobileThumbnailTray() {
-  if (mobileThumbnailTrayOpen) {
+  if (
+    mobileThumbnailTrayOpen
+  ) {
     closeMobileThumbnailTray();
   } else {
     openMobileThumbnailTray();
   }
 }
 
-function attachVerticalTrayGesture(element, direction) {
-  if (!element) return;
+function attachVerticalTrayGesture(
+  element,
+  direction
+) {
+  if (!element) {
+    return;
+  }
 
   let startX = 0;
   let startY = 0;
@@ -519,12 +846,21 @@ function attachVerticalTrayGesture(element, direction) {
   element.addEventListener(
     "touchstart",
     (event) => {
-      if (event.touches.length !== 1) return;
+      if (
+        event.touches.length !==
+        1
+      ) {
+        return;
+      }
 
-      startX = event.touches[0].clientX;
-      startY = event.touches[0].clientY;
+      startX =
+        event.touches[0].clientX;
 
-      mobileTrayGestureMoved = false;
+      startY =
+        event.touches[0].clientY;
+
+      mobileTrayGestureMoved =
+        false;
     },
     {
       passive: true
@@ -534,7 +870,12 @@ function attachVerticalTrayGesture(element, direction) {
   element.addEventListener(
     "touchend",
     (event) => {
-      if (event.changedTouches.length !== 1) return;
+      if (
+        event.changedTouches.length !==
+        1
+      ) {
+        return;
+      }
 
       const deltaX =
         event.changedTouches[0].clientX -
@@ -549,13 +890,17 @@ function attachVerticalTrayGesture(element, direction) {
         Math.abs(deltaY) >
         Math.abs(deltaX) * 1.15;
 
-      if (!verticalEnough) return;
+      if (!verticalEnough) {
+        return;
+      }
 
       if (
         direction === "open" &&
         deltaY < 0
       ) {
-        mobileTrayGestureMoved = true;
+        mobileTrayGestureMoved =
+          true;
+
         openMobileThumbnailTray();
       }
 
@@ -563,14 +908,22 @@ function attachVerticalTrayGesture(element, direction) {
         direction === "close" &&
         deltaY > 0
       ) {
-        mobileTrayGestureMoved = true;
+        mobileTrayGestureMoved =
+          true;
+
         closeMobileThumbnailTray();
       }
 
-      if (mobileTrayGestureMoved) {
-        window.setTimeout(() => {
-          mobileTrayGestureMoved = false;
-        }, 350);
+      if (
+        mobileTrayGestureMoved
+      ) {
+        window.setTimeout(
+          () => {
+            mobileTrayGestureMoved =
+              false;
+          },
+          350
+        );
       }
     },
     {
@@ -590,21 +943,26 @@ function initialiseMobileThumbnailTray() {
   }
 
   updateMobileTrayText();
+
   unloadAllMobileThumbnailImages();
 
   mobileThumbnailContainer.addEventListener(
     "scroll",
     () => {
-      if (!mobileThumbnailTrayOpen) return;
+      if (
+        !mobileThumbnailTrayOpen
+      ) {
+        return;
+      }
 
-      window.requestAnimationFrame(() => {
-        trimThumbnailMemory(
-          mobileThumbnailContainer,
-          ".mobile-thumbnail-button",
-          mobileCurrentPage,
-          true
-        );
-      });
+      window.requestAnimationFrame(
+        () => {
+          trimThumbnailMemory(
+            mobileThumbnailContainer,
+            ".mobile-thumbnail-button"
+          );
+        }
+      );
     },
     {
       passive: true
@@ -624,7 +982,9 @@ function initialiseMobileThumbnailTray() {
   mobileThumbnailHandle.addEventListener(
     "click",
     () => {
-      if (!mobileTrayGestureMoved) {
+      if (
+        !mobileTrayGestureMoved
+      ) {
         openMobileThumbnailTray();
       }
     }
@@ -633,7 +993,9 @@ function initialiseMobileThumbnailTray() {
   mobileThumbnailTrayHandle.addEventListener(
     "click",
     () => {
-      if (!mobileTrayGestureMoved) {
+      if (
+        !mobileTrayGestureMoved
+      ) {
         closeMobileThumbnailTray();
       }
     }
@@ -644,15 +1006,25 @@ function initialiseMobileThumbnailTray() {
    CONTENTS
    ========================================================= */
 
-function createContentsButton(pageNumber, extraClass = "") {
-  const button = document.createElement("button");
+function createContentsButton(
+  pageNumber,
+  extraClass = ""
+) {
+  const button =
+    document.createElement(
+      "button"
+    );
 
-  button.type = "button";
+  button.type =
+    "button";
+
   button.className =
     `contents-button ${extraClass}`.trim();
 
   button.dataset.pageIndex =
-    String(pageNumber - 1);
+    String(
+      pageNumber - 1
+    );
 
   button.setAttribute(
     "aria-label",
@@ -660,19 +1032,27 @@ function createContentsButton(pageNumber, extraClass = "") {
   );
 
   const copy =
-    document.createElement("span");
+    document.createElement(
+      "span"
+    );
 
   copy.className =
     "contents-item-copy";
 
   const title =
-    document.createElement("strong");
+    document.createElement(
+      "strong"
+    );
 
   title.textContent =
-    getPageTitle(pageNumber);
+    getPageTitle(
+      pageNumber
+    );
 
   const pageLabel =
-    document.createElement("small");
+    document.createElement(
+      "small"
+    );
 
   pageLabel.textContent =
     `Page ${pageNumber}`;
@@ -683,7 +1063,9 @@ function createContentsButton(pageNumber, extraClass = "") {
   );
 
   const arrow =
-    document.createElement("span");
+    document.createElement(
+      "span"
+    );
 
   arrow.className =
     "contents-item-arrow";
@@ -693,7 +1075,8 @@ function createContentsButton(pageNumber, extraClass = "") {
     "true"
   );
 
-  arrow.textContent = "›";
+  arrow.textContent =
+    "›";
 
   button.append(
     copy,
@@ -703,8 +1086,12 @@ function createContentsButton(pageNumber, extraClass = "") {
   button.addEventListener(
     "click",
     async () => {
-      await goToPage(pageNumber);
+      await goToPage(
+        pageNumber
+      );
+
       closeAllPanels();
+
       closeMobileThumbnailTray();
     }
   );
@@ -713,12 +1100,17 @@ function createContentsButton(pageNumber, extraClass = "") {
 }
 
 function buildContents() {
-  if (!contentsList) return;
+  if (!contentsList) {
+    return;
+  }
 
-  contentsList.innerHTML = "";
+  contentsList.innerHTML =
+    "";
 
   const home =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
   home.className =
     "contents-home";
@@ -730,75 +1122,93 @@ function buildContents() {
     )
   );
 
-  contentsList.appendChild(home);
+  contentsList.appendChild(
+    home
+  );
 
-  contentsSections.forEach((section) => {
-    const sectionElement =
-      document.createElement("section");
+  contentsSections.forEach(
+    (section) => {
+      const sectionElement =
+        document.createElement(
+          "section"
+        );
 
-    sectionElement.className =
-      "contents-section";
+      sectionElement.className =
+        "contents-section";
 
-    const heading =
-      document.createElement("div");
+      const heading =
+        document.createElement(
+          "div"
+        );
 
-    heading.className =
-      "contents-section-heading";
+      heading.className =
+        "contents-section-heading";
 
-    const title =
-      document.createElement("h3");
+      const title =
+        document.createElement(
+          "h3"
+        );
 
-    title.className =
-      "contents-section-title";
+      title.className =
+        "contents-section-title";
 
-    title.textContent =
-      section.title;
+      title.textContent =
+        section.title;
 
-    const range =
-      document.createElement("span");
+      const range =
+        document.createElement(
+          "span"
+        );
 
-    range.className =
-      "contents-section-range";
+      range.className =
+        "contents-section-range";
 
-    const firstPage =
-      section.pages[0];
+      const firstPage =
+        section.pages[0];
 
-    const lastPage =
-      section.pages[
-        section.pages.length - 1
-      ];
+      const lastPage =
+        section.pages[
+          section.pages.length - 1
+        ];
 
-    range.textContent =
-      firstPage === lastPage
-        ? `Page ${firstPage}`
-        : `Pages ${firstPage}–${lastPage}`;
+      range.textContent =
+        firstPage === lastPage
+          ? `Page ${firstPage}`
+          : `Pages ${firstPage}–${lastPage}`;
 
-    heading.append(
-      title,
-      range
-    );
-
-    const grid =
-      document.createElement("div");
-
-    grid.className =
-      "contents-section-grid";
-
-    section.pages.forEach((page) => {
-      grid.appendChild(
-        createContentsButton(page)
+      heading.append(
+        title,
+        range
       );
-    });
 
-    sectionElement.append(
-      heading,
-      grid
-    );
+      const grid =
+        document.createElement(
+          "div"
+        );
 
-    contentsList.appendChild(
-      sectionElement
-    );
-  });
+      grid.className =
+        "contents-section-grid";
+
+      section.pages.forEach(
+        (page) => {
+          grid.appendChild(
+            createContentsButton(
+              page
+            )
+          );
+        }
+      );
+
+      sectionElement.append(
+        heading,
+        grid
+      );
+
+      contentsList.appendChild(
+        sectionElement
+      );
+    }
+  );
 }
 
 /* =========================================================
@@ -815,18 +1225,26 @@ function playPageTurnSound() {
 
   try {
     pageSound.pause();
-    pageSound.currentTime = 0;
-    pageSound.volume = 0.28;
+
+    pageSound.currentTime =
+      0;
+
+    pageSound.volume =
+      0.28;
 
     const promise =
       pageSound.play();
 
     if (
       promise &&
-      typeof promise.catch === "function"
+      typeof promise.catch ===
+      "function"
     ) {
-      promise.catch(() => {});
+      promise.catch(
+        () => {}
+      );
     }
+
   } catch (error) {
     console.warn(
       "Page sound unavailable:",
@@ -840,9 +1258,13 @@ function playPageTurnSound() {
    ========================================================= */
 
 function createDesktopPages() {
-  if (!bookElement) return;
+  if (!bookElement) {
+    return;
+  }
 
-  bookElement.innerHTML = "";
+  bookElement.innerHTML =
+    "";
+
   desktopPageImages.clear();
 
   for (
@@ -851,12 +1273,17 @@ function createDesktopPages() {
     pageNumber += 1
   ) {
     const page =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
-    page.className = "page";
+    page.className =
+      "page";
 
     page.dataset.pageNumber =
-      String(pageNumber);
+      String(
+        pageNumber
+      );
 
     if (
       pageNumber === 1 ||
@@ -871,7 +1298,9 @@ function createDesktopPages() {
     }
 
     const image =
-      document.createElement("img");
+      document.createElement(
+        "img"
+      );
 
     image.alt =
       `${getPageTitle(pageNumber)} — Keswick Discos Wedding Brochure`;
@@ -890,7 +1319,9 @@ function createDesktopPages() {
         : "auto";
 
     image.dataset.src =
-      imagePath(pageNumber);
+      imagePath(
+        pageNumber
+      );
 
     image.dataset.loadState =
       "waiting";
@@ -903,18 +1334,31 @@ function createDesktopPages() {
       image
     );
 
-    page.appendChild(image);
-    bookElement.appendChild(page);
+    page.appendChild(
+      image
+    );
+
+    bookElement.appendChild(
+      page
+    );
   }
 }
 
-function ensureDesktopPageLoaded(pageNumber) {
-  if (!validPageNumber(pageNumber)) {
+function ensureDesktopPageLoaded(
+  pageNumber
+) {
+  if (
+    !validPageNumber(
+      pageNumber
+    )
+  ) {
     return Promise.resolve();
   }
 
   const image =
-    desktopPageImages.get(pageNumber);
+    desktopPageImages.get(
+      pageNumber
+    );
 
   if (!image) {
     return Promise.resolve();
@@ -938,80 +1382,100 @@ function ensureDesktopPageLoaded(pageNumber) {
   }
 
   const promise =
-    new Promise((resolve) => {
-      let settled = false;
+    new Promise(
+      (resolve) => {
+        let settled =
+          false;
 
-      const finish = (state) => {
-        if (settled) return;
+        const finish =
+          (state) => {
+            if (settled) {
+              return;
+            }
 
-        settled = true;
+            settled =
+              true;
+
+            image.dataset.loadState =
+              state;
+
+            desktopPageLoadPromises.delete(
+              pageNumber
+            );
+
+            resolve();
+          };
+
+        const loaded =
+          async () => {
+            try {
+              if (
+                typeof image.decode ===
+                "function"
+              ) {
+                await image.decode();
+              }
+            } catch (error) {}
+
+            finish(
+              "loaded"
+            );
+          };
 
         image.dataset.loadState =
-          state;
+          "loading";
 
-        desktopPageLoadPromises.delete(
-          pageNumber
+        image.loading =
+          "eager";
+
+        if (
+          !image.getAttribute(
+            "src"
+          )
+        ) {
+          image.src =
+            image.dataset.src;
+        }
+
+        if (
+          image.complete
+        ) {
+          if (
+            image.naturalWidth >
+            0
+          ) {
+            void loaded();
+
+          } else {
+            finish(
+              "error"
+            );
+          }
+
+          return;
+        }
+
+        image.addEventListener(
+          "load",
+          loaded,
+          {
+            once: true
+          }
         );
 
-        resolve();
-      };
-
-      const loaded = async () => {
-        try {
-          if (
-            typeof image.decode ===
-            "function"
-          ) {
-            await image.decode();
+        image.addEventListener(
+          "error",
+          () => {
+            finish(
+              "error"
+            );
+          },
+          {
+            once: true
           }
-        } catch (error) {}
-
-        finish("loaded");
-      };
-
-      image.dataset.loadState =
-        "loading";
-
-      image.loading =
-        "eager";
-
-      if (
-        !image.getAttribute("src")
-      ) {
-        image.src =
-          image.dataset.src;
+        );
       }
-
-      if (image.complete) {
-        if (
-          image.naturalWidth > 0
-        ) {
-          void loaded();
-        } else {
-          finish("error");
-        }
-
-        return;
-      }
-
-      image.addEventListener(
-        "load",
-        loaded,
-        {
-          once: true
-        }
-      );
-
-      image.addEventListener(
-        "error",
-        () => {
-          finish("error");
-        },
-        {
-          once: true
-        }
-      );
-    });
+    );
 
   desktopPageLoadPromises.set(
     pageNumber,
@@ -1021,9 +1485,13 @@ function ensureDesktopPageLoaded(pageNumber) {
   return promise;
 }
 
-function preloadDesktopAround(pageNumber) {
+function preloadDesktopAround(
+  pageNumber
+) {
   const current =
-    clampPageNumber(pageNumber);
+    clampPageNumber(
+      pageNumber
+    );
 
   for (
     let offset = -2;
@@ -1031,10 +1499,13 @@ function preloadDesktopAround(pageNumber) {
     offset += 1
   ) {
     const candidate =
-      current + offset;
+      current +
+      offset;
 
     if (
-      validPageNumber(candidate)
+      validPageNumber(
+        candidate
+      )
     ) {
       void ensureDesktopPageLoaded(
         candidate
@@ -1043,7 +1514,9 @@ function preloadDesktopAround(pageNumber) {
   }
 }
 
-async function loadDesktopStartupPages(startingPage) {
+async function loadDesktopStartupPages(
+  startingPage
+) {
   const pages =
     new Set([
       startingPage,
@@ -1052,8 +1525,12 @@ async function loadDesktopStartupPages(startingPage) {
       startingPage + 2
     ]);
 
-  if (startingPage === 1) {
-    pages.add(3);
+  if (
+    startingPage === 1
+  ) {
+    pages.add(
+      3
+    );
   }
 
   const criticalPages =
@@ -1061,7 +1538,8 @@ async function loadDesktopStartupPages(startingPage) {
       validPageNumber
     );
 
-  let complete = 0;
+  let complete =
+    0;
 
   if (loadingProgress) {
     loadingProgress.style.width =
@@ -1070,14 +1548,19 @@ async function loadDesktopStartupPages(startingPage) {
 
   await Promise.all(
     criticalPages.map(
-      async (pageNumber) => {
+      async (
+        pageNumber
+      ) => {
         await ensureDesktopPageLoaded(
           pageNumber
         );
 
-        complete += 1;
+        complete +=
+          1;
 
-        if (loadingProgress) {
+        if (
+          loadingProgress
+        ) {
           loadingProgress.style.width =
             `${Math.round(
               8 +
@@ -1093,7 +1576,9 @@ async function loadDesktopStartupPages(startingPage) {
   );
 }
 
-function initialiseDesktopFlipbook(startingPage) {
+function initialiseDesktopFlipbook(
+  startingPage
+) {
   if (
     !window.St ||
     !window.St.PageFlip
@@ -1107,25 +1592,62 @@ function initialiseDesktopFlipbook(startingPage) {
     new St.PageFlip(
       bookElement,
       {
-        width: pageWidth,
-        height: pageHeight,
-        size: "stretch",
-        minWidth: 280,
-        maxWidth: pageWidth,
-        minHeight: 396,
-        maxHeight: pageHeight,
-        showCover: true,
-        usePortrait: true,
-        autoSize: true,
-        drawShadow: true,
-        maxShadowOpacity: 0.45,
-        flippingTime: 850,
-        mobileScrollSupport: false,
-        clickEventForward: true,
-        useMouseEvents: !isTouchDevice,
-        swipeDistance: 30,
-        showPageCorners: true,
-        disableFlipByClick: false
+        width:
+          pageWidth,
+
+        height:
+          pageHeight,
+
+        size:
+          "stretch",
+
+        minWidth:
+          280,
+
+        maxWidth:
+          pageWidth,
+
+        minHeight:
+          396,
+
+        maxHeight:
+          pageHeight,
+
+        showCover:
+          true,
+
+        usePortrait:
+          true,
+
+        autoSize:
+          true,
+
+        drawShadow:
+          true,
+
+        maxShadowOpacity:
+          0.45,
+
+        flippingTime:
+          850,
+
+        mobileScrollSupport:
+          false,
+
+        clickEventForward:
+          true,
+
+        useMouseEvents:
+          !isTouchDevice,
+
+        swipeDistance:
+          30,
+
+        showPageCorners:
+          true,
+
+        disableFlipByClick:
+          false
       }
     );
 
@@ -1138,14 +1660,20 @@ function initialiseDesktopFlipbook(startingPage) {
   pageFlip.on(
     "init",
     () => {
-      if (zoomContainer) {
+      if (
+        zoomContainer
+      ) {
         zoomContainer.style.transform =
           "none";
       }
 
-      if (startingPage > 1) {
+      if (
+        startingPage >
+        1
+      ) {
         pageFlip.turnToPage(
-          startingPage - 1
+          startingPage -
+          1
         );
       }
 
@@ -1159,9 +1687,18 @@ function initialiseDesktopFlipbook(startingPage) {
               index + 1
             );
 
-          updateInterface(index);
-          updateUrlPage(page);
-          preloadDesktopAround(page);
+          updateInterface(
+            index
+          );
+
+          updateUrlPage(
+            page
+          );
+
+          preloadDesktopAround(
+            page
+          );
+
           hideLoadingScreen();
         },
         startingPage > 1
@@ -1182,10 +1719,19 @@ function initialiseDesktopFlipbook(startingPage) {
           index + 1
         );
 
-      updateInterface(index);
-      updateUrlPage(page);
+      updateInterface(
+        index
+      );
+
+      updateUrlPage(
+        page
+      );
+
       playPageTurnSound();
-      preloadDesktopAround(page);
+
+      preloadDesktopAround(
+        page
+      );
     }
   );
 
@@ -1197,7 +1743,9 @@ function initialiseDesktopFlipbook(startingPage) {
           const index =
             pageFlip.getCurrentPageIndex();
 
-          updateInterface(index);
+          updateInterface(
+            index
+          );
 
           preloadDesktopAround(
             index + 1
@@ -1211,101 +1759,120 @@ function initialiseDesktopFlipbook(startingPage) {
 
 /* =========================================================
    PDF.JS MOBILE READER
-
-   Pages 2-26 live inside ONE 25-page PDF document.
-   Brochure page 2 = PDF page 1, page 3 = PDF page 2, etc.
-
-   The PDF document stays open while the brochure is in use.
-   Recently rendered canvases are kept in a small LRU cache so
-   backwards navigation can reuse them immediately.
    ========================================================= */
 
 async function ensurePdfJs() {
   if (!pdfjsLibPromise) {
     pdfjsLibPromise =
-      Promise.resolve().then(() => {
-        const pdfjsLib =
-          window.pdfjsLib;
+      Promise.resolve()
+        .then(
+          () => {
+            const pdfjsLib =
+              window.pdfjsLib;
 
-        if (
-          !pdfjsLib ||
-          typeof pdfjsLib.getDocument !==
-          "function"
-        ) {
-          throw new Error(
-            "PDF.js did not load."
-          );
-        }
+            if (
+              !pdfjsLib ||
+              typeof pdfjsLib.getDocument !==
+              "function"
+            ) {
+              throw new Error(
+                "PDF.js did not load."
+              );
+            }
 
-        pdfjsLib.GlobalWorkerOptions.workerSrc =
-          PDFJS_WORKER_URL;
+            pdfjsLib
+              .GlobalWorkerOptions
+              .workerSrc =
+                PDFJS_WORKER_URL;
 
-        return pdfjsLib;
-      });
+            return pdfjsLib;
+          }
+        );
   }
 
   return pdfjsLibPromise;
 }
 
 async function ensureMobilePdfDocument() {
-  if (mobilePdfDocument) {
+  if (
+    mobilePdfDocument
+  ) {
     return mobilePdfDocument;
   }
 
-  if (!mobilePdfDocumentPromise) {
+  if (
+    !mobilePdfDocumentPromise
+  ) {
     mobilePdfDocumentPromise =
       ensurePdfJs()
-        .then((pdfjsLib) => {
-          const loadingTask =
-            pdfjsLib.getDocument({
-              url: combinedPdfPath(),
-              disableAutoFetch: false,
-              disableStream: false,
-              disableRange: false
-            });
+        .then(
+          (pdfjsLib) => {
+            const loadingTask =
+              pdfjsLib.getDocument({
+                url:
+                  combinedPdfPath(),
 
-          mobilePdfLoadingTask =
-            loadingTask;
+                disableAutoFetch:
+                  false,
 
-          return loadingTask.promise;
-        })
-        .then((pdfDocument) => {
-          mobilePdfDocument =
-            pdfDocument;
+                disableStream:
+                  false,
 
-          mobilePdfLoadingTask =
-            null;
+                disableRange:
+                  false
+              });
 
-          if (
-            pdfDocument.numPages !==
-            totalPages - 1
-          ) {
-            console.warn(
-              `Combined mobile PDF has ${pdfDocument.numPages} pages; expected ${totalPages - 1}.`
-            );
+            mobilePdfLoadingTask =
+              loadingTask;
+
+            return loadingTask.promise;
           }
+        )
+        .then(
+          (pdfDocument) => {
+            mobilePdfDocument =
+              pdfDocument;
 
-          return pdfDocument;
-        })
-        .catch((error) => {
-          mobilePdfLoadingTask =
-            null;
+            mobilePdfLoadingTask =
+              null;
 
-          mobilePdfDocumentPromise =
-            null;
+            if (
+              pdfDocument.numPages !==
+              totalPages - 1
+            ) {
+              console.warn(
+                `Combined mobile PDF has ${pdfDocument.numPages} pages; expected ${totalPages - 1}.`
+              );
+            }
 
-          throw error;
-        });
+            return pdfDocument;
+          }
+        )
+        .catch(
+          (error) => {
+            mobilePdfLoadingTask =
+              null;
+
+            mobilePdfDocumentPromise =
+              null;
+
+            throw error;
+          }
+        );
   }
 
   return mobilePdfDocumentPromise;
 }
 
-function brochurePageToPdfPage(pageNumber) {
+function brochurePageToPdfPage(
+  pageNumber
+) {
   return pageNumber - 1;
 }
 
-function getCachedMobileCanvas(pageNumber) {
+function getCachedMobileCanvas(
+  pageNumber
+) {
   const canvas =
     mobileRenderedPageCache.get(
       pageNumber
@@ -1332,7 +1899,8 @@ function trimMobileRenderedCache() {
     mobileRenderedPageCache.size >
     MOBILE_PDF_CACHE_LIMIT
   ) {
-    let removableKey = null;
+    let removableKey =
+      null;
 
     for (
       const key of
@@ -1342,12 +1910,17 @@ function trimMobileRenderedCache() {
         key !== mobileCurrentPage &&
         key !== mobileRequestedPage
       ) {
-        removableKey = key;
+        removableKey =
+          key;
+
         break;
       }
     }
 
-    if (removableKey === null) {
+    if (
+      removableKey ===
+      null
+    ) {
       break;
     }
 
@@ -1364,14 +1937,22 @@ function trimMobileRenderedCache() {
       canvas &&
       !canvas.isConnected
     ) {
-      canvas.width = 1;
-      canvas.height = 1;
+      canvas.width =
+        1;
+
+      canvas.height =
+        1;
     }
   }
 }
 
-function cacheMobileCanvas(pageNumber, canvas) {
-  if (!canvas) return;
+function cacheMobileCanvas(
+  pageNumber,
+  canvas
+) {
+  if (!canvas) {
+    return;
+  }
 
   const previous =
     mobileRenderedPageCache.get(
@@ -1383,8 +1964,11 @@ function cacheMobileCanvas(pageNumber, canvas) {
     previous !== canvas &&
     !previous.isConnected
   ) {
-    previous.width = 1;
-    previous.height = 1;
+    previous.width =
+      1;
+
+    previous.height =
+      1;
   }
 
   mobileRenderedPageCache.delete(
@@ -1408,8 +1992,11 @@ function clearMobileRenderedCache() {
       canvas &&
       !canvas.isConnected
     ) {
-      canvas.width = 1;
-      canvas.height = 1;
+      canvas.width =
+        1;
+
+      canvas.height =
+        1;
     }
   }
 
@@ -1417,45 +2004,384 @@ function clearMobileRenderedCache() {
 }
 
 function cancelMobileWarm() {
-  mobileWarmGeneration += 1;
+  mobileWarmGeneration +=
+    1;
 
-  if (mobileWarmTimer) {
+  if (
+    mobileWarmTimer
+  ) {
     window.clearTimeout(
       mobileWarmTimer
     );
 
-    mobileWarmTimer = null;
+    mobileWarmTimer =
+      null;
   }
 }
 
 function cancelActiveMobilePdfWork() {
-  if (mobilePdfRenderTask) {
+  if (
+    mobilePdfRenderTask
+  ) {
     try {
       mobilePdfRenderTask.cancel();
     } catch (error) {}
 
-    mobilePdfRenderTask = null;
-    mobilePdfRenderPage = null;
+    mobilePdfRenderTask =
+      null;
+
+    mobilePdfRenderPage =
+      null;
   }
 }
 
-function createMobileViewer() {
-  if (!bookElement) return;
+/* =========================================================
+   INSTANT THUMBNAIL NAVIGATION
+   ========================================================= */
 
-  bookElement.innerHTML = "";
+function createMobileThumbnailPreview(
+  pageNumber
+) {
+  const image =
+    new Image();
+
+  image.className =
+    "mobile-page-image mobile-page-preview";
+
+  image.alt =
+    `${getPageTitle(pageNumber)} — Keswick Discos Wedding Brochure`;
+
+  image.decoding =
+    "async";
+
+  image.loading =
+    "eager";
+
+  image.fetchPriority =
+    "high";
+
+  image.draggable =
+    false;
+
+  image.src =
+    thumbnailPath(
+      pageNumber
+    );
+
+  return image;
+}
+
+function primeMobileThumbnailPage(
+  pageNumber
+) {
+  const safePage =
+    clampPageNumber(
+      pageNumber
+    );
+
+  if (
+    !isMobileViewer ||
+    safePage === 1
+  ) {
+    return Promise.resolve(
+      null
+    );
+  }
+
+  const cached =
+    getCachedMobileCanvas(
+      safePage
+    );
+
+  if (cached) {
+    return Promise.resolve(
+      cached
+    );
+  }
+
+  if (
+    mobileThumbnailPrimePromises.has(
+      safePage
+    )
+  ) {
+    return mobileThumbnailPrimePromises.get(
+      safePage
+    );
+  }
+
+  /*
+   * Do not compete with a different render already running.
+   * The actual tap navigation can cancel that render if needed.
+   */
+  if (
+    mobilePdfRenderTask &&
+    mobilePdfRenderPage !== safePage
+  ) {
+    return Promise.resolve(
+      null
+    );
+  }
+
+  const promise =
+    renderMobilePdfCanvas(
+      safePage
+    )
+      .catch(
+        (error) => {
+          if (
+            error?.name !==
+            "RenderingCancelledException"
+          ) {
+            console.warn(
+              `Unable to prime thumbnail destination page ${safePage}:`,
+              error
+            );
+          }
+
+          return null;
+        }
+      )
+      .finally(
+        () => {
+          if (
+            mobileThumbnailPrimePromises.get(
+              safePage
+            ) === promise
+          ) {
+            mobileThumbnailPrimePromises.delete(
+              safePage
+            );
+          }
+        }
+      );
+
+  mobileThumbnailPrimePromises.set(
+    safePage,
+    promise
+  );
+
+  return promise;
+}
+
+async function navigateMobileThumbnailPage(
+  pageNumber
+) {
+  if (
+    !isMobileViewer ||
+    !mobilePageHost ||
+    isImageZoomOpen()
+  ) {
+    return false;
+  }
+
+  const safePage =
+    clampPageNumber(
+      pageNumber
+    );
+
+  if (
+    safePage === mobileCurrentPage &&
+    safePage === mobileRequestedPage
+  ) {
+    closeMobileThumbnailTray(
+      false
+    );
+
+    return true;
+  }
+
+  if (
+    mobileNavigationTimer
+  ) {
+    window.clearTimeout(
+      mobileNavigationTimer
+    );
+
+    mobileNavigationTimer =
+      null;
+  }
+
+  cancelMobileWarm();
+
+  const existingPrime =
+    mobileThumbnailPrimePromises.get(
+      safePage
+    ) ||
+    null;
+
+  /*
+   * If this exact page began rendering when the finger went
+   * down, keep that work alive. Otherwise stop obsolete work.
+   */
+  if (
+    !existingPrime
+  ) {
+    cancelActiveMobilePdfWork();
+  }
+
+  mobileLastDirection =
+    safePage >= mobileCurrentPage
+      ? 1
+      : -1;
+
+  mobileRequestedPage =
+    safePage;
+
+  const requestId =
+    ++mobileNavigationRequestId;
+
+  /*
+   * The Pages tray closes immediately — it does not wait
+   * for the PDF render to finish.
+   */
+  closeMobileThumbnailTray(
+    false
+  );
+
+  const cached =
+    safePage === 1
+      ? null
+      : getCachedMobileCanvas(
+          safePage
+        );
+
+  if (cached) {
+    mobilePageHost.replaceChildren(
+      cached
+    );
+
+  } else {
+    /*
+     * This WebP is already present in the thumbnail tray.
+     * It gives an immediate visual result while the sharp
+     * PDF canvas finishes rendering.
+     */
+    mobilePageHost.replaceChildren(
+      createMobileThumbnailPreview(
+        safePage
+      )
+    );
+  }
+
+  mobileCurrentPage =
+    safePage;
+
+  updateInterface(
+    safePage - 1
+  );
+
+  updateUrlPage(
+    safePage
+  );
+
+  playPageTurnSound();
+
+  if (cached) {
+    scheduleMobileWarmAround(
+      safePage,
+      mobileLastDirection
+    );
+
+    return true;
+  }
+
+  let preparedNode =
+    null;
+
+  try {
+    if (
+      safePage === 1
+    ) {
+      preparedNode =
+        await prepareMobileCover();
+
+    } else {
+      if (
+        existingPrime
+      ) {
+        preparedNode =
+          await existingPrime;
+      }
+
+      if (
+        !preparedNode &&
+        requestId ===
+          mobileNavigationRequestId &&
+        safePage ===
+          mobileRequestedPage
+      ) {
+        preparedNode =
+          await prepareMobilePdfWithFallback(
+            safePage,
+            requestId
+          );
+      }
+    }
+
+  } catch (error) {
+    if (
+      requestId ===
+      mobileNavigationRequestId
+    ) {
+      console.warn(
+        `Unable to sharpen thumbnail destination page ${safePage}:`,
+        error
+      );
+    }
+
+    return false;
+  }
+
+  if (
+    !preparedNode ||
+    requestId !==
+      mobileNavigationRequestId ||
+    safePage !==
+      mobileRequestedPage
+  ) {
+    return false;
+  }
+
+  mobilePageHost.replaceChildren(
+    preparedNode
+  );
+
+  scheduleMobileWarmAround(
+    safePage,
+    mobileLastDirection
+  );
+
+  return true;
+}
+
+/* =========================================================
+   MOBILE VIEWER
+   ========================================================= */
+
+function createMobileViewer() {
+  if (!bookElement) {
+    return;
+  }
+
+  bookElement.innerHTML =
+    "";
 
   bookElement.classList.add(
     "mobile-book"
   );
 
   mobilePageFrame =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
   mobilePageFrame.className =
     "mobile-page-frame";
 
   mobilePageHost =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
   mobilePageHost.className =
     "mobile-page-host";
@@ -1505,14 +2431,16 @@ function mobileRenderStillWanted(
 ) {
   if (
     requestId !== null &&
-    requestId !== mobileNavigationRequestId
+    requestId !==
+      mobileNavigationRequestId
   ) {
     return false;
   }
 
   if (
     warmGeneration !== null &&
-    warmGeneration !== mobileWarmGeneration
+    warmGeneration !==
+      mobileWarmGeneration
   ) {
     return false;
   }
@@ -1616,13 +2544,10 @@ async function renderMobilePdfCanvas(
           baseViewport.height
       );
 
-    /*
-     * 1.5 gives sharp phone text while keeping each canvas small.
-     * Only a handful of recent canvases are retained.
-     */
     const outputScale =
       Math.min(
-        window.devicePixelRatio || 1,
+        window.devicePixelRatio ||
+        1,
         1.5
       );
 
@@ -1695,9 +2620,13 @@ async function renderMobilePdfCanvas(
 
     const renderTask =
       pdfPage.render({
-        canvasContext: context,
+        canvasContext:
+          context,
+
         viewport,
-        background: "rgb(255,255,255)"
+
+        background:
+          "rgb(255,255,255)"
       });
 
     mobilePdfRenderTask =
@@ -1714,8 +2643,11 @@ async function renderMobilePdfCanvas(
         warmGeneration
       )
     ) {
-      canvas.width = 1;
-      canvas.height = 1;
+      canvas.width =
+        1;
+
+      canvas.height =
+        1;
 
       return null;
     }
@@ -1759,7 +2691,9 @@ async function renderMobilePdfCanvas(
   }
 }
 
-async function prepareMobileFallbackImage(pageNumber) {
+async function prepareMobileFallbackImage(
+  pageNumber
+) {
   const image =
     new Image();
 
@@ -1783,7 +2717,9 @@ async function prepareMobileFallbackImage(pageNumber) {
 
   await waitForReadyImage(
     image,
-    imagePath(pageNumber)
+    imagePath(
+      pageNumber
+    )
   );
 
   return image;
@@ -1802,12 +2738,16 @@ async function prepareMobilePdfWithFallback(
     return cached;
   }
 
-  let timeoutId = null;
+  let timeoutId =
+    null;
 
   try {
     const timeout =
       new Promise(
-        (resolve, reject) => {
+        (
+          resolve,
+          reject
+        ) => {
           timeoutId =
             window.setTimeout(
               () => {
@@ -1854,7 +2794,10 @@ async function prepareMobilePdfWithFallback(
     );
 
   } finally {
-    if (timeoutId !== null) {
+    if (
+      timeoutId !==
+      null
+    ) {
       window.clearTimeout(
         timeoutId
       );
@@ -1867,10 +2810,15 @@ async function warmMobilePdfPage(
   generation
 ) {
   if (
-    !validPageNumber(pageNumber) ||
+    !validPageNumber(
+      pageNumber
+    ) ||
     pageNumber === 1 ||
-    generation !== mobileWarmGeneration ||
-    getCachedMobileCanvas(pageNumber)
+    generation !==
+      mobileWarmGeneration ||
+    getCachedMobileCanvas(
+      pageNumber
+    )
   ) {
     return;
   }
@@ -1899,7 +2847,8 @@ async function warmMobilePdfPage(
 
 function scheduleMobileWarmAround(
   pageNumber,
-  direction = mobileLastDirection
+  direction =
+    mobileLastDirection
 ) {
   cancelMobileWarm();
 
@@ -1922,7 +2871,8 @@ function scheduleMobileWarmAround(
   mobileWarmTimer =
     window.setTimeout(
       async () => {
-        mobileWarmTimer = null;
+        mobileWarmTimer =
+          null;
 
         for (
           const candidate of
@@ -1936,7 +2886,9 @@ function scheduleMobileWarmAround(
           }
 
           if (
-            !validPageNumber(candidate) ||
+            !validPageNumber(
+              candidate
+            ) ||
             candidate === 1
           ) {
             continue;
@@ -1950,7 +2902,9 @@ function scheduleMobileWarmAround(
             continue;
           }
 
-          if (mobilePdfRenderTask) {
+          if (
+            mobilePdfRenderTask
+          ) {
             return;
           }
 
@@ -1966,14 +2920,18 @@ function scheduleMobileWarmAround(
             return;
           }
 
-          await wait(20);
+          await wait(
+            20
+          );
         }
       },
       140
     );
 }
 
-async function primeMobilePdfPage(pageNumber) {
+async function primeMobilePdfPage(
+  pageNumber
+) {
   try {
     await ensureMobilePdfDocument();
 
@@ -2024,7 +2982,8 @@ async function commitMobilePageRequest(
       `Loading page ${safePage}…`;
   }
 
-  let preparedNode = null;
+  let preparedNode =
+    null;
 
   try {
     preparedNode =
@@ -2050,7 +3009,9 @@ async function commitMobilePageRequest(
         `Page ${mobileCurrentPage} of ${totalPages}`;
     }
 
-    if (initial) {
+    if (
+      initial
+    ) {
       throw error;
     }
 
@@ -2087,12 +3048,12 @@ async function commitMobilePageRequest(
     mobileLastDirection
   );
 
-  if (mobileThumbnailTrayOpen) {
+  if (
+    mobileThumbnailTrayOpen
+  ) {
     trimThumbnailMemory(
       mobileThumbnailContainer,
-      ".mobile-thumbnail-button",
-      safePage,
-      true
+      ".mobile-thumbnail-button"
     );
 
     centreThumbnail(
@@ -2105,7 +3066,9 @@ async function commitMobilePageRequest(
     );
   }
 
-  if (playSound) {
+  if (
+    playSound
+  ) {
     playPageTurnSound();
   }
 
@@ -2122,19 +3085,24 @@ async function showMobilePage(
       pageNumber
     );
 
-  if (mobileNavigationTimer) {
+  if (
+    mobileNavigationTimer
+  ) {
     window.clearTimeout(
       mobileNavigationTimer
     );
 
-    mobileNavigationTimer = null;
+    mobileNavigationTimer =
+      null;
   }
 
   cancelMobileWarm();
+
   cancelActiveMobilePdfWork();
 
   mobileLastDirection =
-    safePage >= mobileRequestedPage
+    safePage >=
+      mobileRequestedPage
       ? 1
       : -1;
 
@@ -2154,7 +3122,9 @@ async function showMobilePage(
   );
 }
 
-function queueMobileRelativeNavigation(delta) {
+function queueMobileRelativeNavigation(
+  delta
+) {
   if (
     isImageZoomOpen() ||
     mobileSwipeLocked
@@ -2170,11 +3140,13 @@ function queueMobileRelativeNavigation(delta) {
 
   const targetPage =
     clampPageNumber(
-      basePage + delta
+      basePage +
+      delta
     );
 
   if (
-    targetPage === basePage
+    targetPage ===
+    basePage
   ) {
     return;
   }
@@ -2191,9 +3163,12 @@ function queueMobileRelativeNavigation(delta) {
     ++mobileNavigationRequestId;
 
   cancelMobileWarm();
+
   cancelActiveMobilePdfWork();
 
-  if (mobileNavigationTimer) {
+  if (
+    mobileNavigationTimer
+  ) {
     window.clearTimeout(
       mobileNavigationTimer
     );
@@ -2235,7 +3210,9 @@ function queueMobileRelativeNavigation(delta) {
     return;
   }
 
-  if (pageStatus) {
+  if (
+    pageStatus
+  ) {
     pageStatus.textContent =
       `Loading page ${targetPage}…`;
   }
@@ -2263,24 +3240,36 @@ window.addEventListener(
   "pagehide",
   () => {
     cancelMobileWarm();
+
     cancelActiveMobilePdfWork();
 
-    if (mobilePdfDocument) {
+    if (
+      mobilePdfDocument
+    ) {
       try {
         void mobilePdfDocument.destroy();
       } catch (error) {}
 
-    } else if (mobilePdfLoadingTask) {
+    } else if (
+      mobilePdfLoadingTask
+    ) {
       try {
         void mobilePdfLoadingTask.destroy();
       } catch (error) {}
     }
 
-    mobilePdfDocument = null;
-    mobilePdfDocumentPromise = null;
-    mobilePdfLoadingTask = null;
+    mobilePdfDocument =
+      null;
+
+    mobilePdfDocumentPromise =
+      null;
+
+    mobilePdfLoadingTask =
+      null;
 
     clearMobileRenderedCache();
+
+    mobileThumbnailPrimePromises.clear();
   }
 );
 
@@ -2288,8 +3277,12 @@ window.addEventListener(
    NAVIGATION
    ========================================================= */
 
-async function goToPage(pageNumber) {
-  if (isImageZoomOpen()) {
+async function goToPage(
+  pageNumber
+) {
+  if (
+    isImageZoomOpen()
+  ) {
     return;
   }
 
@@ -2298,10 +3291,14 @@ async function goToPage(pageNumber) {
       pageNumber
     );
 
-  if (isMobileViewer) {
+  if (
+    isMobileViewer
+  ) {
     if (
-      safePage === mobileRequestedPage &&
-      safePage === mobileCurrentPage
+      safePage ===
+        mobileRequestedPage &&
+      safePage ===
+        mobileCurrentPage
     ) {
       return;
     }
@@ -2322,16 +3319,19 @@ async function goToPage(pageNumber) {
     return;
   }
 
-  navigationLocked = true;
+  navigationLocked =
+    true;
 
   try {
     await Promise.all([
       ensureDesktopPageLoaded(
         safePage
       ),
+
       ensureDesktopPageLoaded(
         safePage - 1
       ),
+
       ensureDesktopPageLoaded(
         safePage + 1
       )
@@ -2348,7 +3348,8 @@ async function goToPage(pageNumber) {
   } finally {
     window.setTimeout(
       () => {
-        navigationLocked = false;
+        navigationLocked =
+          false;
       },
       180
     );
@@ -2356,11 +3357,15 @@ async function goToPage(pageNumber) {
 }
 
 async function goPrevious() {
-  if (isImageZoomOpen()) {
+  if (
+    isImageZoomOpen()
+  ) {
     return;
   }
 
-  if (isMobileViewer) {
+  if (
+    isMobileViewer
+  ) {
     queueMobileRelativeNavigation(
       -1
     );
@@ -2384,12 +3389,14 @@ async function goPrevious() {
     );
 
   if (
-    target === current
+    target ===
+    current
   ) {
     return;
   }
 
-  navigationLocked = true;
+  navigationLocked =
+    true;
 
   try {
     await ensureDesktopPageLoaded(
@@ -2405,7 +3412,8 @@ async function goPrevious() {
   } finally {
     window.setTimeout(
       () => {
-        navigationLocked = false;
+        navigationLocked =
+          false;
       },
       pageTurnLockTime
     );
@@ -2413,11 +3421,15 @@ async function goPrevious() {
 }
 
 async function goNext() {
-  if (isImageZoomOpen()) {
+  if (
+    isImageZoomOpen()
+  ) {
     return;
   }
 
-  if (isMobileViewer) {
+  if (
+    isMobileViewer
+  ) {
     queueMobileRelativeNavigation(
       1
     );
@@ -2441,12 +3453,14 @@ async function goNext() {
     );
 
   if (
-    target === current
+    target ===
+    current
   ) {
     return;
   }
 
-  navigationLocked = true;
+  navigationLocked =
+    true;
 
   try {
     await ensureDesktopPageLoaded(
@@ -2462,7 +3476,8 @@ async function goNext() {
   } finally {
     window.setTimeout(
       () => {
-        navigationLocked = false;
+        navigationLocked =
+          false;
       },
       pageTurnLockTime
     );
@@ -2473,39 +3488,53 @@ async function goNext() {
    INTERFACE
    ========================================================= */
 
-function updateInterface(pageIndex) {
+function updateInterface(
+  pageIndex
+) {
   const page =
     clampPageNumber(
       pageIndex + 1
     );
 
-  if (pageStatus) {
+  if (
+    pageStatus
+  ) {
     pageStatus.textContent =
       `Page ${page} of ${totalPages}`;
   }
 
-  if (pageProgress) {
+  if (
+    pageProgress
+  ) {
     pageProgress.style.width =
       `${(page / totalPages) * 100}%`;
   }
 
-  if (previousButton) {
+  if (
+    previousButton
+  ) {
     previousButton.disabled =
       pageIndex <= 0;
   }
 
-  if (nextButton) {
+  if (
+    nextButton
+  ) {
     nextButton.disabled =
       pageIndex >=
       totalPages - 1;
   }
 
-  if (edgePrevious) {
+  if (
+    edgePrevious
+  ) {
     edgePrevious.disabled =
       pageIndex <= 0;
   }
 
-  if (edgeNext) {
+  if (
+    edgeNext
+  ) {
     edgeNext.disabled =
       pageIndex >=
       totalPages - 1;
@@ -2515,33 +3544,55 @@ function updateInterface(pageIndex) {
     .querySelectorAll(
       ".thumbnail-button, .mobile-thumbnail-button, .contents-button"
     )
-    .forEach((button) => {
-      button.classList.toggle(
-        "active",
-        Number(
-          button.dataset.pageIndex
-        ) === pageIndex
-      );
-    });
+    .forEach(
+      (button) => {
+        button.classList.toggle(
+          "active",
+          Number(
+            button.dataset.pageIndex
+          ) === pageIndex
+        );
+      }
+    );
 }
 
 /* =========================================================
    DEDICATED ZOOM READER
    ========================================================= */
 
-const ZOOM_MIN = 1;
-const ZOOM_MAX = 4;
-const ZOOM_STEP = 0.5;
+const ZOOM_MIN =
+  1;
 
-let zoomScale = 1;
-let zoomBaseWidth = 0;
-let zoomBaseHeight = 0;
-let zoomGeometry = null;
-let pinchStartDistance = 0;
-let pinchStartScale = 1;
-let pinchActive = false;
+const ZOOM_MAX =
+  4;
 
-function touchDistance(touches) {
+const ZOOM_STEP =
+  0.5;
+
+let zoomScale =
+  1;
+
+let zoomBaseWidth =
+  0;
+
+let zoomBaseHeight =
+  0;
+
+let zoomGeometry =
+  null;
+
+let pinchStartDistance =
+  0;
+
+let pinchStartScale =
+  1;
+
+let pinchActive =
+  false;
+
+function touchDistance(
+  touches
+) {
   const first =
     touches[0];
 
@@ -2585,61 +3636,84 @@ function waitForReadyImage(
   source
 ) {
   return new Promise(
-    (resolve, reject) => {
-      let settled = false;
+    (
+      resolve,
+      reject
+    ) => {
+      let settled =
+        false;
 
-      const cleanup = () => {
-        image.removeEventListener(
-          "load",
-          loaded
-        );
+      const cleanup =
+        () => {
+          image.removeEventListener(
+            "load",
+            loaded
+          );
 
-        image.removeEventListener(
-          "error",
-          failed
-        );
-      };
+          image.removeEventListener(
+            "error",
+            failed
+          );
+        };
 
-      const loaded = async () => {
-        if (settled) return;
-
-        settled = true;
-        cleanup();
-
-        try {
+      const loaded =
+        async () => {
           if (
-            typeof image.decode ===
-            "function"
+            settled
           ) {
-            await image.decode();
+            return;
           }
-        } catch (error) {}
 
-        if (
-          image.naturalWidth > 0
-        ) {
-          resolve(image);
-        } else {
+          settled =
+            true;
+
+          cleanup();
+
+          try {
+            if (
+              typeof image.decode ===
+              "function"
+            ) {
+              await image.decode();
+            }
+          } catch (error) {}
+
+          if (
+            image.naturalWidth >
+            0
+          ) {
+            resolve(
+              image
+            );
+
+          } else {
+            reject(
+              new Error(
+                "Image loaded without usable dimensions."
+              )
+            );
+          }
+        };
+
+      const failed =
+        () => {
+          if (
+            settled
+          ) {
+            return;
+          }
+
+          settled =
+            true;
+
+          cleanup();
+
           reject(
             new Error(
-              "Image loaded without usable dimensions."
+              `Unable to load ${source}`
             )
           );
-        }
-      };
-
-      const failed = () => {
-        if (settled) return;
-
-        settled = true;
-        cleanup();
-
-        reject(
-          new Error(
-            `Unable to load ${source}`
-          )
-        );
-      };
+        };
 
       image.addEventListener(
         "load",
@@ -2654,7 +3728,9 @@ function waitForReadyImage(
       image.src =
         source;
 
-      if (image.complete) {
+      if (
+        image.complete
+      ) {
         window.queueMicrotask(
           () => {
             if (
@@ -2662,6 +3738,7 @@ function waitForReadyImage(
               0
             ) {
               void loaded();
+
             } else {
               failed();
             }
@@ -2712,7 +3789,9 @@ function calculateZoomBaseSize() {
     );
 }
 
-function getGeometryForScale(scale) {
+function getGeometryForScale(
+  scale
+) {
   const viewportWidth =
     imageZoomScroll.clientWidth;
 
@@ -2801,12 +3880,12 @@ function renderZoomScale(
   const focusX =
     focalX ??
     oldGeometry.viewportWidth /
-      2;
+    2;
 
   const focusY =
     focalY ??
     oldGeometry.viewportHeight /
-      2;
+    2;
 
   const ratioX =
     clamp(
@@ -2892,14 +3971,18 @@ function renderZoomScale(
     zoomScale > 1.01
   );
 
-  if (zoomOutButton) {
+  if (
+    zoomOutButton
+  ) {
     zoomOutButton.disabled =
       zoomScale <=
       ZOOM_MIN +
       0.01;
   }
 
-  if (zoomInButton) {
+  if (
+    zoomInButton
+  ) {
     zoomInButton.disabled =
       zoomScale >=
       ZOOM_MAX -
@@ -2908,20 +3991,31 @@ function renderZoomScale(
 }
 
 function resetImageZoom() {
-  if (!imageZoomScroll) return;
+  if (
+    !imageZoomScroll
+  ) {
+    return;
+  }
 
-  zoomScale = 1;
+  zoomScale =
+    1;
 
   calculateZoomBaseSize();
 
-  zoomGeometry = null;
+  zoomGeometry =
+    null;
 
-  renderZoomScale(1);
+  renderZoomScale(
+    1
+  );
 
   window.requestAnimationFrame(
     () => {
-      imageZoomScroll.scrollLeft = 0;
-      imageZoomScroll.scrollTop = 0;
+      imageZoomScroll.scrollLeft =
+        0;
+
+      imageZoomScroll.scrollTop =
+        0;
     }
   );
 }
@@ -2957,12 +4051,14 @@ function initialiseNativeZoomGestures() {
     (event) => {
       if (
         !isImageZoomOpen() ||
-        event.touches.length !== 2
+        event.touches.length !==
+        2
       ) {
         return;
       }
 
-      pinchActive = true;
+      pinchActive =
+        true;
 
       pinchStartDistance =
         Math.max(
@@ -2986,7 +4082,8 @@ function initialiseNativeZoomGestures() {
       if (
         !isImageZoomOpen() ||
         !pinchActive ||
-        event.touches.length !== 2
+        event.touches.length !==
+        2
       ) {
         return;
       }
@@ -3035,7 +4132,8 @@ function initialiseNativeZoomGestures() {
         event.touches.length <
         2
       ) {
-        pinchActive = false;
+        pinchActive =
+          false;
       }
     },
     {
@@ -3046,7 +4144,8 @@ function initialiseNativeZoomGestures() {
   imageZoomScroll.addEventListener(
     "touchcancel",
     () => {
-      pinchActive = false;
+      pinchActive =
+        false;
     },
     {
       passive: true
@@ -3056,7 +4155,9 @@ function initialiseNativeZoomGestures() {
   imageZoomScroll.addEventListener(
     "wheel",
     (event) => {
-      if (!isImageZoomOpen()) {
+      if (
+        !isImageZoomOpen()
+      ) {
         return;
       }
 
@@ -3122,7 +4223,9 @@ async function openImageZoomViewer() {
     zoomButton?.textContent ||
     "Zoom";
 
-  if (zoomButton) {
+  if (
+    zoomButton
+  ) {
     zoomButton.disabled =
       true;
 
@@ -3131,7 +4234,9 @@ async function openImageZoomViewer() {
   }
 
   try {
-    if (!isMobileViewer) {
+    if (
+      !isMobileViewer
+    ) {
       await ensureDesktopPageLoaded(
         currentPage
       );
@@ -3151,7 +4256,9 @@ async function openImageZoomViewer() {
       source
     );
 
-    if (zoomViewerStatus) {
+    if (
+      zoomViewerStatus
+    ) {
       zoomViewerStatus.textContent =
         `Page ${currentPage} of ${totalPages}`;
     }
@@ -3186,7 +4293,9 @@ async function openImageZoomViewer() {
     );
 
   } finally {
-    if (zoomButton) {
+    if (
+      zoomButton
+    ) {
       zoomButton.disabled =
         false;
 
@@ -3204,11 +4313,20 @@ function closeImageZoomViewer() {
     return;
   }
 
-  pinchActive = false;
-  zoomScale = 1;
-  zoomGeometry = null;
-  zoomBaseWidth = 0;
-  zoomBaseHeight = 0;
+  pinchActive =
+    false;
+
+  zoomScale =
+    1;
+
+  zoomGeometry =
+    null;
+
+  zoomBaseWidth =
+    0;
+
+  zoomBaseHeight =
+    0;
 
   imageZoomViewer.hidden =
     true;
@@ -3241,25 +4359,32 @@ function bindZoomToolbarButton(
   button,
   handler
 ) {
-  if (!button) return;
+  if (!button) {
+    return;
+  }
 
-  let suppressClickUntil = 0;
+  let suppressClickUntil =
+    0;
 
   button.addEventListener(
     "pointerdown",
     (event) => {
       if (
-        event.pointerType === "mouse" &&
-        event.button !== 0
+        event.pointerType ===
+          "mouse" &&
+        event.button !==
+          0
       ) {
         return;
       }
 
       event.preventDefault();
+
       event.stopPropagation();
 
       suppressClickUntil =
-        Date.now() + 750;
+        Date.now() +
+        750;
 
       handler();
     },
@@ -3272,6 +4397,7 @@ function bindZoomToolbarButton(
     "click",
     (event) => {
       event.preventDefault();
+
       event.stopPropagation();
 
       if (
@@ -3286,20 +4412,24 @@ function bindZoomToolbarButton(
   );
 }
 
-if (imageZoomToolbar) {
+if (
+  imageZoomToolbar
+) {
   [
     "pointerdown",
     "pointermove",
     "pointerup",
     "click"
-  ].forEach((eventName) => {
-    imageZoomToolbar.addEventListener(
-      eventName,
-      (event) => {
-        event.stopPropagation();
-      }
-    );
-  });
+  ].forEach(
+    (eventName) => {
+      imageZoomToolbar.addEventListener(
+        eventName,
+        (event) => {
+          event.stopPropagation();
+        }
+      );
+    }
+  );
 }
 
 /* =========================================================
@@ -3329,8 +4459,12 @@ edgeNext?.addEventListener(
 firstButton?.addEventListener(
   "click",
   async () => {
-    await goToPage(1);
+    await goToPage(
+      1
+    );
+
     closeAllPanels();
+
     closeMobileThumbnailTray();
   }
 );
@@ -3363,13 +4497,16 @@ bindZoomToolbarButton(
 window.addEventListener(
   "resize",
   () => {
-    if (isImageZoomOpen()) {
+    if (
+      isImageZoomOpen()
+    ) {
       const previousScale =
         zoomScale;
 
       calculateZoomBaseSize();
 
-      zoomGeometry = null;
+      zoomGeometry =
+        null;
 
       renderZoomScale(
         previousScale
@@ -3380,7 +4517,8 @@ window.addEventListener(
 
     if (
       isMobileViewer &&
-      mobileCurrentPage >= 2
+      mobileCurrentPage >=
+      2
     ) {
       void showMobilePage(
         mobileCurrentPage,
@@ -3401,6 +4539,7 @@ fullscreenButton?.addEventListener(
         await document
           .documentElement
           .requestFullscreen();
+
       } else {
         await document
           .exitFullscreen();
@@ -3428,7 +4567,9 @@ document.addEventListener(
       active
     );
 
-    if (fullscreenButton) {
+    if (
+      fullscreenButton
+    ) {
       fullscreenButton.textContent =
         active
           ? "Exit full screen"
@@ -3448,7 +4589,8 @@ shareButton?.addEventListener(
         document.title,
 
       text:
-        currentPage === 1
+        currentPage ===
+        1
           ? "View the Keswick Discos Wedding Brochure."
           : `View page ${currentPage} of the Keswick Discos Wedding Brochure.`,
 
@@ -3457,7 +4599,9 @@ shareButton?.addEventListener(
     };
 
     try {
-      if (navigator.share) {
+      if (
+        navigator.share
+      ) {
         await navigator.share(
           shareData
         );
@@ -3498,8 +4642,11 @@ shareButton?.addEventListener(
 pagesButton?.addEventListener(
   "click",
   () => {
-    if (isMobileViewer) {
+    if (
+      isMobileViewer
+    ) {
       toggleMobileThumbnailTray();
+
       return;
     }
 
@@ -3513,9 +4660,7 @@ pagesButton?.addEventListener(
     ) {
       trimThumbnailMemory(
         thumbnailContainer,
-        ".thumbnail-button",
-        getCurrentPageNumber(),
-        false
+        ".thumbnail-button"
       );
 
       window.setTimeout(
@@ -3559,29 +4704,35 @@ document
   .querySelectorAll(
     "[data-close]"
   )
-  .forEach((button) => {
-    button.addEventListener(
-      "click",
-      () => {
-        const targetId =
-          button.dataset.close;
+  .forEach(
+    (button) => {
+      button.addEventListener(
+        "click",
+        () => {
+          const targetId =
+            button.dataset.close;
 
-        const target =
-          $(targetId);
+          const target =
+            $(
+              targetId
+            );
 
-        if (
-          targetId ===
-          "contactModal"
-        ) {
-          closeContactModal();
+          if (
+            targetId ===
+            "contactModal"
+          ) {
+            closeContactModal();
 
-        } else if (target) {
-          target.hidden =
-            true;
+          } else if (
+            target
+          ) {
+            target.hidden =
+              true;
+          }
         }
-      }
-    );
-  });
+      );
+    }
+  );
 
 copyLinkButton?.addEventListener(
   "click",
@@ -3650,7 +4801,9 @@ resetReadingButton?.addEventListener(
   }
 );
 
-/* Mobile deliberately has no left/right page swipe. */
+/*
+ * Mobile deliberately has no left/right page swipe.
+ */
 
 /* =========================================================
    KEYBOARD
@@ -3660,23 +4813,31 @@ document.addEventListener(
   "keydown",
   async (event) => {
     if (
-      event.key === "Escape" &&
+      event.key ===
+        "Escape" &&
       isImageZoomOpen()
     ) {
       closeImageZoomViewer();
+
       return;
     }
 
     if (
-      event.key === "Escape"
+      event.key ===
+      "Escape"
     ) {
       closeMobileThumbnailTray();
+
       closeAllPanels();
+
       closeContactModal();
+
       return;
     }
 
-    if (isImageZoomOpen()) {
+    if (
+      isImageZoomOpen()
+    ) {
       if (
         event.key === "+" ||
         event.key === "="
@@ -3711,7 +4872,9 @@ document.addEventListener(
       event.key ===
       "Home"
     ) {
-      await goToPage(1);
+      await goToPage(
+        1
+      );
     }
 
     if (
@@ -3727,21 +4890,28 @@ document.addEventListener(
    START
    ========================================================= */
 
-async function startMobileBrochure(startingPage) {
+async function startMobileBrochure(
+  startingPage
+) {
   createMobileViewer();
+
   createMobileThumbnails();
+
   initialiseMobileThumbnailTray();
 
   mobileRequestedPage =
     startingPage;
 
-  if (loadingProgress) {
+  if (
+    loadingProgress
+  ) {
     loadingProgress.style.width =
       "24%";
   }
 
   if (
-    startingPage === 1
+    startingPage ===
+    1
   ) {
     await showMobilePage(
       1,
@@ -3749,20 +4919,28 @@ async function startMobileBrochure(startingPage) {
       false
     );
 
-    if (loadingProgress) {
+    if (
+      loadingProgress
+    ) {
       loadingProgress.style.width =
         "52%";
     }
 
     const prime =
-      primeMobilePdfPage(2);
+      primeMobilePdfPage(
+        2
+      );
 
     await Promise.race([
       prime,
-      wait(1400)
+      wait(
+        1400
+      )
     ]);
 
-    if (loadingProgress) {
+    if (
+      loadingProgress
+    ) {
       loadingProgress.style.width =
         "92%";
     }
@@ -3779,13 +4957,17 @@ async function startMobileBrochure(startingPage) {
       false
     );
 
-    if (loadingProgress) {
+    if (
+      loadingProgress
+    ) {
       loadingProgress.style.width =
         "92%";
     }
   }
 
-  if (loadingProgress) {
+  if (
+    loadingProgress
+  ) {
     loadingProgress.style.width =
       "100%";
   }
@@ -3793,7 +4975,9 @@ async function startMobileBrochure(startingPage) {
   hideLoadingScreen();
 }
 
-async function startDesktopBrochure(startingPage) {
+async function startDesktopBrochure(
+  startingPage
+) {
   createDesktopPages();
 
   await loadDesktopStartupPages(
@@ -3812,7 +4996,9 @@ async function startBrochure() {
 
     buildContents();
 
-    if (isMobileViewer) {
+    if (
+      isMobileViewer
+    ) {
       document.body.classList.add(
         "mobile-viewer-mode"
       );
@@ -3834,16 +5020,22 @@ async function startBrochure() {
     }
 
   } catch (error) {
-    console.error(error);
+    console.error(
+      error
+    );
 
     hideLoadingScreen();
 
-    if (bookStage) {
+    if (
+      bookStage
+    ) {
       bookStage.style.display =
         "none";
     }
 
-    if (errorMessage) {
+    if (
+      errorMessage
+    ) {
       errorMessage.hidden =
         false;
     }
