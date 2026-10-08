@@ -453,10 +453,6 @@ function createThumbnailButton(pageNumber, className) {
 
         clearPrimeTimer();
 
-        /*
-         * Give a genuine tap a small head-start without
-         * rendering random pages while horizontally scrolling.
-         */
         primeTimer =
           window.setTimeout(
             () => {
@@ -514,10 +510,6 @@ function createThumbnailButton(pageNumber, className) {
         className ===
         "mobile-thumbnail-button"
       ) {
-        /*
-         * Begin the sharp render immediately, but do not make
-         * the visible interface wait for it.
-         */
         void primeMobileThumbnailPage(
           pageNumber
         );
@@ -616,10 +608,6 @@ function loadThumbnailImage(image) {
   }
 }
 
-/*
- * The WebP thumbnails are tiny, so we deliberately
- * keep them loaded rather than unloading and reloading.
- */
 function unloadThumbnailImage(image) {}
 
 function unloadAllMobileThumbnailImages() {}
@@ -1254,7 +1242,7 @@ function playPageTurnSound() {
 }
 
 /* =========================================================
-   DESKTOP FLIPBOOK — UNCHANGED JPEG READER
+   DESKTOP FLIPBOOK
    ========================================================= */
 
 function createDesktopPages() {
@@ -2109,10 +2097,6 @@ function primeMobileThumbnailPage(
     );
   }
 
-  /*
-   * Do not compete with a different render already running.
-   * The actual tap navigation can cancel that render if needed.
-   */
   if (
     mobilePdfRenderTask &&
     mobilePdfRenderPage !== safePage
@@ -2209,10 +2193,6 @@ async function navigateMobileThumbnailPage(
     ) ||
     null;
 
-  /*
-   * If this exact page began rendering when the finger went
-   * down, keep that work alive. Otherwise stop obsolete work.
-   */
   if (
     !existingPrime
   ) {
@@ -2230,10 +2210,6 @@ async function navigateMobileThumbnailPage(
   const requestId =
     ++mobileNavigationRequestId;
 
-  /*
-   * The Pages tray closes immediately — it does not wait
-   * for the PDF render to finish.
-   */
   closeMobileThumbnailTray(
     false
   );
@@ -2251,11 +2227,6 @@ async function navigateMobileThumbnailPage(
     );
 
   } else {
-    /*
-     * This WebP is already present in the thumbnail tray.
-     * It gives an immediate visual result while the sharp
-     * PDF canvas finishes rendering.
-     */
     mobilePageHost.replaceChildren(
       createMobileThumbnailPreview(
         safePage
@@ -2544,11 +2515,16 @@ async function renderMobilePdfCanvas(
           baseViewport.height
       );
 
+    /*
+     * 2x gives a sharper normal mobile page while still
+     * keeping the canvas cache far lighter than the old
+     * full-resolution JPEG approach.
+     */
     const outputScale =
       Math.min(
         window.devicePixelRatio ||
         1,
-        1.5
+        2
       );
 
     const viewport =
@@ -4800,14 +4776,6 @@ resetReadingButton?.addEventListener(
     );
   }
 );
-
-/*
- * Mobile deliberately has no left/right page swipe.
- */
-
-/* =========================================================
-   KEYBOARD
-   ========================================================= */
 
 document.addEventListener(
   "keydown",
