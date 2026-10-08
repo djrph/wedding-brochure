@@ -2515,11 +2515,6 @@ async function renderMobilePdfCanvas(
           baseViewport.height
       );
 
-    /*
-     * 2x gives a sharper normal mobile page while still
-     * keeping the canvas cache far lighter than the old
-     * full-resolution JPEG approach.
-     */
     const outputScale =
       Math.min(
         window.devicePixelRatio ||
@@ -3566,6 +3561,12 @@ let pinchStartScale =
 let pinchActive =
   false;
 
+let imageZoomRequestId =
+  0;
+
+let imageZoomPageNumber =
+  1;
+
 function touchDistance(
   touches
 ) {
@@ -4184,30 +4185,80 @@ async function openImageZoomViewer() {
 
   closeAllPanels();
 
-  mobileSwipeLocked =
-    true;
-
+  /*
+   * On mobile, mobileRequestedPage is the page the user has
+   * most recently asked to see. During a page render it can be
+   * one step ahead of mobileCurrentPage, so Zoom must use it
+   * to avoid opening the previous page.
+   */
   const currentPage =
-    getCurrentPageNumber();
+    isMobileViewer
+      ? clampPageNumber(
+          mobileRequestedPage ||
+          mobileCurrentPage
+        )
+      : getCurrentPageNumber();
 
   const source =
     imagePath(
       currentPage
     );
 
-  const originalText =
-    zoomButton?.textContent ||
-    "Zoom";
+  const requestId =
+    ++imageZoomRequestId;
+
+  imageZoomPageNumber =
+    currentPage;
+
+  mobileSwipeLocked =
+    true;
+
+  pinchActive =
+    false;
+
+  zoomScale =
+    1;
+
+  zoomGeometry =
+    null;
+
+  zoomBaseWidth =
+    0;
+
+  zoomBaseHeight =
+    0;
+
+  /*
+   * Show Zoom immediately while the full-resolution
+   * JPEG finishes loading.
+   */
+  zoomPageImage.removeAttribute(
+    "src"
+  );
+
+  zoomPageImage.removeAttribute(
+    "style"
+  );
+
+  imageZoomCanvas?.removeAttribute(
+    "style"
+  );
 
   if (
-    zoomButton
+    zoomViewerStatus
   ) {
-    zoomButton.disabled =
-      true;
-
-    zoomButton.textContent =
-      "Opening…";
+    zoomViewerStatus.textContent =
+      `Loading page ${currentPage}…`;
   }
+
+  imageZoomViewer.hidden =
+    false;
+
+  document.body.classList.add(
+    "zoom-viewer-open"
+  );
+
+  initialiseNativeZoomGestures();
 
   try {
     if (
@@ -4216,6 +4267,34 @@ async function openImageZoomViewer() {
       await ensureDesktopPageLoaded(
         currentPage
       );
+    }
+
+    /*
+     * Preload separately so an old slow request cannot
+     * overwrite a newer Zoom request.
+     */
+    const loader =
+      new Image();
+
+    loader.decoding =
+      "async";
+
+    loader.fetchPriority =
+      "high";
+
+    await waitForReadyImage(
+      loader,
+      source
+    );
+
+    if (
+      requestId !==
+        imageZoomRequestId ||
+      !isImageZoomOpen() ||
+      imageZoomPageNumber !==
+        currentPage
+    ) {
+      return;
     }
 
     zoomPageImage.alt =
@@ -4227,10 +4306,29 @@ async function openImageZoomViewer() {
     zoomPageImage.fetchPriority =
       "high";
 
-    await waitForReadyImage(
-      zoomPageImage,
-      source
-    );
+    zoomPageImage.src =
+      loader.currentSrc ||
+      loader.src ||
+      source;
+
+    try {
+      if (
+        typeof zoomPageImage.decode ===
+        "function"
+      ) {
+        await zoomPageImage.decode();
+      }
+    } catch (error) {}
+
+    if (
+      requestId !==
+        imageZoomRequestId ||
+      !isImageZoomOpen() ||
+      imageZoomPageNumber !==
+        currentPage
+    ) {
+      return;
+    }
 
     if (
       zoomViewerStatus
@@ -4239,44 +4337,39 @@ async function openImageZoomViewer() {
         `Page ${currentPage} of ${totalPages}`;
     }
 
-    imageZoomViewer.hidden =
-      false;
-
-    document.body.classList.add(
-      "zoom-viewer-open"
-    );
-
-    initialiseNativeZoomGestures();
-
     await waitForTwoFrames();
+
+    if (
+      requestId !==
+        imageZoomRequestId ||
+      !isImageZoomOpen() ||
+      imageZoomPageNumber !==
+        currentPage
+    ) {
+      return;
+    }
 
     resetImageZoom();
 
   } catch (error) {
+    if (
+      requestId !==
+        imageZoomRequestId ||
+      !isImageZoomOpen()
+    ) {
+      return;
+    }
+
     console.error(
       "Unable to open enlarged page:",
       error
     );
 
-    zoomPageImage.src =
-      source;
-
-    imageZoomViewer.hidden =
-      false;
-
-    document.body.classList.add(
-      "zoom-viewer-open"
-    );
-
-  } finally {
     if (
-      zoomButton
+      zoomViewerStatus
     ) {
-      zoomButton.disabled =
-        false;
-
-      zoomButton.textContent =
-        originalText;
+      zoomViewerStatus.textContent =
+        `Unable to load page ${currentPage}`;
     }
   }
 }
@@ -4288,6 +4381,15 @@ function closeImageZoomViewer() {
   ) {
     return;
   }
+
+  /*
+   * Invalidate any image request still finishing.
+   */
+  imageZoomRequestId +=
+    1;
+
+  imageZoomPageNumber =
+    1;
 
   pinchActive =
     false;
