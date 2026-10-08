@@ -98,6 +98,7 @@ const imageZoomToolbar = imageZoomViewer?.querySelector(".image-zoom-toolbar");
 const imageZoomScroll = $("imageZoomScroll");
 const imageZoomCanvas = $("imageZoomCanvas");
 const zoomPageImage = $("zoomPageImage");
+const zoomPdfCanvas = $("zoomPdfCanvas");
 const closeImageZoomButton = $("closeImageZoom");
 const resetImageZoomButton = $("resetImageZoom");
 const zoomInButton = $("zoomInButton");
@@ -136,6 +137,7 @@ const mobileThumbnailPrimePromises = new Map();
 
 const desktopPageImages = new Map();
 const desktopPageLoadPromises = new Map();
+
 
 /* =========================================================
    HELPERS
@@ -222,6 +224,7 @@ function hideLoadingScreen() {
   });
 }
 
+
 /* =========================================================
    URLS
    ========================================================= */
@@ -288,6 +291,7 @@ function getShareUrl() {
   return url.toString();
 }
 
+
 /* =========================================================
    PANELS / MODALS
    ========================================================= */
@@ -347,6 +351,7 @@ function closeContactModal() {
   document.body.style.overflow =
     "";
 }
+
 
 /* =========================================================
    THUMBNAILS
@@ -666,6 +671,7 @@ function centreThumbnail(
     behavior
   });
 }
+
 
 /* =========================================================
    MOBILE PAGE TRAY
@@ -995,6 +1001,7 @@ function initialiseMobileThumbnailTray() {
   );
 }
 
+
 /* =========================================================
    CONTENTS
    ========================================================= */
@@ -1204,6 +1211,7 @@ function buildContents() {
   );
 }
 
+
 /* =========================================================
    SOUND
    ========================================================= */
@@ -1245,6 +1253,7 @@ function playPageTurnSound() {
     );
   }
 }
+
 
 /* =========================================================
    DESKTOP FLIPBOOK
@@ -1750,6 +1759,7 @@ function initialiseDesktopFlipbook(
   );
 }
 
+
 /* =========================================================
    PDF.JS MOBILE READER
    ========================================================= */
@@ -2027,6 +2037,7 @@ function cancelActiveMobilePdfWork() {
       null;
   }
 }
+
 
 /* =========================================================
    INSTANT THUMBNAIL NAVIGATION
@@ -2329,6 +2340,7 @@ async function navigateMobileThumbnailPage(
 
   return true;
 }
+
 
 /* =========================================================
    MOBILE VIEWER
@@ -3219,6 +3231,8 @@ window.addEventListener(
 
     cancelActiveMobilePdfWork();
 
+    cancelZoomPdfRender();
+
     if (
       mobilePdfDocument
     ) {
@@ -3248,6 +3262,7 @@ window.addEventListener(
     mobileThumbnailPrimePromises.clear();
   }
 );
+
 
 /* =========================================================
    NAVIGATION
@@ -3460,6 +3475,7 @@ async function goNext() {
   }
 }
 
+
 /* =========================================================
    INTERFACE
    ========================================================= */
@@ -3532,6 +3548,7 @@ function updateInterface(
     );
 }
 
+
 /* =========================================================
    DEDICATED ZOOM READER
    ========================================================= */
@@ -3544,6 +3561,9 @@ const ZOOM_MAX =
 
 const ZOOM_STEP =
   0.5;
+
+const ZOOM_PDF_OUTPUT_SCALE =
+  4;
 
 let zoomScale =
   1;
@@ -3571,6 +3591,21 @@ let imageZoomRequestId =
 
 let imageZoomPageNumber =
   1;
+
+let zoomContentKind =
+  "none";
+
+let zoomSourceWidth =
+  0;
+
+let zoomSourceHeight =
+  0;
+
+let zoomPdfRenderTask =
+  null;
+
+let zoomPdfRenderPage =
+  null;
 
 function touchDistance(
   touches
@@ -3731,12 +3766,90 @@ function waitForReadyImage(
   );
 }
 
+function getActiveZoomElement() {
+  if (
+    zoomContentKind === "pdf"
+  ) {
+    return zoomPdfCanvas;
+  }
+
+  if (
+    zoomContentKind === "image"
+  ) {
+    return zoomPageImage;
+  }
+
+  return null;
+}
+
+function setZoomContentKind(
+  kind
+) {
+  zoomContentKind =
+    kind;
+
+  if (
+    zoomPageImage
+  ) {
+    zoomPageImage.hidden =
+      kind !== "image";
+  }
+
+  if (
+    zoomPdfCanvas
+  ) {
+    zoomPdfCanvas.hidden =
+      kind !== "pdf";
+  }
+}
+
+function cancelZoomPdfRender() {
+  if (
+    zoomPdfRenderTask
+  ) {
+    try {
+      zoomPdfRenderTask.cancel();
+    } catch (error) {}
+
+    zoomPdfRenderTask =
+      null;
+
+    zoomPdfRenderPage =
+      null;
+  }
+}
+
+function clearZoomPdfCanvas() {
+  if (
+    !zoomPdfCanvas
+  ) {
+    return;
+  }
+
+  zoomPdfCanvas.removeAttribute(
+    "style"
+  );
+
+  zoomPdfCanvas.width =
+    1;
+
+  zoomPdfCanvas.height =
+    1;
+
+  zoomPdfCanvas.setAttribute(
+    "aria-label",
+    ""
+  );
+
+  zoomPdfCanvas.hidden =
+    true;
+}
+
 function calculateZoomBaseSize() {
   if (
     !imageZoomScroll ||
-    !zoomPageImage ||
-    !zoomPageImage.naturalWidth ||
-    !zoomPageImage.naturalHeight
+    !zoomSourceWidth ||
+    !zoomSourceHeight
   ) {
     return;
   }
@@ -3750,23 +3863,23 @@ function calculateZoomBaseSize() {
   const fit =
     Math.min(
       viewportWidth /
-        zoomPageImage.naturalWidth,
+        zoomSourceWidth,
 
       viewportHeight /
-        zoomPageImage.naturalHeight
+        zoomSourceHeight
     );
 
   zoomBaseWidth =
     Math.max(
       1,
-      zoomPageImage.naturalWidth *
+      zoomSourceWidth *
       fit
     );
 
   zoomBaseHeight =
     Math.max(
       1,
-      zoomPageImage.naturalHeight *
+      zoomSourceHeight *
       fit
     );
 }
@@ -3837,10 +3950,13 @@ function renderZoomScale(
   focalX = null,
   focalY = null
 ) {
+  const activeElement =
+    getActiveZoomElement();
+
   if (
     !imageZoomScroll ||
     !imageZoomCanvas ||
-    !zoomPageImage ||
+    !activeElement ||
     !zoomBaseWidth ||
     !zoomBaseHeight
   ) {
@@ -3920,16 +4036,16 @@ function renderZoomScale(
   imageZoomCanvas.style.height =
     `${next.canvasHeight}px`;
 
-  zoomPageImage.style.width =
+  activeElement.style.width =
     `${next.imageWidth}px`;
 
-  zoomPageImage.style.height =
+  activeElement.style.height =
     `${next.imageHeight}px`;
 
-  zoomPageImage.style.left =
+  activeElement.style.left =
     `${next.imageLeft}px`;
 
-  zoomPageImage.style.top =
+  activeElement.style.top =
     `${next.imageTop}px`;
 
   window.requestAnimationFrame(
@@ -4175,67 +4291,20 @@ function initialiseNativeZoomGestures() {
   );
 }
 
-async function openImageZoomViewer() {
+async function renderZoomCover(
+  pageNumber,
+  requestId
+) {
   if (
-    !imageZoomViewer ||
-    !zoomPageImage ||
-    isImageZoomOpen()
+    !zoomPageImage
   ) {
-    return;
+    return false;
   }
 
-  closeMobileThumbnailTray(
-    true
+  setZoomContentKind(
+    "image"
   );
 
-  closeAllPanels();
-
-  /*
-   * Use the page the mobile reader most recently requested.
-   * This prevents Zoom opening the previous page while a new
-   * PDF page is still finishing its render.
-   */
-  const currentPage =
-    isMobileViewer
-      ? clampPageNumber(
-          mobileRequestedPage ||
-          mobileCurrentPage
-        )
-      : getCurrentPageNumber();
-
-  const source =
-    imagePath(
-      currentPage
-    );
-
-  const requestId =
-    ++imageZoomRequestId;
-
-  imageZoomPageNumber =
-    currentPage;
-
-  mobileSwipeLocked =
-    true;
-
-  pinchActive =
-    false;
-
-  zoomScale =
-    1;
-
-  zoomGeometry =
-    null;
-
-  zoomBaseWidth =
-    0;
-
-  zoomBaseHeight =
-    0;
-
-  /*
-   * The visible Zoom image is reset first.
-   * The high-resolution JPEG then loads directly into it.
-   */
   zoomPageImage.onload =
     null;
 
@@ -4262,9 +4331,433 @@ async function openImageZoomViewer() {
   zoomPageImage.fetchPriority =
     "high";
 
+  return new Promise(
+    (resolve) => {
+      zoomPageImage.onload =
+        async () => {
+          if (
+            requestId !==
+              imageZoomRequestId ||
+            !isImageZoomOpen() ||
+            imageZoomPageNumber !==
+              pageNumber
+          ) {
+            resolve(
+              false
+            );
+
+            return;
+          }
+
+          zoomSourceWidth =
+            zoomPageImage.naturalWidth;
+
+          zoomSourceHeight =
+            zoomPageImage.naturalHeight;
+
+          zoomPageImage.alt =
+            `${getPageTitle(pageNumber)} — enlarged brochure page`;
+
+          if (
+            zoomViewerStatus
+          ) {
+            zoomViewerStatus.textContent =
+              `Page ${pageNumber} of ${totalPages}`;
+          }
+
+          await waitForTwoFrames();
+
+          if (
+            requestId !==
+              imageZoomRequestId ||
+            !isImageZoomOpen()
+          ) {
+            resolve(
+              false
+            );
+
+            return;
+          }
+
+          resetImageZoom();
+
+          resolve(
+            true
+          );
+        };
+
+      zoomPageImage.onerror =
+        () => {
+          if (
+            requestId ===
+              imageZoomRequestId &&
+            isImageZoomOpen()
+          ) {
+            if (
+              zoomViewerStatus
+            ) {
+              zoomViewerStatus.textContent =
+                `Unable to load page ${pageNumber}`;
+            }
+          }
+
+          resolve(
+            false
+          );
+        };
+
+      zoomPageImage.src =
+        imagePath(
+          pageNumber
+        );
+    }
+  );
+}
+
+async function renderZoomPdf(
+  pageNumber,
+  requestId
+) {
+  if (
+    !zoomPdfCanvas ||
+    !imageZoomScroll
+  ) {
+    return false;
+  }
+
+  cancelZoomPdfRender();
+
+  setZoomContentKind(
+    "none"
+  );
+
+  clearZoomPdfCanvas();
+
+  const pdfDocument =
+    await ensureMobilePdfDocument();
+
+  if (
+    requestId !==
+      imageZoomRequestId ||
+    !isImageZoomOpen() ||
+    imageZoomPageNumber !==
+      pageNumber
+  ) {
+    return false;
+  }
+
+  const pdfPageNumber =
+    brochurePageToPdfPage(
+      pageNumber
+    );
+
+  if (
+    pdfPageNumber < 1 ||
+    pdfPageNumber >
+      pdfDocument.numPages
+  ) {
+    throw new Error(
+      `PDF page ${pdfPageNumber} is unavailable.`
+    );
+  }
+
+  const pdfPage =
+    await pdfDocument.getPage(
+      pdfPageNumber
+    );
+
+  try {
+    await waitForTwoFrames();
+
+    if (
+      requestId !==
+        imageZoomRequestId ||
+      !isImageZoomOpen() ||
+      imageZoomPageNumber !==
+        pageNumber
+    ) {
+      return false;
+    }
+
+    const viewportWidth =
+      Math.max(
+        1,
+        imageZoomScroll.clientWidth
+      );
+
+    const viewportHeight =
+      Math.max(
+        1,
+        imageZoomScroll.clientHeight
+      );
+
+    const baseViewport =
+      pdfPage.getViewport({
+        scale: 1
+      });
+
+    const fitScale =
+      Math.min(
+        viewportWidth /
+          baseViewport.width,
+
+        viewportHeight /
+          baseViewport.height
+      );
+
+    const renderViewport =
+      pdfPage.getViewport({
+        scale:
+          fitScale *
+          ZOOM_PDF_OUTPUT_SCALE
+      });
+
+    zoomPdfCanvas.width =
+      Math.max(
+        1,
+        Math.ceil(
+          renderViewport.width
+        )
+      );
+
+    zoomPdfCanvas.height =
+      Math.max(
+        1,
+        Math.ceil(
+          renderViewport.height
+        )
+      );
+
+    zoomPdfCanvas.removeAttribute(
+      "style"
+    );
+
+    zoomPdfCanvas.setAttribute(
+      "role",
+      "img"
+    );
+
+    zoomPdfCanvas.setAttribute(
+      "aria-label",
+      `${getPageTitle(pageNumber)} — enlarged brochure page`
+    );
+
+    const context =
+      zoomPdfCanvas.getContext(
+        "2d",
+        {
+          alpha: false
+        }
+      );
+
+    if (
+      !context
+    ) {
+      throw new Error(
+        "Zoom canvas rendering is not available."
+      );
+    }
+
+    context.imageSmoothingEnabled =
+      true;
+
+    context.imageSmoothingQuality =
+      "high";
+
+    const renderTask =
+      pdfPage.render({
+        canvasContext:
+          context,
+
+        viewport:
+          renderViewport,
+
+        background:
+          "rgb(255,255,255)"
+      });
+
+    zoomPdfRenderTask =
+      renderTask;
+
+    zoomPdfRenderPage =
+      pageNumber;
+
+    await renderTask.promise;
+
+    if (
+      requestId !==
+        imageZoomRequestId ||
+      !isImageZoomOpen() ||
+      imageZoomPageNumber !==
+        pageNumber
+    ) {
+      clearZoomPdfCanvas();
+
+      return false;
+    }
+
+    zoomSourceWidth =
+      zoomPdfCanvas.width;
+
+    zoomSourceHeight =
+      zoomPdfCanvas.height;
+
+    setZoomContentKind(
+      "pdf"
+    );
+
+    if (
+      zoomViewerStatus
+    ) {
+      zoomViewerStatus.textContent =
+        `Page ${pageNumber} of ${totalPages}`;
+    }
+
+    resetImageZoom();
+
+    return true;
+
+  } catch (error) {
+    if (
+      error?.name ===
+        "RenderingCancelledException"
+    ) {
+      return false;
+    }
+
+    throw error;
+
+  } finally {
+    try {
+      pdfPage.cleanup();
+    } catch (error) {}
+
+    if (
+      zoomPdfRenderPage ===
+        pageNumber
+    ) {
+      zoomPdfRenderTask =
+        null;
+
+      zoomPdfRenderPage =
+        null;
+    }
+  }
+}
+
+async function openImageZoomViewer() {
+  if (
+    !imageZoomViewer ||
+    !zoomPageImage ||
+    !zoomPdfCanvas ||
+    isImageZoomOpen()
+  ) {
+    return;
+  }
+
+  closeMobileThumbnailTray(
+    true
+  );
+
+  closeAllPanels();
+
+  const currentPage =
+    isMobileViewer
+      ? clampPageNumber(
+          mobileRequestedPage ||
+          mobileCurrentPage
+        )
+      : getCurrentPageNumber();
+
+  const requestId =
+    ++imageZoomRequestId;
+
+  imageZoomPageNumber =
+    currentPage;
+
+  mobileSwipeLocked =
+    true;
+
+  pinchActive =
+    false;
+
+  zoomScale =
+    1;
+
+  zoomGeometry =
+    null;
+
+  zoomBaseWidth =
+    0;
+
+  zoomBaseHeight =
+    0;
+
+  zoomSourceWidth =
+    0;
+
+  zoomSourceHeight =
+    0;
+
+  cancelMobileWarm();
+
+  if (
+    mobilePdfRenderTask &&
+    mobilePdfRenderPage !==
+      currentPage
+  ) {
+    cancelActiveMobilePdfWork();
+  }
+
+  cancelZoomPdfRender();
+
+  clearZoomPdfCanvas();
+
+  if (
+    zoomPageImage
+  ) {
+    zoomPageImage.onload =
+      null;
+
+    zoomPageImage.onerror =
+      null;
+
+    zoomPageImage.removeAttribute(
+      "src"
+    );
+
+    zoomPageImage.removeAttribute(
+      "style"
+    );
+
+    zoomPageImage.alt =
+      "";
+
+    zoomPageImage.hidden =
+      true;
+  }
+
+  setZoomContentKind(
+    "none"
+  );
+
   imageZoomCanvas?.removeAttribute(
     "style"
   );
+
+  if (
+    imageZoomScroll
+  ) {
+    imageZoomScroll.classList.remove(
+      "is-zoomed"
+    );
+
+    imageZoomScroll.scrollLeft =
+      0;
+
+    imageZoomScroll.scrollTop =
+      0;
+  }
 
   if (
     zoomViewerStatus
@@ -4282,92 +4775,56 @@ async function openImageZoomViewer() {
 
   initialiseNativeZoomGestures();
 
-  /*
-   * Handlers are attached before src is assigned. This is
-   * important on phones where the image may already be cached.
-   */
-  zoomPageImage.onload =
-    async () => {
-      if (
-        requestId !==
-          imageZoomRequestId ||
-        !isImageZoomOpen() ||
-        imageZoomPageNumber !==
-          currentPage
-      ) {
-        return;
-      }
-
-      zoomPageImage.alt =
-        `${getPageTitle(currentPage)} — enlarged brochure page`;
-
-      if (
-        zoomViewerStatus
-      ) {
-        zoomViewerStatus.textContent =
-          `Page ${currentPage} of ${totalPages}`;
-      }
-
-      await waitForTwoFrames();
-
-      if (
-        requestId !==
-          imageZoomRequestId ||
-        !isImageZoomOpen() ||
-        imageZoomPageNumber !==
-          currentPage
-      ) {
-        return;
-      }
-
-      resetImageZoom();
-    };
-
-  zoomPageImage.onerror =
-    () => {
-      if (
-        requestId !==
-          imageZoomRequestId ||
-        !isImageZoomOpen() ||
-        imageZoomPageNumber !==
-          currentPage
-      ) {
-        return;
-      }
-
-      console.error(
-        `Unable to load enlarged page ${currentPage}: ${source}`
+  try {
+    if (
+      currentPage === 1
+    ) {
+      await renderZoomCover(
+        currentPage,
+        requestId
       );
 
-      zoomPageImage.alt =
-        "";
+    } else {
+      await renderZoomPdf(
+        currentPage,
+        requestId
+      );
+    }
 
-      if (
-        zoomViewerStatus
-      ) {
-        zoomViewerStatus.textContent =
-          `Unable to load page ${currentPage}`;
-      }
-    };
+  } catch (error) {
+    if (
+      requestId !==
+        imageZoomRequestId ||
+      !isImageZoomOpen()
+    ) {
+      return;
+    }
 
-  /*
-   * Direct load into the actual visible Zoom image.
-   */
-  zoomPageImage.src =
-    source;
+    console.error(
+      `Unable to open enlarged page ${currentPage}:`,
+      error
+    );
+
+    setZoomContentKind(
+      "none"
+    );
+
+    if (
+      zoomViewerStatus
+    ) {
+      zoomViewerStatus.textContent =
+        `Unable to load page ${currentPage}`;
+    }
+  }
 }
 
 function closeImageZoomViewer() {
   if (
-    !imageZoomViewer ||
-    !zoomPageImage
+    !imageZoomViewer
   ) {
     return;
   }
 
-  /*
-   * Invalidates any JPEG load that might still be finishing.
-   */
   imageZoomRequestId +=
     1;
 
@@ -4389,11 +4846,43 @@ function closeImageZoomViewer() {
   zoomBaseHeight =
     0;
 
-  zoomPageImage.onload =
-    null;
+  zoomSourceWidth =
+    0;
 
-  zoomPageImage.onerror =
-    null;
+  zoomSourceHeight =
+    0;
+
+  cancelZoomPdfRender();
+
+  clearZoomPdfCanvas();
+
+  if (
+    zoomPageImage
+  ) {
+    zoomPageImage.onload =
+      null;
+
+    zoomPageImage.onerror =
+      null;
+
+    zoomPageImage.removeAttribute(
+      "src"
+    );
+
+    zoomPageImage.removeAttribute(
+      "style"
+    );
+
+    zoomPageImage.alt =
+      "";
+
+    zoomPageImage.hidden =
+      true;
+  }
+
+  setZoomContentKind(
+    "none"
+  );
 
   imageZoomViewer.hidden =
     true;
@@ -4402,24 +4891,28 @@ function closeImageZoomViewer() {
     "zoom-viewer-open"
   );
 
-  zoomPageImage.removeAttribute(
-    "src"
-  );
-
-  zoomPageImage.removeAttribute(
-    "style"
-  );
-
-  zoomPageImage.alt =
-    "";
-
   imageZoomCanvas?.removeAttribute(
     "style"
   );
 
+  if (
+    imageZoomScroll
+  ) {
+    imageZoomScroll.classList.remove(
+      "is-zoomed"
+    );
+
+    imageZoomScroll.scrollLeft =
+      0;
+
+    imageZoomScroll.scrollTop =
+      0;
+  }
+
   mobileSwipeLocked =
     false;
 }
+
 
 /* =========================================================
    ZOOM TOOLBAR INPUT SHIELD
@@ -4501,6 +4994,7 @@ if (
     }
   );
 }
+
 
 /* =========================================================
    CONTROLS
@@ -4871,6 +5365,7 @@ resetReadingButton?.addEventListener(
   }
 );
 
+
 /* =========================================================
    KEYBOARD
    ========================================================= */
@@ -4951,6 +5446,7 @@ document.addEventListener(
     }
   }
 );
+
 
 /* =========================================================
    START
