@@ -147,13 +147,18 @@ function clamp(value, min, max) {
 
 function clampPageNumber(value) {
   const page = Number.parseInt(value, 10);
-  return Number.isFinite(page) ? clamp(page, 1, totalPages) : 1;
+
+  return Number.isFinite(page)
+    ? clamp(page, 1, totalPages)
+    : 1;
 }
 
 function validPageNumber(pageNumber) {
-  return Number.isInteger(pageNumber) &&
+  return (
+    Number.isInteger(pageNumber) &&
     pageNumber >= 1 &&
-    pageNumber <= totalPages;
+    pageNumber <= totalPages
+  );
 }
 
 function imagePath(pageNumber) {
@@ -4186,10 +4191,9 @@ async function openImageZoomViewer() {
   closeAllPanels();
 
   /*
-   * On mobile, mobileRequestedPage is the page the user has
-   * most recently asked to see. During a page render it can be
-   * one step ahead of mobileCurrentPage, so Zoom must use it
-   * to avoid opening the previous page.
+   * Use the page the mobile reader most recently requested.
+   * This prevents Zoom opening the previous page while a new
+   * PDF page is still finishing its render.
    */
   const currentPage =
     isMobileViewer
@@ -4229,9 +4233,15 @@ async function openImageZoomViewer() {
     0;
 
   /*
-   * Show Zoom immediately while the full-resolution
-   * JPEG finishes loading.
+   * The visible Zoom image is reset first.
+   * The high-resolution JPEG then loads directly into it.
    */
+  zoomPageImage.onload =
+    null;
+
+  zoomPageImage.onerror =
+    null;
+
   zoomPageImage.removeAttribute(
     "src"
   );
@@ -4239,6 +4249,18 @@ async function openImageZoomViewer() {
   zoomPageImage.removeAttribute(
     "style"
   );
+
+  zoomPageImage.alt =
+    "";
+
+  zoomPageImage.decoding =
+    "async";
+
+  zoomPageImage.loading =
+    "eager";
+
+  zoomPageImage.fetchPriority =
+    "high";
 
   imageZoomCanvas?.removeAttribute(
     "style"
@@ -4260,118 +4282,79 @@ async function openImageZoomViewer() {
 
   initialiseNativeZoomGestures();
 
-  try {
-    if (
-      !isMobileViewer
-    ) {
-      await ensureDesktopPageLoaded(
-        currentPage
-      );
-    }
-
-    /*
-     * Preload separately so an old slow request cannot
-     * overwrite a newer Zoom request.
-     */
-    const loader =
-      new Image();
-
-    loader.decoding =
-      "async";
-
-    loader.fetchPriority =
-      "high";
-
-    await waitForReadyImage(
-      loader,
-      source
-    );
-
-    if (
-      requestId !==
-        imageZoomRequestId ||
-      !isImageZoomOpen() ||
-      imageZoomPageNumber !==
-        currentPage
-    ) {
-      return;
-    }
-
-    zoomPageImage.alt =
-      `${getPageTitle(currentPage)} — enlarged brochure page`;
-
-    zoomPageImage.decoding =
-      "async";
-
-    zoomPageImage.fetchPriority =
-      "high";
-
-    zoomPageImage.src =
-      loader.currentSrc ||
-      loader.src ||
-      source;
-
-    try {
+  /*
+   * Handlers are attached before src is assigned. This is
+   * important on phones where the image may already be cached.
+   */
+  zoomPageImage.onload =
+    async () => {
       if (
-        typeof zoomPageImage.decode ===
-        "function"
+        requestId !==
+          imageZoomRequestId ||
+        !isImageZoomOpen() ||
+        imageZoomPageNumber !==
+          currentPage
       ) {
-        await zoomPageImage.decode();
+        return;
       }
-    } catch (error) {}
 
-    if (
-      requestId !==
-        imageZoomRequestId ||
-      !isImageZoomOpen() ||
-      imageZoomPageNumber !==
-        currentPage
-    ) {
-      return;
-    }
+      zoomPageImage.alt =
+        `${getPageTitle(currentPage)} — enlarged brochure page`;
 
-    if (
-      zoomViewerStatus
-    ) {
-      zoomViewerStatus.textContent =
-        `Page ${currentPage} of ${totalPages}`;
-    }
+      if (
+        zoomViewerStatus
+      ) {
+        zoomViewerStatus.textContent =
+          `Page ${currentPage} of ${totalPages}`;
+      }
 
-    await waitForTwoFrames();
+      await waitForTwoFrames();
 
-    if (
-      requestId !==
-        imageZoomRequestId ||
-      !isImageZoomOpen() ||
-      imageZoomPageNumber !==
-        currentPage
-    ) {
-      return;
-    }
+      if (
+        requestId !==
+          imageZoomRequestId ||
+        !isImageZoomOpen() ||
+        imageZoomPageNumber !==
+          currentPage
+      ) {
+        return;
+      }
 
-    resetImageZoom();
+      resetImageZoom();
+    };
 
-  } catch (error) {
-    if (
-      requestId !==
-        imageZoomRequestId ||
-      !isImageZoomOpen()
-    ) {
-      return;
-    }
+  zoomPageImage.onerror =
+    () => {
+      if (
+        requestId !==
+          imageZoomRequestId ||
+        !isImageZoomOpen() ||
+        imageZoomPageNumber !==
+          currentPage
+      ) {
+        return;
+      }
 
-    console.error(
-      "Unable to open enlarged page:",
-      error
-    );
+      console.error(
+        `Unable to load enlarged page ${currentPage}: ${source}`
+      );
 
-    if (
-      zoomViewerStatus
-    ) {
-      zoomViewerStatus.textContent =
-        `Unable to load page ${currentPage}`;
-    }
-  }
+      zoomPageImage.alt =
+        "";
+
+      if (
+        zoomViewerStatus
+      ) {
+        zoomViewerStatus.textContent =
+          `Unable to load page ${currentPage}`;
+      }
+    };
+
+  /*
+   * Direct load into the actual visible Zoom image.
+   */
+  zoomPageImage.src =
+    source;
 }
 
 function closeImageZoomViewer() {
@@ -4383,7 +4366,7 @@ function closeImageZoomViewer() {
   }
 
   /*
-   * Invalidate any image request still finishing.
+   * Invalidates any JPEG load that might still be finishing.
    */
   imageZoomRequestId +=
     1;
@@ -4406,6 +4389,12 @@ function closeImageZoomViewer() {
   zoomBaseHeight =
     0;
 
+  zoomPageImage.onload =
+    null;
+
+  zoomPageImage.onerror =
+    null;
+
   imageZoomViewer.hidden =
     true;
 
@@ -4420,6 +4409,9 @@ function closeImageZoomViewer() {
   zoomPageImage.removeAttribute(
     "style"
   );
+
+  zoomPageImage.alt =
+    "";
 
   imageZoomCanvas?.removeAttribute(
     "style"
@@ -4878,6 +4870,10 @@ resetReadingButton?.addEventListener(
     );
   }
 );
+
+/* =========================================================
+   KEYBOARD
+   ========================================================= */
 
 document.addEventListener(
   "keydown",
