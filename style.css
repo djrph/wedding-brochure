@@ -1417,7 +1417,8 @@ a:focus-visible {
   min-height: 100%;
 }
 
-.image-zoom-canvas img {
+.image-zoom-canvas img,
+.image-zoom-canvas canvas {
   position: absolute;
 
   display: block;
@@ -1433,6 +1434,15 @@ a:focus-visible {
   -webkit-user-drag: none;
 
   pointer-events: none;
+}
+
+.image-zoom-canvas img[hidden],
+.image-zoom-canvas canvas[hidden] {
+  display: none !important;
+}
+
+.zoom-pdf-canvas {
+  background: #fff;
 }
 
 .image-zoom-scroll.is-zoomed {
