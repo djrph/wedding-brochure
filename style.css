@@ -1593,30 +1593,15 @@ body.fullscreen-mode
   .site-header {
     min-height: 48px;
 
+    justify-content: flex-start;
+
     gap: 8px;
 
     padding:
-      8px 9px 5px 12px;
+      8px 12px 5px;
   }
 
   .header-copy {
-    min-width: 0;
-  }
-
-  .site-header h1 {
-    margin: 0;
-
-    overflow: hidden;
-
-    font-size: 16px;
-    line-height: 1.2;
-
-    text-overflow: ellipsis;
-
-    white-space: nowrap;
-  }
-
-  .site-header .eyebrow {
     display: none;
   }
 
@@ -1627,7 +1612,7 @@ body.fullscreen-mode
     min-height: 34px;
 
     padding:
-      0 11px;
+      0 14px;
 
     font-size: 10px;
   }
