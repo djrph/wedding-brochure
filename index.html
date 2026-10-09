@@ -31,11 +31,11 @@
 
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" as="image" href="pages/page1.jpg?v=20261003-1" fetchpriority="high">
-  <link rel="stylesheet" href="style.css?v=20261009-2">
+  <link rel="stylesheet" href="style.css?v=20261009-3">
 
   <script defer src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-  <script defer src="script.js?v=20261009-2"></script>
+  <script defer src="script.js?v=20261009-3"></script>
 </head>
 
 <body>
@@ -441,18 +441,36 @@
             </div>
 
             <div class="package-builder-subchoice">
-              <label for="foamSticksSelect">
+              <div class="package-builder-subchoice-copy">
                 <strong>Personalised LED Foam Sticks</strong>
-                <small>Choose a quantity, or leave as none.</small>
-              </label>
+                <small>Choose your quantity and preferred colour.</small>
+              </div>
 
-              <select id="foamSticksSelect" name="foamSticks">
-                <option value="">None</option>
-                <option value="30" data-label="30 Personalised LED Foam Sticks" data-price="79">30 sticks — £79</option>
-                <option value="40" data-label="40 Personalised LED Foam Sticks" data-price="89">40 sticks — £89</option>
-                <option value="50" data-label="50 Personalised LED Foam Sticks" data-price="95">50 sticks — £95</option>
-                <option value="60" data-label="60 Personalised LED Foam Sticks" data-price="105">60 sticks — £105</option>
-              </select>
+              <div class="package-builder-subchoice-controls">
+                <label class="package-builder-select-field" for="foamSticksSelect">
+                  <span>Quantity</span>
+                  <select id="foamSticksSelect" name="foamSticks">
+                    <option value="">None</option>
+                    <option value="30" data-label="30 Personalised LED Foam Sticks" data-price="79">30 sticks — £79</option>
+                    <option value="40" data-label="40 Personalised LED Foam Sticks" data-price="89">40 sticks — £89</option>
+                    <option value="50" data-label="50 Personalised LED Foam Sticks" data-price="95">50 sticks — £95</option>
+                    <option value="60" data-label="60 Personalised LED Foam Sticks" data-price="105">60 sticks — £105</option>
+                  </select>
+                </label>
+
+                <label class="package-builder-select-field" for="foamSticksColourSelect">
+                  <span>Colour</span>
+                  <select id="foamSticksColourSelect" name="foamSticksColour" disabled>
+                    <option value="">Choose a colour</option>
+                    <option value="multicolor">Multicolor</option>
+                    <option value="red">Red</option>
+                    <option value="green">Green</option>
+                    <option value="dark-yellow-orange">Dark Yellow / Orange</option>
+                    <option value="blue">Blue</option>
+                    <option value="white">White</option>
+                  </select>
+                </label>
+              </div>
             </div>
           </section>
 
