@@ -54,6 +54,19 @@ const contentsSections = [
   { title: "Plan Your Wedding", pages: [24, 25, 26] }
 ];
 
+const pageHotspots = {
+  16: [
+    {
+      href: "https://youtube.com/shorts/O7Pyok7M7Do",
+      label: "Watch the DJ & Sax reel on YouTube",
+      left: 67.5,
+      top: 59.4,
+      width: 32.5,
+      height: 10.5
+    }
+  ]
+};
+
 const $ = (id) => document.getElementById(id);
 
 const bookElement = $("book");
@@ -177,6 +190,184 @@ function combinedPdfPath() {
 
 function getPageTitle(pageNumber) {
   return pageTitles[pageNumber] || `Page ${pageNumber}`;
+}
+
+function getPageHotspots(
+  pageNumber
+) {
+  return pageHotspots[
+    pageNumber
+  ] || [];
+}
+
+function createPageHotspot(
+  pageNumber,
+  hotspot
+) {
+  const link =
+    document.createElement(
+      "a"
+    );
+
+  link.className =
+    "page-hotspot";
+
+  link.href =
+    hotspot.href;
+
+  link.target =
+    "_blank";
+
+  link.rel =
+    "noopener noreferrer";
+
+  link.setAttribute(
+    "aria-label",
+    hotspot.label
+  );
+
+  link.title =
+    hotspot.label;
+
+  link.style.setProperty(
+    "--hotspot-left",
+    `${hotspot.left}%`
+  );
+
+  link.style.setProperty(
+    "--hotspot-top",
+    `${hotspot.top}%`
+  );
+
+  link.style.setProperty(
+    "--hotspot-width",
+    `${hotspot.width}%`
+  );
+
+  link.style.setProperty(
+    "--hotspot-height",
+    `${hotspot.height}%`
+  );
+
+  const stopGesture =
+    (event) => {
+      event.stopPropagation();
+    };
+
+  link.addEventListener(
+    "pointerdown",
+    stopGesture
+  );
+
+  link.addEventListener(
+    "touchstart",
+    stopGesture,
+    {
+      passive: true
+    }
+  );
+
+  link.addEventListener(
+    "click",
+    stopGesture
+  );
+
+  link.addEventListener(
+    "dragstart",
+    (event) => {
+      event.preventDefault();
+    }
+  );
+
+  return link;
+}
+
+function appendPageHotspots(
+  container,
+  pageNumber
+) {
+  if (!container) {
+    return;
+  }
+
+  getPageHotspots(
+    pageNumber
+  ).forEach(
+    (hotspot) => {
+      container.appendChild(
+        createPageHotspot(
+          pageNumber,
+          hotspot
+        )
+      );
+    }
+  );
+}
+
+function createMobilePageSurface(
+  pageNumber,
+  node
+) {
+  if (
+    !node ||
+    getPageHotspots(
+      pageNumber
+    ).length === 0
+  ) {
+    return node;
+  }
+
+  const surface =
+    document.createElement(
+      "div"
+    );
+
+  surface.className =
+    "mobile-page-surface";
+
+  if (
+    node.style?.width
+  ) {
+    surface.style.width =
+      node.style.width;
+  }
+
+  if (
+    node.style?.height
+  ) {
+    surface.style.height =
+      node.style.height;
+  }
+
+  surface.appendChild(
+    node
+  );
+
+  appendPageHotspots(
+    surface,
+    pageNumber
+  );
+
+  return surface;
+}
+
+function mountMobilePageNode(
+  pageNumber,
+  node
+) {
+  if (
+    !mobilePageHost ||
+    !node
+  ) {
+    return;
+  }
+
+  mobilePageHost.replaceChildren(
+    createMobilePageSurface(
+      pageNumber,
+      node
+    )
+  );
 }
 
 function getCurrentPageNumber() {
@@ -1340,6 +1531,11 @@ function createDesktopPages() {
       image
     );
 
+    appendPageHotspots(
+      page,
+      pageNumber
+    );
+
     bookElement.appendChild(
       page
     );
@@ -2238,7 +2434,8 @@ async function navigateMobileThumbnailPage(
         );
 
   if (cached) {
-    mobilePageHost.replaceChildren(
+    mountMobilePageNode(
+      safePage,
       cached
     );
 
@@ -2329,7 +2526,8 @@ async function navigateMobileThumbnailPage(
     return false;
   }
 
-  mobilePageHost.replaceChildren(
+  mountMobilePageNode(
+    safePage,
     preparedNode
   );
 
@@ -3016,7 +3214,8 @@ async function commitMobilePageRequest(
     return false;
   }
 
-  mobilePageHost.replaceChildren(
+  mountMobilePageNode(
+    safePage,
     preparedNode
   );
 
@@ -3173,7 +3372,8 @@ function queueMobileRelativeNavigation(
         );
 
   if (cached) {
-    mobilePageHost.replaceChildren(
+    mountMobilePageNode(
+      targetPage,
       cached
     );
 
