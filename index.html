@@ -31,11 +31,11 @@
 
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" as="image" href="pages/page1.jpg?v=20261003-1" fetchpriority="high">
-  <link rel="stylesheet" href="style.css?v=20261009-1">
+  <link rel="stylesheet" href="style.css?v=20261009-2">
 
   <script defer src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-  <script defer src="script.js?v=20261009-1"></script>
+  <script defer src="script.js?v=20261009-2"></script>
 </head>
 
 <body>
@@ -295,6 +295,270 @@
           Copy this brochure page
         </button>
       </div>
+    </section>
+  </div>
+
+  <div id="packageBuilder" class="package-builder" hidden>
+    <div class="package-builder-backdrop" data-package-close aria-hidden="true"></div>
+
+    <section
+      class="package-builder-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="packageBuilderTitle"
+      aria-describedby="packageBuilderIntro"
+    >
+      <header class="package-builder-header">
+        <div>
+          <p class="eyebrow">CREATE YOUR WEDDING PACKAGE</p>
+          <h2 id="packageBuilderTitle">Build your perfect celebration</h2>
+          <p id="packageBuilderIntro">
+            Choose a main wedding package, add any extras you love, and see your package build instantly.
+          </p>
+        </div>
+
+        <button
+          id="closePackageBuilder"
+          class="package-builder-close"
+          type="button"
+          aria-label="Close package creator"
+        >
+          ×
+        </button>
+      </header>
+
+      <form id="packageBuilderForm" class="package-builder-layout">
+        <div class="package-builder-choices">
+          <section class="package-builder-section" aria-labelledby="mainPackageHeading">
+            <div class="package-builder-section-heading">
+              <span class="package-builder-step">1</span>
+              <div>
+                <h3 id="mainPackageHeading">Choose your main package</h3>
+                <p>Select one package to start building your celebration.</p>
+              </div>
+            </div>
+
+            <div class="package-choice-grid package-choice-grid-main">
+              <label class="package-choice-card">
+                <input
+                  type="radio"
+                  name="mainPackage"
+                  value="evening"
+                  data-label="Evening Wedding Package"
+                  data-price="475"
+                >
+                <span class="package-choice-card-body">
+                  <strong>Evening Wedding</strong>
+                  <small>7pm–midnight</small>
+                  <span class="package-choice-price">£475</span>
+                </span>
+              </label>
+
+              <label class="package-choice-card">
+                <input
+                  type="radio"
+                  name="mainPackage"
+                  value="all-day"
+                  data-label="All Day Wedding Package"
+                  data-price="649"
+                >
+                <span class="package-choice-card-body">
+                  <strong>All Day Wedding</strong>
+                  <small>Entertainment throughout your day</small>
+                  <span class="package-choice-price">£649</span>
+                </span>
+              </label>
+
+              <label class="package-choice-card">
+                <input
+                  type="radio"
+                  name="mainPackage"
+                  value="ceremony"
+                  data-label="Wedding Ceremony Package"
+                  data-price="695"
+                >
+                <span class="package-choice-card-body">
+                  <strong>Wedding Ceremony</strong>
+                  <small>Ceremony music package</small>
+                  <span class="package-choice-price">£695</span>
+                </span>
+              </label>
+            </div>
+          </section>
+
+          <section class="package-builder-section" aria-labelledby="extrasHeading">
+            <div class="package-builder-section-heading">
+              <span class="package-builder-step">2</span>
+              <div>
+                <h3 id="extrasHeading">Add your extras</h3>
+                <p>Pick as many as you like. You can change them at any time.</p>
+              </div>
+            </div>
+
+            <div class="package-choice-grid">
+              <label class="package-choice-card package-choice-card-extra">
+                <input
+                  type="checkbox"
+                  name="extras"
+                  value="rustic-booth"
+                  data-label="Rustic DJ Booth"
+                  data-price="95"
+                >
+                <span class="package-choice-card-body">
+                  <strong>Rustic DJ Booth</strong>
+                  <span class="package-choice-price">+ £95</span>
+                </span>
+              </label>
+
+              <label class="package-choice-card package-choice-card-extra">
+                <input
+                  type="checkbox"
+                  name="extras"
+                  value="uplighting"
+                  data-label="Mood Uplighting"
+                  data-price="79"
+                >
+                <span class="package-choice-card-body">
+                  <strong>Mood Uplighting</strong>
+                  <small>10 uplights</small>
+                  <span class="package-choice-price">+ £79</span>
+                </span>
+              </label>
+
+              <label class="package-choice-card package-choice-card-extra">
+                <input
+                  type="checkbox"
+                  name="extras"
+                  value="karaoke"
+                  data-label="Wedding Karaoke"
+                  data-price="150"
+                >
+                <span class="package-choice-card-body">
+                  <strong>Wedding Karaoke</strong>
+                  <span class="package-choice-price">+ £150</span>
+                </span>
+              </label>
+            </div>
+
+            <div class="package-builder-subchoice">
+              <label for="foamSticksSelect">
+                <strong>Personalised LED Foam Sticks</strong>
+                <small>Choose a quantity, or leave as none.</small>
+              </label>
+
+              <select id="foamSticksSelect" name="foamSticks">
+                <option value="">None</option>
+                <option value="30" data-label="30 Personalised LED Foam Sticks" data-price="79">30 sticks — £79</option>
+                <option value="40" data-label="40 Personalised LED Foam Sticks" data-price="89">40 sticks — £89</option>
+                <option value="50" data-label="50 Personalised LED Foam Sticks" data-price="95">50 sticks — £95</option>
+                <option value="60" data-label="60 Personalised LED Foam Sticks" data-price="105">60 sticks — £105</option>
+              </select>
+            </div>
+          </section>
+
+          <section class="package-builder-section" aria-labelledby="premiumHeading">
+            <div class="package-builder-section-heading">
+              <span class="package-builder-step">3</span>
+              <div>
+                <h3 id="premiumHeading">Add something extra special</h3>
+                <p>These options are priced individually, so I’ll confirm them with your enquiry.</p>
+              </div>
+            </div>
+
+            <div class="package-choice-grid">
+              <label class="package-choice-card package-choice-card-extra">
+                <input
+                  type="checkbox"
+                  name="poaExtras"
+                  value="dj-sax"
+                  data-label="DJ & Sax"
+                  data-poa="true"
+                >
+                <span class="package-choice-card-body">
+                  <strong>DJ &amp; Sax</strong>
+                  <span class="package-choice-price">Price on request</span>
+                </span>
+              </label>
+
+              <label class="package-choice-card package-choice-card-extra">
+                <input
+                  type="checkbox"
+                  name="poaExtras"
+                  value="silent-disco"
+                  data-label="Silent Disco"
+                  data-poa="true"
+                >
+                <span class="package-choice-card-body">
+                  <strong>Silent Disco</strong>
+                  <span class="package-choice-price">Price on request</span>
+                </span>
+              </label>
+
+              <label class="package-choice-card package-choice-card-extra">
+                <input
+                  type="checkbox"
+                  name="poaExtras"
+                  value="cold-sparks"
+                  data-label="Cold Spark Experience"
+                  data-poa="true"
+                >
+                <span class="package-choice-card-body">
+                  <strong>Cold Spark Experience</strong>
+                  <span class="package-choice-price">Price on request</span>
+                </span>
+              </label>
+            </div>
+          </section>
+        </div>
+
+        <aside class="package-summary" aria-labelledby="packageSummaryTitle">
+          <div class="package-summary-inner">
+            <p class="eyebrow">YOUR PACKAGE</p>
+            <h3 id="packageSummaryTitle">Your wedding entertainment</h3>
+
+            <div id="packageSummaryEmpty" class="package-summary-empty">
+              Start by choosing your main package.
+            </div>
+
+            <ul id="packageSummaryItems" class="package-summary-items"></ul>
+
+            <div class="package-summary-total">
+              <span>Current total</span>
+              <strong id="packageSummaryTotal">£0</strong>
+            </div>
+
+            <p id="packageSummaryPoa" class="package-summary-poa" hidden>
+              Plus selected items priced on request.
+            </p>
+
+            <p class="package-summary-note">
+              This package creator is a planning guide. Availability and final pricing will be confirmed with your enquiry.
+            </p>
+
+            <div class="package-summary-actions">
+              <button id="copyPackageButton" type="button" class="package-action-primary">
+                Copy my package
+              </button>
+
+              <a
+                id="packageEnquireButton"
+                class="package-action-secondary"
+                href="https://www.keswickdiscos.co.uk/wedding-dj-entertainment"
+                target="_blank"
+                rel="noopener"
+              >
+                Check your date
+              </a>
+
+              <button id="resetPackageButton" type="button" class="package-action-reset">
+                Reset choices
+              </button>
+            </div>
+
+            <div id="packageCopyStatus" class="package-copy-status" aria-live="polite"></div>
+          </div>
+        </aside>
+      </form>
     </section>
   </div>
 
