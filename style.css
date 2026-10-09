@@ -1677,24 +1677,22 @@ body.package-builder-open {
     rgba(255,255,255,.03);
 }
 
-.package-builder-subchoice label {
-  display: block;
-
+.package-builder-subchoice-copy {
   min-width: 0;
 }
 
-.package-builder-subchoice label strong,
-.package-builder-subchoice label small {
+.package-builder-subchoice-copy strong,
+.package-builder-subchoice-copy small {
   display: block;
 }
 
-.package-builder-subchoice label strong {
+.package-builder-subchoice-copy strong {
   color: #fff;
 
   font-size: 13px;
 }
 
-.package-builder-subchoice label small {
+.package-builder-subchoice-copy small {
   margin-top: 4px;
 
   color: #999;
@@ -1702,10 +1700,49 @@ body.package-builder-open {
   font-size: 10px;
 }
 
-.package-builder-subchoice select {
-  flex:
-    0 0 auto;
+.package-builder-subchoice-controls {
+  display: grid;
 
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(
+        150px,
+        1fr
+      )
+    );
+
+  gap: 9px;
+
+  width:
+    min(
+      390px,
+      58%
+    );
+}
+
+.package-builder-select-field {
+  display: grid;
+
+  gap: 5px;
+
+  min-width: 0;
+}
+
+.package-builder-select-field > span {
+  padding-left: 4px;
+
+  color: #aaa;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.package-builder-subchoice select {
+  width: 100%;
   min-height: 42px;
 
   padding:
@@ -1722,6 +1759,11 @@ body.package-builder-open {
 
   font: inherit;
   font-size: 12px;
+}
+
+.package-builder-subchoice select:disabled {
+  opacity: .46;
+  cursor: not-allowed;
 }
 
 .package-summary {
@@ -2026,6 +2068,13 @@ body.package-builder-open {
     flex-direction: column;
 
     gap: 11px;
+  }
+
+  .package-builder-subchoice-controls {
+    grid-template-columns:
+      1fr;
+
+    width: 100%;
   }
 
   .package-builder-subchoice select {
