@@ -64,6 +64,17 @@ const pageHotspots = {
       width: 32.5,
       height: 10.5
     }
+  ],
+
+  25: [
+    {
+      action: "package-builder",
+      label: "Open the wedding package creator",
+      left: 34.5,
+      top: 35.5,
+      width: 31,
+      height: 21.5
+    }
   ]
 };
 
@@ -118,6 +129,18 @@ const zoomInButton = $("zoomInButton");
 const zoomOutButton = $("zoomOutButton");
 const zoomViewerStatus = $("zoomViewerStatus");
 const zoomButton = $("zoomButton");
+
+const packageBuilder = $("packageBuilder");
+const packageBuilderForm = $("packageBuilderForm");
+const closePackageBuilderButton = $("closePackageBuilder");
+const packageSummaryEmpty = $("packageSummaryEmpty");
+const packageSummaryItems = $("packageSummaryItems");
+const packageSummaryTotal = $("packageSummaryTotal");
+const packageSummaryPoa = $("packageSummaryPoa");
+const copyPackageButton = $("copyPackageButton");
+const resetPackageButton = $("resetPackageButton");
+const packageCopyStatus = $("packageCopyStatus");
+const foamSticksSelect = $("foamSticksSelect");
 
 let pageFlip = null;
 let navigationLocked = false;
@@ -204,47 +227,60 @@ function createPageHotspot(
   pageNumber,
   hotspot
 ) {
-  const link =
-    document.createElement(
-      "a"
+  const isAction =
+    Boolean(
+      hotspot.action
     );
 
-  link.className =
+  const control =
+    document.createElement(
+      isAction
+        ? "button"
+        : "a"
+    );
+
+  control.className =
     "page-hotspot";
 
-  link.href =
-    hotspot.href;
+  if (isAction) {
+    control.type =
+      "button";
 
-  link.target =
-    "_blank";
+  } else {
+    control.href =
+      hotspot.href;
 
-  link.rel =
-    "noopener noreferrer";
+    control.target =
+      "_blank";
 
-  link.setAttribute(
+    control.rel =
+      "noopener noreferrer";
+  }
+
+  control.setAttribute(
     "aria-label",
     hotspot.label
   );
 
-  link.title =
+  control.title =
     hotspot.label;
 
-  link.style.setProperty(
+  control.style.setProperty(
     "--hotspot-left",
     `${hotspot.left}%`
   );
 
-  link.style.setProperty(
+  control.style.setProperty(
     "--hotspot-top",
     `${hotspot.top}%`
   );
 
-  link.style.setProperty(
+  control.style.setProperty(
     "--hotspot-width",
     `${hotspot.width}%`
   );
 
-  link.style.setProperty(
+  control.style.setProperty(
     "--hotspot-height",
     `${hotspot.height}%`
   );
@@ -254,12 +290,12 @@ function createPageHotspot(
       event.stopPropagation();
     };
 
-  link.addEventListener(
+  control.addEventListener(
     "pointerdown",
     stopGesture
   );
 
-  link.addEventListener(
+  control.addEventListener(
     "touchstart",
     stopGesture,
     {
@@ -267,19 +303,30 @@ function createPageHotspot(
     }
   );
 
-  link.addEventListener(
-    "click",
-    stopGesture
-  );
-
-  link.addEventListener(
+  control.addEventListener(
     "dragstart",
     (event) => {
       event.preventDefault();
     }
   );
 
-  return link;
+  control.addEventListener(
+    "click",
+    (event) => {
+      event.stopPropagation();
+
+      if (
+        hotspot.action ===
+        "package-builder"
+      ) {
+        event.preventDefault();
+
+        openPackageBuilder();
+      }
+    }
+  );
+
+  return control;
 }
 
 function appendPageHotspots(
@@ -1402,6 +1449,587 @@ function buildContents() {
   );
 }
 
+
+
+/* =========================================================
+   WEDDING PACKAGE CREATOR
+   ========================================================= */
+
+const PACKAGE_BUILDER_STORAGE_KEY =
+  "keswickDiscosWeddingPackage";
+
+let packageBuilderReturnFocus =
+  null;
+
+function formatPackagePrice(
+  price
+) {
+  return `£${Number(price).toLocaleString("en-GB")}`;
+}
+
+function getSelectedPackageItems() {
+  if (!packageBuilderForm) {
+    return {
+      items: [],
+      total: 0,
+      hasPoa: false
+    };
+  }
+
+  const items = [];
+  let total = 0;
+  let hasPoa = false;
+
+  const main =
+    packageBuilderForm.querySelector(
+      'input[name="mainPackage"]:checked'
+    );
+
+  if (main) {
+    const price =
+      Number(
+        main.dataset.price ||
+        0
+      );
+
+    items.push({
+      label:
+        main.dataset.label ||
+        main.value,
+      price,
+      poa: false
+    });
+
+    total +=
+      price;
+  }
+
+  packageBuilderForm
+    .querySelectorAll(
+      'input[name="extras"]:checked'
+    )
+    .forEach(
+      (input) => {
+        const price =
+          Number(
+            input.dataset.price ||
+            0
+          );
+
+        items.push({
+          label:
+            input.dataset.label ||
+            input.value,
+          price,
+          poa: false
+        });
+
+        total +=
+          price;
+      }
+    );
+
+  if (
+    foamSticksSelect &&
+    foamSticksSelect.value
+  ) {
+    const option =
+      foamSticksSelect.options[
+        foamSticksSelect.selectedIndex
+      ];
+
+    const price =
+      Number(
+        option.dataset.price ||
+        0
+      );
+
+    items.push({
+      label:
+        option.dataset.label ||
+        option.textContent.trim(),
+      price,
+      poa: false
+    });
+
+    total +=
+      price;
+  }
+
+  packageBuilderForm
+    .querySelectorAll(
+      'input[name="poaExtras"]:checked'
+    )
+    .forEach(
+      (input) => {
+        items.push({
+          label:
+            input.dataset.label ||
+            input.value,
+          price: null,
+          poa: true
+        });
+
+        hasPoa =
+          true;
+      }
+    );
+
+  return {
+    items,
+    total,
+    hasPoa
+  };
+}
+
+function buildPackageCopyText() {
+  const selection =
+    getSelectedPackageItems();
+
+  const lines = [
+    "Keswick Discos — Wedding Package",
+    ""
+  ];
+
+  if (
+    selection.items.length ===
+    0
+  ) {
+    lines.push(
+      "No package options selected yet."
+    );
+
+  } else {
+    selection.items.forEach(
+      (item) => {
+        lines.push(
+          item.poa
+            ? `• ${item.label} — Price on request`
+            : `• ${item.label} — ${formatPackagePrice(item.price)}`
+        );
+      }
+    );
+  }
+
+  lines.push(
+    "",
+    `Current fixed-price total: ${formatPackagePrice(selection.total)}`
+  );
+
+  if (selection.hasPoa) {
+    lines.push(
+      "Plus selected items priced on request."
+    );
+  }
+
+  lines.push(
+    "",
+    "Please confirm availability and final pricing for my wedding date."
+  );
+
+  return lines.join(
+    "\n"
+  );
+}
+
+function savePackageBuilderState() {
+  if (!packageBuilderForm) {
+    return;
+  }
+
+  try {
+    const main =
+      packageBuilderForm.querySelector(
+        'input[name="mainPackage"]:checked'
+      );
+
+    const extras =
+      [...packageBuilderForm.querySelectorAll(
+        'input[name="extras"]:checked'
+      )].map(
+        (input) => input.value
+      );
+
+    const poaExtras =
+      [...packageBuilderForm.querySelectorAll(
+        'input[name="poaExtras"]:checked'
+      )].map(
+        (input) => input.value
+      );
+
+    window.sessionStorage.setItem(
+      PACKAGE_BUILDER_STORAGE_KEY,
+      JSON.stringify({
+        main:
+          main?.value ||
+          "",
+        extras,
+        poaExtras,
+        foamSticks:
+          foamSticksSelect?.value ||
+          ""
+      })
+    );
+
+  } catch (error) {
+    console.warn(
+      "Unable to save package creator choices:",
+      error
+    );
+  }
+}
+
+function restorePackageBuilderState() {
+  if (!packageBuilderForm) {
+    return;
+  }
+
+  try {
+    const raw =
+      window.sessionStorage.getItem(
+        PACKAGE_BUILDER_STORAGE_KEY
+      );
+
+    if (!raw) {
+      return;
+    }
+
+    const saved =
+      JSON.parse(
+        raw
+      );
+
+    if (saved.main) {
+      const main =
+        packageBuilderForm.querySelector(
+          `input[name="mainPackage"][value="${saved.main}"]`
+        );
+
+      if (main) {
+        main.checked =
+          true;
+      }
+    }
+
+    const extras =
+      new Set(
+        Array.isArray(saved.extras)
+          ? saved.extras
+          : []
+      );
+
+    packageBuilderForm
+      .querySelectorAll(
+        'input[name="extras"]'
+      )
+      .forEach(
+        (input) => {
+          input.checked =
+            extras.has(
+              input.value
+            );
+        }
+      );
+
+    const poaExtras =
+      new Set(
+        Array.isArray(saved.poaExtras)
+          ? saved.poaExtras
+          : []
+      );
+
+    packageBuilderForm
+      .querySelectorAll(
+        'input[name="poaExtras"]'
+      )
+      .forEach(
+        (input) => {
+          input.checked =
+            poaExtras.has(
+              input.value
+            );
+        }
+      );
+
+    if (
+      foamSticksSelect &&
+      typeof saved.foamSticks ===
+        "string"
+    ) {
+      foamSticksSelect.value =
+        saved.foamSticks;
+    }
+
+  } catch (error) {
+    console.warn(
+      "Unable to restore package creator choices:",
+      error
+    );
+  }
+}
+
+function updatePackageBuilderSummary() {
+  if (
+    !packageSummaryItems ||
+    !packageSummaryTotal
+  ) {
+    return;
+  }
+
+  const selection =
+    getSelectedPackageItems();
+
+  packageSummaryItems.innerHTML =
+    "";
+
+  selection.items.forEach(
+    (item) => {
+      const row =
+        document.createElement(
+          "li"
+        );
+
+      const label =
+        document.createElement(
+          "span"
+        );
+
+      const price =
+        document.createElement(
+          "strong"
+        );
+
+      label.textContent =
+        item.label;
+
+      price.textContent =
+        item.poa
+          ? "POA"
+          : formatPackagePrice(
+              item.price
+            );
+
+      row.append(
+        label,
+        price
+      );
+
+      packageSummaryItems.appendChild(
+        row
+      );
+    }
+  );
+
+  if (packageSummaryEmpty) {
+    packageSummaryEmpty.hidden =
+      selection.items.length >
+      0;
+  }
+
+  packageSummaryTotal.textContent =
+    formatPackagePrice(
+      selection.total
+    );
+
+  if (packageSummaryPoa) {
+    packageSummaryPoa.hidden =
+      !selection.hasPoa;
+  }
+
+  savePackageBuilderState();
+}
+
+function openPackageBuilder() {
+  if (!packageBuilder) {
+    return;
+  }
+
+  packageBuilderReturnFocus =
+    document.activeElement;
+
+  closeAllPanels();
+  closeMobileThumbnailTray();
+
+  restorePackageBuilderState();
+  updatePackageBuilderSummary();
+
+  packageBuilder.hidden =
+    false;
+
+  document.body.classList.add(
+    "package-builder-open"
+  );
+
+  window.requestAnimationFrame(
+    () => {
+      closePackageBuilderButton?.focus();
+    }
+  );
+}
+
+function closePackageBuilder() {
+  if (!packageBuilder) {
+    return;
+  }
+
+  packageBuilder.hidden =
+    true;
+
+  document.body.classList.remove(
+    "package-builder-open"
+  );
+
+  if (
+    packageBuilderReturnFocus &&
+    typeof packageBuilderReturnFocus.focus ===
+      "function"
+  ) {
+    packageBuilderReturnFocus.focus();
+  }
+
+  packageBuilderReturnFocus =
+    null;
+}
+
+function resetPackageBuilder() {
+  if (!packageBuilderForm) {
+    return;
+  }
+
+  packageBuilderForm.reset();
+
+  try {
+    window.sessionStorage.removeItem(
+      PACKAGE_BUILDER_STORAGE_KEY
+    );
+  } catch (error) {}
+
+  if (packageCopyStatus) {
+    packageCopyStatus.textContent =
+      "Choices reset.";
+  }
+
+  updatePackageBuilderSummary();
+}
+
+async function copyPackageBuilderSummary() {
+  const text =
+    buildPackageCopyText();
+
+  let copied =
+    false;
+
+  try {
+    if (
+      navigator.clipboard &&
+      window.isSecureContext
+    ) {
+      await navigator.clipboard.writeText(
+        text
+      );
+
+      copied =
+        true;
+    }
+  } catch (error) {}
+
+  if (!copied) {
+    const textarea =
+      document.createElement(
+        "textarea"
+      );
+
+    textarea.value =
+      text;
+
+    textarea.setAttribute(
+      "readonly",
+      ""
+    );
+
+    textarea.style.position =
+      "fixed";
+
+    textarea.style.opacity =
+      "0";
+
+    document.body.appendChild(
+      textarea
+    );
+
+    textarea.select();
+
+    try {
+      copied =
+        document.execCommand(
+          "copy"
+        );
+    } catch (error) {}
+
+    textarea.remove();
+  }
+
+  if (packageCopyStatus) {
+    packageCopyStatus.textContent =
+      copied
+        ? "Package copied — ready to paste into your enquiry."
+        : "Unable to copy automatically. Please try again.";
+  }
+}
+
+function initialisePackageBuilder() {
+  if (
+    !packageBuilder ||
+    !packageBuilderForm
+  ) {
+    return;
+  }
+
+  restorePackageBuilderState();
+  updatePackageBuilderSummary();
+
+  packageBuilderForm.addEventListener(
+    "change",
+    () => {
+      if (packageCopyStatus) {
+        packageCopyStatus.textContent =
+          "";
+      }
+
+      updatePackageBuilderSummary();
+    }
+  );
+
+  closePackageBuilderButton?.addEventListener(
+    "click",
+    closePackageBuilder
+  );
+
+  packageBuilder
+    .querySelectorAll(
+      "[data-package-close]"
+    )
+    .forEach(
+      (element) => {
+        element.addEventListener(
+          "click",
+          closePackageBuilder
+        );
+      }
+    );
+
+  resetPackageButton?.addEventListener(
+    "click",
+    resetPackageBuilder
+  );
+
+  copyPackageButton?.addEventListener(
+    "click",
+    () => {
+      void copyPackageBuilderSummary();
+    }
+  );
+}
 
 /* =========================================================
    SOUND
@@ -5574,6 +6202,20 @@ document.addEventListener(
   "keydown",
   async (event) => {
     if (
+      packageBuilder &&
+      !packageBuilder.hidden
+    ) {
+      if (
+        event.key ===
+        "Escape"
+      ) {
+        closePackageBuilder();
+      }
+
+      return;
+    }
+
+    if (
       event.key ===
         "Escape" &&
       isImageZoomOpen()
@@ -5757,6 +6399,8 @@ async function startBrochure() {
       getStartingPage();
 
     buildContents();
+
+    initialisePackageBuilder();
 
     if (
       isMobileViewer
