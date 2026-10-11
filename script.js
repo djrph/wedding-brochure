@@ -141,7 +141,7 @@ const copyPackageButton = $("copyPackageButton");
 const resetPackageButton = $("resetPackageButton");
 const packageCopyStatus = $("packageCopyStatus");
 const foamSticksSelect = $("foamSticksSelect");
-const foamSticksColourSelect = $("foamSticksColourSelect");
+const foamSticksColourInputs = [...document.querySelectorAll('input[name="foamSticksColour"]')];
 
 let pageFlip = null;
 let navigationLocked = false;
@@ -1468,39 +1468,19 @@ function formatPackagePrice(
   return `£${Number(price).toLocaleString("en-GB")}`;
 }
 
-function syncFoamSticksColourState() {
-  if (
-    !foamSticksSelect ||
-    !foamSticksColourSelect
-  ) {
-    return;
-  }
-
-  const hasQuantity =
-    Boolean(
-      foamSticksSelect.value
-    );
-
-  foamSticksColourSelect.disabled =
-    !hasQuantity;
-
-  if (!hasQuantity) {
-    foamSticksColourSelect.value =
-      "";
-  }
+function getSelectedFoamSticksColourInput() {
+  return packageBuilderForm?.querySelector(
+    'input[name="foamSticksColour"]:checked'
+  ) || null;
 }
 
 function getFoamSticksColourLabel() {
-  if (
-    !foamSticksColourSelect ||
-    !foamSticksColourSelect.value
-  ) {
-    return "";
-  }
+  const selected =
+    getSelectedFoamSticksColourInput();
 
-  return foamSticksColourSelect.options[
-    foamSticksColourSelect.selectedIndex
-  ]?.textContent?.trim() || "";
+  return selected?.dataset.label ||
+    selected?.value ||
+    "";
 }
 
 function getSelectedPackageItems() {
@@ -1713,7 +1693,7 @@ function savePackageBuilderState() {
           foamSticksSelect?.value ||
           "",
         foamSticksColour:
-          foamSticksColourSelect?.value ||
+          getSelectedFoamSticksColourInput()?.value ||
           ""
       })
     );
@@ -1807,16 +1787,19 @@ function restorePackageBuilderState() {
         saved.foamSticks;
     }
 
-    syncFoamSticksColourState();
-
     if (
-      foamSticksColourSelect &&
       typeof saved.foamSticksColour ===
-        "string" &&
-      !foamSticksColourSelect.disabled
+        "string"
     ) {
-      foamSticksColourSelect.value =
-        saved.foamSticksColour;
+      const savedColour =
+        packageBuilderForm.querySelector(
+          `input[name="foamSticksColour"][value="${saved.foamSticksColour}"]`
+        );
+
+      if (savedColour) {
+        savedColour.checked =
+          true;
+      }
     }
 
   } catch (error) {
@@ -1968,7 +1951,6 @@ function resetPackageBuilder() {
       "Choices reset.";
   }
 
-  syncFoamSticksColourState();
   updatePackageBuilderSummary();
 }
 
@@ -2046,7 +2028,6 @@ function initialisePackageBuilder() {
   }
 
   restorePackageBuilderState();
-  syncFoamSticksColourState();
   updatePackageBuilderSummary();
 
   packageBuilderForm.addEventListener(
@@ -2057,7 +2038,6 @@ function initialisePackageBuilder() {
           "";
       }
 
-      syncFoamSticksColourState();
       updatePackageBuilderSummary();
     }
   );
