@@ -31,11 +31,11 @@
 
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" as="image" href="pages/page1.jpg?v=20261003-1" fetchpriority="high">
-  <link rel="stylesheet" href="style.css?v=20261009-3">
+  <link rel="stylesheet" href="style.css?v=20261009-4">
 
   <script defer src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-  <script defer src="script.js?v=20261009-3"></script>
+  <script defer src="script.js?v=20261009-4"></script>
 </head>
 
 <body>
@@ -446,7 +446,7 @@
                 <small>Choose your quantity and preferred colour.</small>
               </div>
 
-              <div class="package-builder-subchoice-controls">
+              <div class="package-builder-subchoice-controls package-builder-foam-controls">
                 <label class="package-builder-select-field" for="foamSticksSelect">
                   <span>Quantity</span>
                   <select id="foamSticksSelect" name="foamSticks">
@@ -458,18 +458,59 @@
                   </select>
                 </label>
 
-                <label class="package-builder-select-field" for="foamSticksColourSelect">
-                  <span>Colour</span>
-                  <select id="foamSticksColourSelect" name="foamSticksColour" disabled>
-                    <option value="">Choose a colour</option>
-                    <option value="multicolor">Multicolor</option>
-                    <option value="red">Red</option>
-                    <option value="green">Green</option>
-                    <option value="dark-yellow-orange">Dark Yellow / Orange</option>
-                    <option value="blue">Blue</option>
-                    <option value="white">White</option>
-                  </select>
-                </label>
+                <fieldset class="foam-colour-fieldset">
+                  <legend>Colour</legend>
+
+                  <div class="foam-colour-grid">
+                    <label class="foam-colour-choice foam-colour-multicolor">
+                      <input type="radio" name="foamSticksColour" value="multicolor" data-label="Multicolor">
+                      <span class="foam-colour-choice-body">
+                        <span class="foam-colour-swatch" aria-hidden="true"></span>
+                        <strong>Multicolor</strong>
+                      </span>
+                    </label>
+
+                    <label class="foam-colour-choice foam-colour-red">
+                      <input type="radio" name="foamSticksColour" value="red" data-label="Red">
+                      <span class="foam-colour-choice-body">
+                        <span class="foam-colour-swatch" aria-hidden="true"></span>
+                        <strong>Red</strong>
+                      </span>
+                    </label>
+
+                    <label class="foam-colour-choice foam-colour-green">
+                      <input type="radio" name="foamSticksColour" value="green" data-label="Green">
+                      <span class="foam-colour-choice-body">
+                        <span class="foam-colour-swatch" aria-hidden="true"></span>
+                        <strong>Green</strong>
+                      </span>
+                    </label>
+
+                    <label class="foam-colour-choice foam-colour-orange">
+                      <input type="radio" name="foamSticksColour" value="dark-yellow-orange" data-label="Dark Yellow / Orange">
+                      <span class="foam-colour-choice-body">
+                        <span class="foam-colour-swatch" aria-hidden="true"></span>
+                        <strong>Dark Yellow / Orange</strong>
+                      </span>
+                    </label>
+
+                    <label class="foam-colour-choice foam-colour-blue">
+                      <input type="radio" name="foamSticksColour" value="blue" data-label="Blue">
+                      <span class="foam-colour-choice-body">
+                        <span class="foam-colour-swatch" aria-hidden="true"></span>
+                        <strong>Blue</strong>
+                      </span>
+                    </label>
+
+                    <label class="foam-colour-choice foam-colour-white">
+                      <input type="radio" name="foamSticksColour" value="white" data-label="White">
+                      <span class="foam-colour-choice-body">
+                        <span class="foam-colour-swatch" aria-hidden="true"></span>
+                        <strong>White</strong>
+                      </span>
+                    </label>
+                  </div>
+                </fieldset>
               </div>
             </div>
           </section>
