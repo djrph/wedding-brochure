@@ -31,11 +31,11 @@
 
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" as="image" href="pages/page1.jpg?v=20261003-1" fetchpriority="high">
-  <link rel="stylesheet" href="style.css?v=20261009-4">
+  <link rel="stylesheet" href="style.css?v=20261013-1">
 
   <script defer src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-  <script defer src="script.js?v=20261009-4"></script>
+  <script defer src="script.js?v=20261013-2"></script>
 </head>
 
 <body>
@@ -329,9 +329,59 @@
 
       <form id="packageBuilderForm" class="package-builder-layout">
         <div class="package-builder-choices">
-          <section class="package-builder-section" aria-labelledby="mainPackageHeading">
+          <section class="package-builder-section" aria-labelledby="weddingDayHeading">
             <div class="package-builder-section-heading">
               <span class="package-builder-step">1</span>
+              <div>
+                <h3 id="weddingDayHeading">When is your wedding?</h3>
+                <p>Choose the day range for your Evening Wedding price.</p>
+              </div>
+            </div>
+
+            <div class="package-choice-grid package-day-grid">
+              <label class="package-choice-card package-choice-card-extra">
+                <input
+                  type="radio"
+                  name="weddingDayBand"
+                  value="midweek"
+                  data-label="Monday–Wednesday"
+                  data-evening-price="425"
+                >
+                <span class="package-choice-card-body">
+                  <strong>Monday–Wednesday</strong>
+                  <small>Midweek wedding pricing</small>
+                  <span class="package-choice-price">Evening DJ £425</span>
+                </span>
+              </label>
+
+              <label class="package-choice-card package-choice-card-extra">
+                <input
+                  type="radio"
+                  name="weddingDayBand"
+                  value="thursday-sunday"
+                  data-label="Thursday–Sunday"
+                  data-evening-price="475"
+                >
+                <span class="package-choice-card-body">
+                  <strong>Thursday–Sunday</strong>
+                  <small>Popular-date pricing</small>
+                  <span class="package-choice-price">Evening DJ £475</span>
+                </span>
+              </label>
+            </div>
+
+            <p class="package-travel-note">
+              Travel is included within 30 miles of Keswick. Venues further afield may incur a small travel supplement, confirmed before booking.
+            </p>
+
+            <p class="package-travel-note">
+              <strong>Booking:</strong> A £50 non-refundable deposit is required to secure your wedding date.
+            </p>
+          </section>
+
+          <section class="package-builder-section" aria-labelledby="mainPackageHeading">
+            <div class="package-builder-section-heading">
+              <span class="package-builder-step">2</span>
               <div>
                 <h3 id="mainPackageHeading">Choose your main package</h3>
                 <p>Select one package to start building your celebration.</p>
@@ -346,11 +396,13 @@
                   value="evening"
                   data-label="Evening Wedding Package"
                   data-price="475"
+                  data-price-midweek="425"
+                  data-price-thursday-sunday="475"
                 >
                 <span class="package-choice-card-body">
                   <strong>Evening Wedding</strong>
-                  <small>7pm–midnight</small>
-                  <span class="package-choice-price">£475</span>
+                  <small id="eveningPackagePriceNote">7pm–midnight • choose your wedding day above</small>
+                  <span id="eveningPackagePrice" class="package-choice-price">£425–£475</span>
                 </span>
               </label>
 
@@ -388,7 +440,7 @@
 
           <section class="package-builder-section" aria-labelledby="extrasHeading">
             <div class="package-builder-section-heading">
-              <span class="package-builder-step">2</span>
+              <span class="package-builder-step">3</span>
               <div>
                 <h3 id="extrasHeading">Add your extras</h3>
                 <p>Pick as many as you like. You can change them at any time.</p>
@@ -517,7 +569,7 @@
 
           <section class="package-builder-section" aria-labelledby="premiumHeading">
             <div class="package-builder-section-heading">
-              <span class="package-builder-step">3</span>
+              <span class="package-builder-step">4</span>
               <div>
                 <h3 id="premiumHeading">Add something extra special</h3>
                 <p>These options are priced individually, so I’ll confirm them with your enquiry.</p>
@@ -575,6 +627,10 @@
             <p class="eyebrow">YOUR PACKAGE</p>
             <h3 id="packageSummaryTitle">Your wedding entertainment</h3>
 
+            <p id="packageSummaryDay" class="package-summary-day">
+              Wedding day pricing: not selected
+            </p>
+
             <div id="packageSummaryEmpty" class="package-summary-empty">
               Start by choosing your main package.
             </div>
@@ -591,7 +647,7 @@
             </p>
 
             <p class="package-summary-note">
-              This package creator is a planning guide. Availability and final pricing will be confirmed with your enquiry.
+              This package creator is a planning guide. A £50 non-refundable deposit is required to secure your wedding date. Travel is included within 30 miles of Keswick; venues further afield may incur a travel supplement. Availability and final pricing will be confirmed with your enquiry.
             </p>
 
             <div class="package-summary-actions">
