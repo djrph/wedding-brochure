@@ -146,6 +146,10 @@ const foamSticksColourInputs = [...document.querySelectorAll('input[name="foamSt
 const weddingDayBandInputs = [...document.querySelectorAll('input[name="weddingDayBand"]')];
 const eveningPackagePrice = $("eveningPackagePrice");
 const eveningPackagePriceNote = $("eveningPackagePriceNote");
+const allDayPackagePrice = $("allDayPackagePrice");
+const allDayPackagePriceNote = $("allDayPackagePriceNote");
+const ceremonyPackagePrice = $("ceremonyPackagePrice");
+const ceremonyPackagePriceNote = $("ceremonyPackagePriceNote");
 const packageSummaryDay = $("packageSummaryDay");
 
 let pageFlip = null;
@@ -1487,58 +1491,118 @@ function getWeddingDayBandLabel() {
     "";
 }
 
-function getWeddingDayEveningPrice() {
+function getWeddingDayPackagePrice(
+  packageInput
+) {
   const selected =
     getSelectedWeddingDayBandInput();
 
-  if (!selected) {
+  if (
+    !selected ||
+    !packageInput
+  ) {
+    return null;
+  }
+
+  const rawPrice =
+    selected.value ===
+    "midweek"
+      ? packageInput.dataset.priceMidweek
+      : packageInput.dataset.priceThursdaySunday;
+
+  if (
+    rawPrice === undefined ||
+    rawPrice === ""
+  ) {
     return null;
   }
 
   const price =
     Number(
-      selected.dataset.eveningPrice ||
-      0
+      rawPrice
     );
 
-  return Number.isFinite(price)
+  return Number.isFinite(
+    price
+  )
     ? price
     : null;
 }
 
-function syncEveningPackagePriceDisplay() {
+function syncMainPackagePriceDisplays() {
   const selected =
     getSelectedWeddingDayBandInput();
 
-  if (
-    !eveningPackagePrice ||
-    !eveningPackagePriceNote
-  ) {
-    return;
-  }
+  const packageDisplays = [
+    {
+      value: "evening",
+      priceElement:
+        eveningPackagePrice,
+      noteElement:
+        eveningPackagePriceNote,
+      range: "£425–£475",
+      note: "7pm–midnight"
+    },
+    {
+      value: "all-day",
+      priceElement:
+        allDayPackagePrice,
+      noteElement:
+        allDayPackagePriceNote,
+      range: "£599–£649",
+      note: "Entertainment throughout your day"
+    },
+    {
+      value: "ceremony",
+      priceElement:
+        ceremonyPackagePrice,
+      noteElement:
+        ceremonyPackagePriceNote,
+      range: "£645–£695",
+      note: "Ceremony music package"
+    }
+  ];
 
-  if (!selected) {
-    eveningPackagePrice.textContent =
-      "£425–£475";
+  packageDisplays.forEach(
+    (display) => {
+      if (
+        !display.priceElement ||
+        !display.noteElement
+      ) {
+        return;
+      }
 
-    eveningPackagePriceNote.textContent =
-      "7pm–midnight • choose your wedding day above";
+      const packageInput =
+        packageBuilderForm?.querySelector(
+          `input[name="mainPackage"][value="${display.value}"]`
+        ) || null;
 
-    return;
-  }
+      if (!selected) {
+        display.priceElement.textContent =
+          display.range;
 
-  const price =
-    getWeddingDayEveningPrice();
+        display.noteElement.textContent =
+          `${display.note} • choose your wedding day above`;
 
-  eveningPackagePrice.textContent =
-    price === null
-      ? "Choose day"
-      : formatPackagePrice(
-          price
+        return;
+      }
+
+      const price =
+        getWeddingDayPackagePrice(
+          packageInput
         );
 
-  eveningPackagePriceNote.textContent =
-    `7pm–midnight • ${getWeddingDayBandLabel()}`;
+      display.priceElement.textContent =
+        price === null
+          ? "Choose day"
+          : formatPackagePrice(
+              price
+            );
+
+      display.noteElement.textContent =
+        `${display.note} • ${getWeddingDayBandLabel()}`;
+    }
+  );
 }
 
 function getSelectedFoamSticksColourInput() {
@@ -1590,30 +1654,27 @@ function getSelectedPackageItems() {
     let pricePending =
       false;
 
+    const dayPrice =
+      getWeddingDayPackagePrice(
+        main
+      );
+
     if (
-      main.value ===
-      "evening"
+      dayPrice ===
+      null
     ) {
-      const dayPrice =
-        getWeddingDayEveningPrice();
+      price =
+        null;
 
-      if (
-        dayPrice ===
-        null
-      ) {
-        price =
-          null;
+      pricePending =
+        true;
 
-        pricePending =
-          true;
+      needsDaySelection =
+        true;
 
-        needsDaySelection =
-          true;
-
-      } else {
-        price =
-          dayPrice;
-      }
+    } else {
+      price =
+        dayPrice;
     }
 
     items.push({
@@ -2036,7 +2097,7 @@ function updatePackageBuilderSummary() {
           selection.total
         );
 
-  syncEveningPackagePriceDisplay();
+  syncMainPackagePriceDisplays();
 
   if (packageSummaryPoa) {
     packageSummaryPoa.hidden =
