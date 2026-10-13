@@ -1,775 +1,6729 @@
-<!DOCTYPE html>
-<html lang="en-GB">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#080808">
-  <meta name="color-scheme" content="dark">
-  <meta name="format-detection" content="telephone=no">
-
-  <title>Wedding DJ Brochure | Keswick Discos | Lake District &amp; Cumbria</title>
-  <meta name="description" content="Explore the interactive Keswick Discos wedding DJ brochure. Discover wedding entertainment packages, personalised music, lighting, extras and ideas for weddings across Cumbria and the Lake District.">
-  <meta name="author" content="Keswick Discos">
-  <link rel="canonical" href="https://brochure.keswickdiscos.co.uk/">
-
-  <meta property="og:title" content="Keswick Discos Wedding DJ Brochure">
-  <meta property="og:description" content="Explore wedding entertainment packages, personalised music, lighting, extras and inspiration from Keswick Discos.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://brochure.keswickdiscos.co.uk/">
-  <meta property="og:image" content="https://brochure.keswickdiscos.co.uk/pages/page1.jpg?v=20261003-1">
-  <meta property="og:image:type" content="image/jpeg">
-  <meta property="og:image:width" content="1447">
-  <meta property="og:image:height" content="2048">
-  <meta property="og:image:alt" content="Keswick Discos Wedding Entertainment Brochure">
-  <meta property="og:site_name" content="Keswick Discos">
-  <meta property="og:locale" content="en_GB">
-
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Keswick Discos Wedding DJ Brochure">
-  <meta name="twitter:description" content="Explore the interactive Keswick Discos wedding entertainment brochure for Cumbria and the Lake District.">
-  <meta name="twitter:image" content="https://brochure.keswickdiscos.co.uk/pages/page1.jpg?v=20261003-1">
-
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="preload" as="image" href="pages/page1.jpg?v=20261003-1" fetchpriority="high">
-  <link rel="stylesheet" href="style.css?v=20261013-3">
-
-  <script defer src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-  <script defer src="script.js?v=20261013-3"></script>
-</head>
-
-<body>
-  <div id="loadingScreen" class="loading-screen" role="status" aria-live="polite" aria-label="Loading wedding brochure">
-    <div class="loading-content">
-      <div class="loading-brand">KESWICK DISCOS</div>
-      <div class="loading-title">Preparing your interactive wedding brochure…</div>
-      <div class="loading-bar" aria-hidden="true">
-        <div id="loadingProgress" class="loading-progress"></div>
-      </div>
-    </div>
-  </div>
-
-  <header class="site-header">
-    <div class="header-copy">
-      <p class="eyebrow">CUMBRIA &amp; THE LAKE DISTRICT</p>
-      <h1>Keswick Discos Wedding Brochure</h1>
-    </div>
-
-    <a
-      class="header-enquire"
-      href="https://www.keswickdiscos.co.uk/wedding-dj-entertainment"
-      target="_blank"
-      rel="noopener"
-    >
-      Check your date
-    </a>
-  </header>
-
-  <main id="mainContent" class="viewer-shell">
-    <section
-      id="bookStage"
-      class="book-stage"
-      aria-label="Interactive Keswick Discos wedding brochure"
-    >
-      <button
-        id="edgePrevious"
-        class="edge-button edge-previous"
-        type="button"
-        aria-label="Previous brochure page"
-        title="Previous page"
-      >
-        ‹
-      </button>
-
-      <div id="zoomContainer" class="zoom-container">
-        <div id="book"></div>
-      </div>
-
-      <button
-        id="edgeNext"
-        class="edge-button edge-next"
-        type="button"
-        aria-label="Next brochure page"
-        title="Next page"
-      >
-        ›
-      </button>
-    </section>
-
-    <div id="errorMessage" class="error-message" role="alert" hidden>
-      <strong>Sorry — the brochure couldn't be loaded.</strong>
-      <p>Please refresh the page and try again.</p>
-      <p>
-        If the problem continues, you can visit the
-        <a
-          href="https://www.keswickdiscos.co.uk/wedding-dj-entertainment"
-          target="_blank"
-          rel="noopener"
-        >
-          Keswick Discos wedding page
-        </a>.
-      </p>
-    </div>
-
-    <div class="progress-wrap" aria-hidden="true">
-      <div id="pageProgress" class="page-progress"></div>
-    </div>
-
-    <div id="mobileThumbnailLauncher" class="mobile-thumbnail-launcher">
-      <button
-        id="mobileThumbnailHandle"
-        class="mobile-thumbnail-handle"
-        type="button"
-        aria-expanded="false"
-        aria-controls="mobileThumbnailStrip"
-        aria-label="Swipe up or tap to show page thumbnails"
-      >
-        <span class="mobile-thumbnail-grip" aria-hidden="true"></span>
-        <span id="mobileThumbnailHint">Swipe up for pages</span>
-      </button>
-    </div>
-
-    <section
-      id="mobileThumbnailStrip"
-      class="mobile-thumbnail-tray"
-      aria-label="Quick page thumbnails"
-      aria-hidden="true"
-    >
-      <button
-        id="mobileThumbnailTrayHandle"
-        class="mobile-thumbnail-tray-handle"
-        type="button"
-        aria-label="Swipe down or tap to hide page thumbnails"
-      >
-        <span class="mobile-thumbnail-grip" aria-hidden="true"></span>
-        <span id="mobileThumbnailTrayHint">Swipe down to hide</span>
-      </button>
-
-      <div id="mobileThumbnails" class="mobile-thumbnails"></div>
-    </section>
-
-    <nav class="control-bar" aria-label="Wedding brochure controls">
-      <button
-        type="button"
-        id="previousButton"
-        class="primary-nav"
-        aria-label="Previous page"
-        title="Previous page"
-      >
-        ‹
-      </button>
-
-      <button
-        type="button"
-        id="pagesButton"
-        aria-controls="mobileThumbnailStrip thumbnailPanel"
-      >
-        Pages
-      </button>
-
-      <span id="pageStatus" class="page-status" aria-live="polite">
-        Page 1 of 26
-      </span>
-
-      <button type="button" id="zoomButton" aria-label="Zoom to look closer">
-        Zoom to look closer
-      </button>
-
-      <button type="button" id="moreButton" aria-controls="morePanel">
-        More
-      </button>
-
-      <button
-        type="button"
-        id="nextButton"
-        class="primary-nav"
-        aria-label="Next page"
-        title="Next page"
-      >
-        ›
-      </button>
-    </nav>
-
-    <section
-      id="thumbnailPanel"
-      class="drawer thumbnail-panel"
-      aria-label="Brochure page thumbnails"
-      hidden
-    >
-      <div class="drawer-heading">
-        <div><strong>Choose a page</strong></div>
-        <button type="button" data-close="thumbnailPanel" aria-label="Close page thumbnails">×</button>
-      </div>
-
-      <div id="thumbnails" class="thumbnails"></div>
-    </section>
-
-    <section
-      id="morePanel"
-      class="drawer more-panel"
-      aria-label="More brochure options"
-      hidden
-    >
-      <div class="drawer-heading">
-        <div><strong>Brochure options</strong></div>
-        <button type="button" data-close="morePanel" aria-label="Close brochure options">×</button>
-      </div>
-
-      <div class="option-grid">
-        <button id="contentsButton" type="button" aria-controls="contentsPanel">Contents</button>
-        <button id="firstButton" type="button">First page</button>
-        <button id="fullscreenButton" type="button">Full screen</button>
-        <button id="shareButton" type="button">Share this page</button>
-        <button id="soundButton" type="button">Sound: off</button>
-        <button id="resetReadingButton" type="button">Forget saved page</button>
-      </div>
-    </section>
-
-    <section
-      id="contentsPanel"
-      class="drawer contents-panel"
-      aria-label="Wedding brochure contents"
-      hidden
-    >
-      <div class="drawer-heading">
-        <div><strong>Explore the brochure</strong></div>
-        <button type="button" data-close="contentsPanel" aria-label="Close brochure contents">×</button>
-      </div>
-
-      <div id="contentsList" class="contents-list"></div>
-    </section>
-  </main>
-
-  <button
-    id="floatingEnquire"
-    class="floating-enquire"
-    type="button"
-    aria-haspopup="dialog"
-    aria-controls="contactModal"
-  >
-    Enquire
-  </button>
-
-  <div id="contactModal" class="modal" hidden>
-    <div class="modal-backdrop" data-close="contactModal" aria-hidden="true"></div>
-
-    <section
-      class="modal-card"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="contactTitle"
-      aria-describedby="contactDescription"
-    >
-      <button
-        type="button"
-        class="modal-close"
-        data-close="contactModal"
-        aria-label="Close enquiry options"
-      >
-        ×
-      </button>
-
-      <p class="eyebrow">LET'S CREATE AN AMAZING PARTY</p>
-
-      <h2 id="contactTitle">Check your wedding date</h2>
-
-      <p id="contactDescription">
-        Ready to start planning your wedding entertainment?
-        Choose the easiest way to get in touch.
-      </p>
-
-      <div class="contact-actions">
-        <a
-          href="https://www.keswickdiscos.co.uk/wedding-dj-entertainment"
-          target="_blank"
-          rel="noopener"
-        >
-          Wedding enquiry page
-        </a>
-
-        <a href="mailto:dj_rph@hotmail.com?subject=Wedding%20DJ%20Enquiry">
-          Send an email
-        </a>
-
-        <button id="copyLinkButton" type="button">
-          Copy this brochure page
-        </button>
-      </div>
-    </section>
-  </div>
-
-  <div id="packageBuilder" class="package-builder" hidden>
-    <div class="package-builder-backdrop" data-package-close aria-hidden="true"></div>
-
-    <section
-      class="package-builder-panel"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="packageBuilderTitle"
-      aria-describedby="packageBuilderIntro"
-    >
-      <header class="package-builder-header">
-        <div>
-          <p class="eyebrow">CREATE YOUR WEDDING PACKAGE</p>
-          <h2 id="packageBuilderTitle">Build your perfect celebration</h2>
-          <p id="packageBuilderIntro">
-            Choose a main wedding package, add any extras you love, and see your package build instantly.
-          </p>
-        </div>
-
-        <button
-          id="closePackageBuilder"
-          class="package-builder-close"
-          type="button"
-          aria-label="Close package creator"
-        >
-          ×
-        </button>
-      </header>
-
-      <form id="packageBuilderForm" class="package-builder-layout">
-        <div class="package-builder-choices">
-          <section class="package-builder-section" aria-labelledby="weddingDayHeading">
-            <div class="package-builder-section-heading">
-              <span class="package-builder-step">1</span>
-              <div>
-                <h3 id="weddingDayHeading">When is your wedding?</h3>
-                <p>Choose the day range for your Evening Wedding price.</p>
-              </div>
-            </div>
-
-            <div class="package-mobile-pricing-strip" aria-label="Evening wedding pricing">
-              <span>
-                <small>Monday–Wednesday</small>
-                <strong>£425</strong>
-              </span>
-              <span>
-                <small>Thursday–Sunday</small>
-                <strong>£475</strong>
-              </span>
-            </div>
-
-            <div class="package-choice-grid package-day-grid">
-              <label class="package-choice-card package-choice-card-extra">
-                <input
-                  type="radio"
-                  name="weddingDayBand"
-                  value="midweek"
-                  data-label="Monday–Wednesday"
-                  data-evening-price="425"
-                >
-                <span class="package-choice-card-body">
-                  <strong>Monday–Wednesday</strong>
-                  <small>Midweek wedding pricing</small>
-                  <span class="package-choice-price">Evening DJ £425</span>
-                </span>
-              </label>
-
-              <label class="package-choice-card package-choice-card-extra">
-                <input
-                  type="radio"
-                  name="weddingDayBand"
-                  value="thursday-sunday"
-                  data-label="Thursday–Sunday"
-                  data-evening-price="475"
-                >
-                <span class="package-choice-card-body">
-                  <strong>Thursday–Sunday</strong>
-                  <small>Popular-date pricing</small>
-                  <span class="package-choice-price">Evening DJ £475</span>
-                </span>
-              </label>
-            </div>
-
-            <p class="package-travel-note">
-              Travel is included within 30 miles of Keswick. Venues further afield may incur a small travel supplement, confirmed before booking.
-            </p>
-
-            <p class="package-travel-note">
-              <strong>Booking:</strong> A £50 non-refundable deposit is required to secure your wedding date.
-            </p>
-          </section>
-
-          <section class="package-builder-section" aria-labelledby="mainPackageHeading">
-            <div class="package-builder-section-heading">
-              <span class="package-builder-step">2</span>
-              <div>
-                <h3 id="mainPackageHeading">Choose your main package</h3>
-                <p>Select one package to start building your celebration.</p>
-              </div>
-            </div>
-
-            <div class="package-choice-grid package-choice-grid-main">
-              <label class="package-choice-card">
-                <input
-                  type="radio"
-                  name="mainPackage"
-                  value="evening"
-                  data-label="Evening Wedding Package"
-                  data-price="475"
-                  data-price-midweek="425"
-                  data-price-thursday-sunday="475"
-                >
-                <span class="package-choice-card-body">
-                  <strong>Evening Wedding</strong>
-                  <small id="eveningPackagePriceNote">7pm–midnight • choose your wedding day above</small>
-                  <span id="eveningPackagePrice" class="package-choice-price">£425–£475</span>
-                </span>
-              </label>
-
-              <label class="package-choice-card">
-                <input
-                  type="radio"
-                  name="mainPackage"
-                  value="all-day"
-                  data-label="All Day Wedding Package"
-                  data-price="649"
-                >
-                <span class="package-choice-card-body">
-                  <strong>All Day Wedding</strong>
-                  <small>Entertainment throughout your day</small>
-                  <span class="package-choice-price">£649</span>
-                </span>
-              </label>
-
-              <label class="package-choice-card">
-                <input
-                  type="radio"
-                  name="mainPackage"
-                  value="ceremony"
-                  data-label="Wedding Ceremony Package"
-                  data-price="695"
-                >
-                <span class="package-choice-card-body">
-                  <strong>Wedding Ceremony</strong>
-                  <small>Ceremony music package</small>
-                  <span class="package-choice-price">£695</span>
-                </span>
-              </label>
-            </div>
-          </section>
-
-          <section class="package-builder-section" aria-labelledby="extrasHeading">
-            <div class="package-builder-section-heading">
-              <span class="package-builder-step">3</span>
-              <div>
-                <h3 id="extrasHeading">Add your extras</h3>
-                <p>Pick as many as you like. You can change them at any time.</p>
-              </div>
-            </div>
-
-            <div class="package-choice-grid">
-              <label class="package-choice-card package-choice-card-extra">
-                <input
-                  type="checkbox"
-                  name="extras"
-                  value="rustic-booth"
-                  data-label="Rustic DJ Booth"
-                  data-price="95"
-                >
-                <span class="package-choice-card-body">
-                  <strong>Rustic DJ Booth</strong>
-                  <span class="package-choice-price">+ £95</span>
-                </span>
-              </label>
-
-              <label class="package-choice-card package-choice-card-extra">
-                <input
-                  type="checkbox"
-                  name="extras"
-                  value="uplighting"
-                  data-label="Mood Uplighting"
-                  data-price="79"
-                >
-                <span class="package-choice-card-body">
-                  <strong>Mood Uplighting</strong>
-                  <small>10 uplights</small>
-                  <span class="package-choice-price">+ £79</span>
-                </span>
-              </label>
-
-              <label class="package-choice-card package-choice-card-extra">
-                <input
-                  type="checkbox"
-                  name="extras"
-                  value="karaoke"
-                  data-label="Wedding Karaoke"
-                  data-price="150"
-                >
-                <span class="package-choice-card-body">
-                  <strong>Wedding Karaoke</strong>
-                  <span class="package-choice-price">+ £150</span>
-                </span>
-              </label>
-            </div>
-
-            <div class="package-builder-subchoice">
-              <div class="package-builder-subchoice-copy">
-                <strong>Personalised LED Foam Sticks</strong>
-                <small>Choose your quantity and preferred colour.</small>
-              </div>
-
-              <div class="package-builder-subchoice-controls package-builder-foam-controls">
-                <label class="package-builder-select-field" for="foamSticksSelect">
-                  <span>Quantity</span>
-                  <select id="foamSticksSelect" name="foamSticks">
-                    <option value="">None</option>
-                    <option value="30" data-label="30 Personalised LED Foam Sticks" data-price="79">30 sticks — £79</option>
-                    <option value="40" data-label="40 Personalised LED Foam Sticks" data-price="89">40 sticks — £89</option>
-                    <option value="50" data-label="50 Personalised LED Foam Sticks" data-price="95">50 sticks — £95</option>
-                    <option value="60" data-label="60 Personalised LED Foam Sticks" data-price="105">60 sticks — £105</option>
-                  </select>
-                </label>
-
-                <fieldset class="foam-colour-fieldset">
-                  <legend>Colour</legend>
-
-                  <div class="foam-colour-grid">
-                    <label class="foam-colour-choice foam-colour-multicolor">
-                      <input type="radio" name="foamSticksColour" value="multicolor" data-label="Multicolor">
-                      <span class="foam-colour-choice-body">
-                        <span class="foam-colour-swatch" aria-hidden="true"></span>
-                        <strong>Multicolor</strong>
-                      </span>
-                    </label>
-
-                    <label class="foam-colour-choice foam-colour-red">
-                      <input type="radio" name="foamSticksColour" value="red" data-label="Red">
-                      <span class="foam-colour-choice-body">
-                        <span class="foam-colour-swatch" aria-hidden="true"></span>
-                        <strong>Red</strong>
-                      </span>
-                    </label>
-
-                    <label class="foam-colour-choice foam-colour-green">
-                      <input type="radio" name="foamSticksColour" value="green" data-label="Green">
-                      <span class="foam-colour-choice-body">
-                        <span class="foam-colour-swatch" aria-hidden="true"></span>
-                        <strong>Green</strong>
-                      </span>
-                    </label>
-
-                    <label class="foam-colour-choice foam-colour-orange">
-                      <input type="radio" name="foamSticksColour" value="dark-yellow-orange" data-label="Dark Yellow / Orange">
-                      <span class="foam-colour-choice-body">
-                        <span class="foam-colour-swatch" aria-hidden="true"></span>
-                        <strong>Dark Yellow / Orange</strong>
-                      </span>
-                    </label>
-
-                    <label class="foam-colour-choice foam-colour-blue">
-                      <input type="radio" name="foamSticksColour" value="blue" data-label="Blue">
-                      <span class="foam-colour-choice-body">
-                        <span class="foam-colour-swatch" aria-hidden="true"></span>
-                        <strong>Blue</strong>
-                      </span>
-                    </label>
-
-                    <label class="foam-colour-choice foam-colour-white">
-                      <input type="radio" name="foamSticksColour" value="white" data-label="White">
-                      <span class="foam-colour-choice-body">
-                        <span class="foam-colour-swatch" aria-hidden="true"></span>
-                        <strong>White</strong>
-                      </span>
-                    </label>
-                  </div>
-                </fieldset>
-              </div>
-            </div>
-          </section>
-
-          <section class="package-builder-section" aria-labelledby="premiumHeading">
-            <div class="package-builder-section-heading">
-              <span class="package-builder-step">4</span>
-              <div>
-                <h3 id="premiumHeading">Add something extra special</h3>
-                <p>These options are priced individually, so I’ll confirm them with your enquiry.</p>
-              </div>
-            </div>
-
-            <div class="package-choice-grid">
-              <label class="package-choice-card package-choice-card-extra">
-                <input
-                  type="checkbox"
-                  name="poaExtras"
-                  value="dj-sax"
-                  data-label="DJ & Sax"
-                  data-poa="true"
-                >
-                <span class="package-choice-card-body">
-                  <strong>DJ &amp; Sax</strong>
-                  <span class="package-choice-price">Price on request</span>
-                </span>
-              </label>
-
-              <label class="package-choice-card package-choice-card-extra">
-                <input
-                  type="checkbox"
-                  name="poaExtras"
-                  value="silent-disco"
-                  data-label="Silent Disco"
-                  data-poa="true"
-                >
-                <span class="package-choice-card-body">
-                  <strong>Silent Disco</strong>
-                  <span class="package-choice-price">Price on request</span>
-                </span>
-              </label>
-
-              <label class="package-choice-card package-choice-card-extra">
-                <input
-                  type="checkbox"
-                  name="poaExtras"
-                  value="cold-sparks"
-                  data-label="Cold Spark Experience"
-                  data-poa="true"
-                >
-                <span class="package-choice-card-body">
-                  <strong>Cold Spark Experience</strong>
-                  <span class="package-choice-price">Price on request</span>
-                </span>
-              </label>
-            </div>
-          </section>
-        </div>
-
-        <aside class="package-summary" aria-labelledby="packageSummaryTitle">
-          <div class="package-summary-inner">
-            <p class="eyebrow">YOUR PACKAGE</p>
-            <h3 id="packageSummaryTitle">Your wedding entertainment</h3>
-
-            <p id="packageSummaryDay" class="package-summary-day">
-              Wedding day pricing: not selected
-            </p>
-
-            <div id="packageSummaryEmpty" class="package-summary-empty">
-              Start by choosing your main package.
-            </div>
-
-            <ul id="packageSummaryItems" class="package-summary-items"></ul>
-
-            <div class="package-summary-total">
-              <span>Current total</span>
-              <strong id="packageSummaryTotal">£0</strong>
-            </div>
-
-            <p id="packageSummaryPoa" class="package-summary-poa" hidden>
-              Plus selected items priced on request.
-            </p>
-
-            <p class="package-summary-note">
-              This package creator is a planning guide. A £50 non-refundable deposit is required to secure your wedding date. Travel is included within 30 miles of Keswick; venues further afield may incur a travel supplement. Availability and final pricing will be confirmed with your enquiry.
-            </p>
-
-            <div class="package-summary-actions">
-              <button id="copyPackageButton" type="button" class="package-action-primary">
-                Copy my package
-              </button>
-
-              <a
-                id="packageEnquireButton"
-                class="package-action-secondary"
-                href="https://www.keswickdiscos.co.uk/wedding-dj-entertainment"
-                target="_blank"
-                rel="noopener"
-              >
-                Check your date
-              </a>
-
-              <button id="resetPackageButton" type="button" class="package-action-reset">
-                Reset choices
-              </button>
-            </div>
-
-            <div id="packageCopyStatus" class="package-copy-status" aria-live="polite"></div>
-          </div>
-        </aside>
-      </form>
-    </section>
-  </div>
-
-  <div
-    id="imageZoomViewer"
-    class="image-zoom-viewer"
-    role="dialog"
-    aria-modal="true"
-    aria-label="Enlarged brochure page"
-    hidden
-  >
-    <div class="image-zoom-toolbar">
-      <span id="zoomViewerStatus">Page 1 of 26</span>
-
-      <div class="image-zoom-actions">
-        <button id="zoomOutButton" type="button" aria-label="Zoom out">−</button>
-        <button id="zoomInButton" type="button" aria-label="Zoom in">+</button>
-
-        <button
-          id="resetImageZoom"
-          class="image-zoom-reset"
-          type="button"
-          aria-label="Reset zoom"
-        >
-          Reset
-        </button>
-
-        <button
-          id="closeImageZoom"
-          type="button"
-          aria-label="Close enlarged page"
-        >
-          ×
-        </button>
-      </div>
-    </div>
-
-    <div
-      id="imageZoomScroll"
-      class="image-zoom-scroll"
-      aria-label="Enlarged brochure page"
-    >
-      <div id="imageZoomCanvas" class="image-zoom-canvas">
-        <canvas
-          id="zoomPdfCanvas"
-          class="zoom-pdf-canvas"
-          aria-label=""
-          hidden
-        ></canvas>
-
-        <img
-          id="zoomPageImage"
-          alt=""
-          draggable="false"
-          hidden
-        >
-      </div>
-    </div>
-
-    <p class="image-zoom-help">
-      Pinch or use + / − to zoom • drag with one finger to move
-    </p>
-  </div>
-
-  <audio id="pageSound" preload="none">
-    <source src="assets/page-turn.mp3" type="audio/mpeg">
-    <source src="assets/freesounds123-book-opening-345808.mp3" type="audio/mpeg">
-  </audio>
-
-  <noscript>
-    <div class="error-message">
-      <strong>JavaScript is required to view the interactive brochure.</strong>
-      <p>
-        You can still visit the
-        <a href="https://www.keswickdiscos.co.uk/wedding-dj-entertainment">
-          Keswick Discos wedding entertainment page
-        </a>.
-      </p>
-    </div>
-  </noscript>
-
-  <footer class="site-footer">
-    <a href="https://www.keswickdiscos.co.uk" target="_blank" rel="noopener">
-      www.keswickdiscos.co.uk
-    </a>
-  </footer>
-</body>
-</html>
+"use strict";
+
+const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+const isMobileViewer = window.matchMedia("(max-width: 700px)").matches;
+
+const totalPages = 26;
+const brochureVersion = "20261003-1";
+const pdfVersion = "20261007-3";
+const thumbnailVersion = "20261007-4";
+const pageWidth = 600;
+const pageHeight = 848;
+const pageTurnLockTime = 950;
+
+const PDFJS_VERSION = "3.11.174";
+const PDFJS_BASE_URL = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/`;
+const PDFJS_WORKER_URL = `${PDFJS_BASE_URL}build/pdf.worker.min.js`;
+const MOBILE_PDF_TIMEOUT_MS = 5000;
+const MOBILE_PDF_CACHE_LIMIT = 6;
+
+const pageTitles = {
+  1: "Cover",
+  2: "About Me",
+  3: "Why Couples Choose Keswick Discos",
+  4: "Your Wedding Entertainment Journey",
+  5: "Creating the Perfect Party Atmosphere",
+  6: "Your Special First Dance",
+  7: "Wedding DJ Booth Options",
+  8: "DJ Setup Styles",
+  9: "Rustic & Modern DJ Booths",
+  10: "Wedding Entertainment Packages",
+  11: "Evening Wedding Package",
+  12: "All Day Wedding Package",
+  13: "Wedding Ceremony Package",
+  14: "How Could Your Wedding Flow?",
+  15: "Wedding Entertainment Extras",
+  16: "DJ & Sax",
+  17: "Live Entertainment",
+  18: "Wedding Karaoke",
+  19: "Personalised LED Foam Sticks",
+  20: "Cold Spark Experience",
+  21: "Bespoke Wedding Lighting",
+  22: "Wedding Lighting Options",
+  23: "Mood Uplighting",
+  24: "What Couples Say",
+  25: "Create Your Wedding Package",
+  26: "Let's Plan Your Wedding"
+};
+
+const contentsSections = [
+  { title: "Getting Started", pages: [2, 3, 4, 5, 6] },
+  { title: "Wedding Packages", pages: [7, 8, 9, 10, 11, 12, 13, 14] },
+  { title: "Entertainment Extras", pages: [15, 16, 17, 18, 19, 20] },
+  { title: "Lighting", pages: [21, 22, 23] },
+  { title: "Plan Your Wedding", pages: [24, 25, 26] }
+];
+
+const pageHotspots = {
+  16: [
+    {
+      href: "https://youtube.com/shorts/O7Pyok7M7Do",
+      label: "Watch the DJ & Sax reel on YouTube",
+      left: 67.5,
+      top: 59.4,
+      width: 32.5,
+      height: 10.5
+    }
+  ],
+
+  25: [
+    {
+      action: "package-builder",
+      label: "Open the wedding package creator",
+      left: 34.5,
+      top: 35.5,
+      width: 31,
+      height: 21.5
+    }
+  ]
+};
+
+const $ = (id) => document.getElementById(id);
+
+const bookElement = $("book");
+const bookStage = $("bookStage");
+const zoomContainer = $("zoomContainer");
+const thumbnailContainer = $("thumbnails");
+const mobileThumbnailLauncher = $("mobileThumbnailLauncher");
+const mobileThumbnailStrip = $("mobileThumbnailStrip");
+const mobileThumbnailContainer = $("mobileThumbnails");
+const mobileThumbnailHandle = $("mobileThumbnailHandle");
+const mobileThumbnailHint = $("mobileThumbnailHint");
+const mobileThumbnailTrayHandle = $("mobileThumbnailTrayHandle");
+const mobileThumbnailTrayHint = $("mobileThumbnailTrayHint");
+const contentsList = $("contentsList");
+const pageStatus = $("pageStatus");
+const loadingScreen = $("loadingScreen");
+const loadingProgress = $("loadingProgress");
+const errorMessage = $("errorMessage");
+const pageProgress = $("pageProgress");
+const previousButton = $("previousButton");
+const nextButton = $("nextButton");
+const firstButton = $("firstButton");
+const fullscreenButton = $("fullscreenButton");
+const shareButton = $("shareButton");
+const soundButton = $("soundButton");
+const resetReadingButton = $("resetReadingButton");
+const edgePrevious = $("edgePrevious");
+const edgeNext = $("edgeNext");
+const pagesButton = $("pagesButton");
+const moreButton = $("moreButton");
+const contentsButton = $("contentsButton");
+const floatingEnquire = $("floatingEnquire");
+const contactModal = $("contactModal");
+const thumbnailPanel = $("thumbnailPanel");
+const morePanel = $("morePanel");
+const contentsPanel = $("contentsPanel");
+const copyLinkButton = $("copyLinkButton");
+const pageSound = $("pageSound");
+
+const imageZoomViewer = $("imageZoomViewer");
+const imageZoomToolbar = imageZoomViewer?.querySelector(".image-zoom-toolbar");
+const imageZoomScroll = $("imageZoomScroll");
+const imageZoomCanvas = $("imageZoomCanvas");
+const zoomPageImage = $("zoomPageImage");
+const zoomPdfCanvas = $("zoomPdfCanvas");
+const closeImageZoomButton = $("closeImageZoom");
+const resetImageZoomButton = $("resetImageZoom");
+const zoomInButton = $("zoomInButton");
+const zoomOutButton = $("zoomOutButton");
+const zoomViewerStatus = $("zoomViewerStatus");
+const zoomButton = $("zoomButton");
+
+const packageBuilder = $("packageBuilder");
+const packageBuilderPanel = packageBuilder?.querySelector(".package-builder-panel");
+const packageBuilderForm = $("packageBuilderForm");
+const closePackageBuilderButton = $("closePackageBuilder");
+const packageSummaryEmpty = $("packageSummaryEmpty");
+const packageSummaryItems = $("packageSummaryItems");
+const packageSummaryTotal = $("packageSummaryTotal");
+const packageSummaryPoa = $("packageSummaryPoa");
+const copyPackageButton = $("copyPackageButton");
+const resetPackageButton = $("resetPackageButton");
+const packageCopyStatus = $("packageCopyStatus");
+const foamSticksSelect = $("foamSticksSelect");
+const foamSticksColourInputs = [...document.querySelectorAll('input[name="foamSticksColour"]')];
+const weddingDayBandInputs = [...document.querySelectorAll('input[name="weddingDayBand"]')];
+const eveningPackagePrice = $("eveningPackagePrice");
+const eveningPackagePriceNote = $("eveningPackagePriceNote");
+const allDayPackagePrice = $("allDayPackagePrice");
+const allDayPackagePriceNote = $("allDayPackagePriceNote");
+const ceremonyPackagePrice = $("ceremonyPackagePrice");
+const ceremonyPackagePriceNote = $("ceremonyPackagePriceNote");
+const packageSummaryDay = $("packageSummaryDay");
+
+let pageFlip = null;
+let navigationLocked = false;
+let soundEnabled = false;
+
+let mobileCurrentPage = 1;
+let mobileRequestedPage = 1;
+let mobileLastDirection = 1;
+let mobileNavigationTimer = null;
+let mobileNavigationRequestId = 0;
+let mobileSwipeLocked = false;
+let mobilePageFrame = null;
+let mobilePageHost = null;
+
+let mobileThumbnailTrayOpen = false;
+let mobileTrayGestureMoved = false;
+let mobileThumbnailUnloadTimer = null;
+
+let pdfjsLibPromise = null;
+let mobilePdfLoadingTask = null;
+let mobilePdfDocumentPromise = null;
+let mobilePdfDocument = null;
+let mobilePdfRenderTask = null;
+let mobilePdfRenderPage = null;
+let mobileWarmTimer = null;
+let mobileWarmGeneration = 0;
+
+const mobileRenderedPageCache = new Map();
+const mobileThumbnailPrimePromises = new Map();
+
+const desktopPageImages = new Map();
+const desktopPageLoadPromises = new Map();
+
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function clampPageNumber(value) {
+  const page = Number.parseInt(value, 10);
+
+  return Number.isFinite(page)
+    ? clamp(page, 1, totalPages)
+    : 1;
+}
+
+function validPageNumber(pageNumber) {
+  return (
+    Number.isInteger(pageNumber) &&
+    pageNumber >= 1 &&
+    pageNumber <= totalPages
+  );
+}
+
+function imagePath(pageNumber) {
+  return `pages/page${pageNumber}.jpg?v=${brochureVersion}`;
+}
+
+function thumbnailPath(pageNumber) {
+  return `thumbnails/page${pageNumber}.webp?v=${thumbnailVersion}`;
+}
+
+function combinedPdfPath() {
+  return `pdf-pages/mobile-brochure-fixed.pdf?v=${pdfVersion}`;
+}
+
+function getPageTitle(pageNumber) {
+  return pageTitles[pageNumber] || `Page ${pageNumber}`;
+}
+
+function getPageHotspots(
+  pageNumber
+) {
+  return pageHotspots[
+    pageNumber
+  ] || [];
+}
+
+function createPageHotspot(
+  pageNumber,
+  hotspot
+) {
+  const isAction =
+    Boolean(
+      hotspot.action
+    );
+
+  const control =
+    document.createElement(
+      isAction
+        ? "button"
+        : "a"
+    );
+
+  control.className =
+    "page-hotspot";
+
+  if (isAction) {
+    control.type =
+      "button";
+
+  } else {
+    control.href =
+      hotspot.href;
+
+    control.target =
+      "_blank";
+
+    control.rel =
+      "noopener noreferrer";
+  }
+
+  control.setAttribute(
+    "aria-label",
+    hotspot.label
+  );
+
+  control.title =
+    hotspot.label;
+
+  control.style.setProperty(
+    "--hotspot-left",
+    `${hotspot.left}%`
+  );
+
+  control.style.setProperty(
+    "--hotspot-top",
+    `${hotspot.top}%`
+  );
+
+  control.style.setProperty(
+    "--hotspot-width",
+    `${hotspot.width}%`
+  );
+
+  control.style.setProperty(
+    "--hotspot-height",
+    `${hotspot.height}%`
+  );
+
+  const stopGesture =
+    (event) => {
+      event.stopPropagation();
+    };
+
+  control.addEventListener(
+    "pointerdown",
+    stopGesture
+  );
+
+  control.addEventListener(
+    "touchstart",
+    stopGesture,
+    {
+      passive: true
+    }
+  );
+
+  control.addEventListener(
+    "dragstart",
+    (event) => {
+      event.preventDefault();
+    }
+  );
+
+  control.addEventListener(
+    "click",
+    (event) => {
+      event.stopPropagation();
+
+      if (
+        hotspot.action ===
+        "package-builder"
+      ) {
+        event.preventDefault();
+
+        openPackageBuilder();
+      }
+    }
+  );
+
+  return control;
+}
+
+function appendPageHotspots(
+  container,
+  pageNumber
+) {
+  if (!container) {
+    return;
+  }
+
+  getPageHotspots(
+    pageNumber
+  ).forEach(
+    (hotspot) => {
+      container.appendChild(
+        createPageHotspot(
+          pageNumber,
+          hotspot
+        )
+      );
+    }
+  );
+}
+
+function createMobilePageSurface(
+  pageNumber,
+  node
+) {
+  if (
+    !node ||
+    getPageHotspots(
+      pageNumber
+    ).length === 0
+  ) {
+    return node;
+  }
+
+  const surface =
+    document.createElement(
+      "div"
+    );
+
+  surface.className =
+    "mobile-page-surface";
+
+  if (
+    node.style?.width
+  ) {
+    surface.style.width =
+      node.style.width;
+  }
+
+  if (
+    node.style?.height
+  ) {
+    surface.style.height =
+      node.style.height;
+  }
+
+  surface.appendChild(
+    node
+  );
+
+  appendPageHotspots(
+    surface,
+    pageNumber
+  );
+
+  return surface;
+}
+
+function mountMobilePageNode(
+  pageNumber,
+  node
+) {
+  if (
+    !mobilePageHost ||
+    !node
+  ) {
+    return;
+  }
+
+  mobilePageHost.replaceChildren(
+    createMobilePageSurface(
+      pageNumber,
+      node
+    )
+  );
+}
+
+function getCurrentPageNumber() {
+  if (isMobileViewer) {
+    return mobileCurrentPage;
+  }
+
+  if (!pageFlip) {
+    return 1;
+  }
+
+  return clampPageNumber(
+    pageFlip.getCurrentPageIndex() + 1
+  );
+}
+
+function isImageZoomOpen() {
+  return Boolean(
+    imageZoomViewer &&
+    !imageZoomViewer.hidden
+  );
+}
+
+function wait(milliseconds) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, milliseconds);
+  });
+}
+
+function waitForTwoFrames() {
+  return new Promise((resolve) => {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(resolve);
+    });
+  });
+}
+
+function hideLoadingScreen() {
+  if (!loadingScreen) {
+    return;
+  }
+
+  window.requestAnimationFrame(() => {
+    loadingScreen.classList.add("hidden");
+  });
+}
+
+
+/* =========================================================
+   URLS
+   ========================================================= */
+
+function getPageFromUrl() {
+  const value =
+    new URLSearchParams(
+      window.location.search
+    ).get("page");
+
+  return value
+    ? clampPageNumber(value)
+    : null;
+}
+
+function getStartingPage() {
+  return getPageFromUrl() ?? 1;
+}
+
+function updateUrlPage(pageNumber) {
+  try {
+    const url =
+      new URL(window.location.href);
+
+    if (pageNumber <= 1) {
+      url.searchParams.delete("page");
+    } else {
+      url.searchParams.set(
+        "page",
+        String(pageNumber)
+      );
+    }
+
+    window.history.replaceState(
+      {},
+      "",
+      url
+    );
+
+  } catch (error) {
+    console.warn(
+      "Unable to update brochure URL:",
+      error
+    );
+  }
+}
+
+function getShareUrl() {
+  const url =
+    new URL(window.location.href);
+
+  const page =
+    getCurrentPageNumber();
+
+  if (page <= 1) {
+    url.searchParams.delete("page");
+  } else {
+    url.searchParams.set(
+      "page",
+      String(page)
+    );
+  }
+
+  return url.toString();
+}
+
+
+/* =========================================================
+   PANELS / MODALS
+   ========================================================= */
+
+function closeAllPanels() {
+  if (thumbnailPanel) {
+    thumbnailPanel.hidden = true;
+  }
+
+  if (morePanel) {
+    morePanel.hidden = true;
+  }
+
+  if (contentsPanel) {
+    contentsPanel.hidden = true;
+  }
+}
+
+function togglePanel(panel) {
+  if (!panel) {
+    return;
+  }
+
+  if (isMobileViewer) {
+    closeMobileThumbnailTray();
+  }
+
+  const open =
+    panel.hidden;
+
+  closeAllPanels();
+
+  panel.hidden =
+    !open;
+}
+
+function openContactModal() {
+  if (!contactModal) {
+    return;
+  }
+
+  closeMobileThumbnailTray();
+
+  contactModal.hidden = false;
+
+  document.body.style.overflow =
+    "hidden";
+}
+
+function closeContactModal() {
+  if (!contactModal) {
+    return;
+  }
+
+  contactModal.hidden = true;
+
+  document.body.style.overflow =
+    "";
+}
+
+
+/* =========================================================
+   THUMBNAILS
+   ========================================================= */
+
+function createThumbnailButton(pageNumber, className) {
+  const button =
+    document.createElement("button");
+
+  button.type =
+    "button";
+
+  button.className =
+    className;
+
+  button.dataset.pageIndex =
+    String(pageNumber - 1);
+
+  button.dataset.pageNumber =
+    String(pageNumber);
+
+  button.setAttribute(
+    "aria-label",
+    `Go to ${getPageTitle(pageNumber)}, page ${pageNumber}`
+  );
+
+  const image =
+    document.createElement("img");
+
+  image.src =
+    thumbnailPath(pageNumber);
+
+  image.alt =
+    "";
+
+  image.decoding =
+    "async";
+
+  image.loading =
+    "eager";
+
+  image.fetchPriority =
+    "auto";
+
+  button.appendChild(
+    image
+  );
+
+  if (
+    className ===
+    "mobile-thumbnail-button"
+  ) {
+    const number =
+      document.createElement("span");
+
+    number.className =
+      "mobile-thumbnail-number";
+
+    number.textContent =
+      String(pageNumber);
+
+    button.appendChild(
+      number
+    );
+  }
+
+  let primeTimer =
+    null;
+
+  let pointerStartX =
+    0;
+
+  let pointerStartY =
+    0;
+
+  const clearPrimeTimer =
+    () => {
+      if (
+        primeTimer !== null
+      ) {
+        window.clearTimeout(
+          primeTimer
+        );
+
+        primeTimer =
+          null;
+      }
+    };
+
+  if (
+    className ===
+    "mobile-thumbnail-button"
+  ) {
+    button.addEventListener(
+      "pointerdown",
+      (event) => {
+        if (
+          event.pointerType ===
+          "mouse"
+        ) {
+          return;
+        }
+
+        pointerStartX =
+          event.clientX;
+
+        pointerStartY =
+          event.clientY;
+
+        clearPrimeTimer();
+
+        primeTimer =
+          window.setTimeout(
+            () => {
+              primeTimer =
+                null;
+
+              void primeMobileThumbnailPage(
+                pageNumber
+              );
+            },
+            45
+          );
+      },
+      {
+        passive: true
+      }
+    );
+
+    button.addEventListener(
+      "pointermove",
+      (event) => {
+        if (
+          Math.abs(
+            event.clientX -
+            pointerStartX
+          ) > 10 ||
+          Math.abs(
+            event.clientY -
+            pointerStartY
+          ) > 10
+        ) {
+          clearPrimeTimer();
+        }
+      },
+      {
+        passive: true
+      }
+    );
+
+    button.addEventListener(
+      "pointercancel",
+      clearPrimeTimer,
+      {
+        passive: true
+      }
+    );
+  }
+
+  button.addEventListener(
+    "click",
+    () => {
+      clearPrimeTimer();
+
+      if (
+        className ===
+        "mobile-thumbnail-button"
+      ) {
+        void primeMobileThumbnailPage(
+          pageNumber
+        );
+
+        void navigateMobileThumbnailPage(
+          pageNumber
+        );
+
+        return;
+      }
+
+      void (async () => {
+        await goToPage(
+          pageNumber
+        );
+
+        closeAllPanels();
+      })();
+    }
+  );
+
+  return button;
+}
+
+function createDrawerThumbnails() {
+  if (!thumbnailContainer) {
+    return;
+  }
+
+  thumbnailContainer.innerHTML =
+    "";
+
+  for (
+    let page = 1;
+    page <= totalPages;
+    page += 1
+  ) {
+    thumbnailContainer.appendChild(
+      createThumbnailButton(
+        page,
+        "thumbnail-button"
+      )
+    );
+  }
+}
+
+function createMobileThumbnails() {
+  if (!mobileThumbnailContainer) {
+    return;
+  }
+
+  mobileThumbnailContainer.innerHTML =
+    "";
+
+  for (
+    let page = 1;
+    page <= totalPages;
+    page += 1
+  ) {
+    mobileThumbnailContainer.appendChild(
+      createThumbnailButton(
+        page,
+        "mobile-thumbnail-button"
+      )
+    );
+  }
+}
+
+function loadThumbnailImage(image) {
+  if (
+    !image ||
+    image.hasAttribute("src")
+  ) {
+    return;
+  }
+
+  const button =
+    image.closest(
+      "[data-page-number]"
+    );
+
+  const pageNumber =
+    Number(
+      button?.dataset.pageNumber
+    );
+
+  if (
+    validPageNumber(
+      pageNumber
+    )
+  ) {
+    image.src =
+      thumbnailPath(
+        pageNumber
+      );
+  }
+}
+
+function unloadThumbnailImage(image) {}
+
+function unloadAllMobileThumbnailImages() {}
+
+function trimThumbnailMemory(
+  container,
+  selector
+) {
+  if (!container) {
+    return;
+  }
+
+  container
+    .querySelectorAll(
+      `${selector} img`
+    )
+    .forEach(
+      loadThumbnailImage
+    );
+}
+
+function centreThumbnail(
+  container,
+  selector,
+  pageIndex,
+  behavior = "smooth"
+) {
+  if (!container) {
+    return;
+  }
+
+  const button =
+    container.querySelector(
+      `${selector}[data-page-index="${pageIndex}"]`
+    );
+
+  if (!button) {
+    return;
+  }
+
+  const left =
+    button.offsetLeft -
+    container.clientWidth / 2 +
+    button.clientWidth / 2;
+
+  container.scrollTo({
+    left: Math.max(
+      0,
+      left
+    ),
+    behavior
+  });
+}
+
+
+/* =========================================================
+   MOBILE PAGE TRAY
+   ========================================================= */
+
+function updateMobileTrayText() {
+  if (mobileThumbnailHandle) {
+    mobileThumbnailHandle.setAttribute(
+      "aria-expanded",
+      String(
+        mobileThumbnailTrayOpen
+      )
+    );
+
+    mobileThumbnailHandle.setAttribute(
+      "aria-label",
+      mobileThumbnailTrayOpen
+        ? "Page thumbnails are open"
+        : "Swipe up or tap to show page thumbnails"
+    );
+  }
+
+  if (mobileThumbnailHint) {
+    mobileThumbnailHint.textContent =
+      "Swipe up for pages";
+  }
+
+  if (mobileThumbnailTrayHint) {
+    mobileThumbnailTrayHint.textContent =
+      "Swipe down to hide";
+  }
+
+  if (mobileThumbnailStrip) {
+    mobileThumbnailStrip.setAttribute(
+      "aria-hidden",
+      String(
+        !mobileThumbnailTrayOpen
+      )
+    );
+  }
+}
+
+function openMobileThumbnailTray() {
+  if (
+    !isMobileViewer ||
+    !mobileThumbnailStrip ||
+    isImageZoomOpen()
+  ) {
+    return;
+  }
+
+  if (
+    mobileThumbnailUnloadTimer
+  ) {
+    clearTimeout(
+      mobileThumbnailUnloadTimer
+    );
+
+    mobileThumbnailUnloadTimer =
+      null;
+  }
+
+  closeAllPanels();
+
+  mobileThumbnailTrayOpen =
+    true;
+
+  mobileThumbnailStrip.classList.add(
+    "open"
+  );
+
+  mobileThumbnailLauncher?.classList.add(
+    "tray-open"
+  );
+
+  document.body.classList.add(
+    "mobile-pages-open"
+  );
+
+  updateMobileTrayText();
+
+  trimThumbnailMemory(
+    mobileThumbnailContainer,
+    ".mobile-thumbnail-button"
+  );
+
+  window.setTimeout(
+    () => {
+      centreThumbnail(
+        mobileThumbnailContainer,
+        ".mobile-thumbnail-button",
+        mobileCurrentPage - 1,
+        "smooth"
+      );
+    },
+    80
+  );
+}
+
+function closeMobileThumbnailTray(
+  unload = true
+) {
+  if (!mobileThumbnailStrip) {
+    return;
+  }
+
+  mobileThumbnailTrayOpen =
+    false;
+
+  mobileThumbnailStrip.classList.remove(
+    "open"
+  );
+
+  mobileThumbnailLauncher?.classList.remove(
+    "tray-open"
+  );
+
+  document.body.classList.remove(
+    "mobile-pages-open"
+  );
+
+  updateMobileTrayText();
+
+  if (
+    mobileThumbnailUnloadTimer
+  ) {
+    clearTimeout(
+      mobileThumbnailUnloadTimer
+    );
+  }
+
+  if (unload) {
+    mobileThumbnailUnloadTimer =
+      window.setTimeout(
+        () => {
+          if (
+            !mobileThumbnailTrayOpen
+          ) {
+            unloadAllMobileThumbnailImages();
+          }
+
+          mobileThumbnailUnloadTimer =
+            null;
+        },
+        240
+      );
+  }
+}
+
+function toggleMobileThumbnailTray() {
+  if (
+    mobileThumbnailTrayOpen
+  ) {
+    closeMobileThumbnailTray();
+  } else {
+    openMobileThumbnailTray();
+  }
+}
+
+function attachVerticalTrayGesture(
+  element,
+  direction
+) {
+  if (!element) {
+    return;
+  }
+
+  let startX = 0;
+  let startY = 0;
+
+  element.addEventListener(
+    "touchstart",
+    (event) => {
+      if (
+        event.touches.length !==
+        1
+      ) {
+        return;
+      }
+
+      startX =
+        event.touches[0].clientX;
+
+      startY =
+        event.touches[0].clientY;
+
+      mobileTrayGestureMoved =
+        false;
+    },
+    {
+      passive: true
+    }
+  );
+
+  element.addEventListener(
+    "touchend",
+    (event) => {
+      if (
+        event.changedTouches.length !==
+        1
+      ) {
+        return;
+      }
+
+      const deltaX =
+        event.changedTouches[0].clientX -
+        startX;
+
+      const deltaY =
+        event.changedTouches[0].clientY -
+        startY;
+
+      const verticalEnough =
+        Math.abs(deltaY) >= 24 &&
+        Math.abs(deltaY) >
+        Math.abs(deltaX) * 1.15;
+
+      if (!verticalEnough) {
+        return;
+      }
+
+      if (
+        direction === "open" &&
+        deltaY < 0
+      ) {
+        mobileTrayGestureMoved =
+          true;
+
+        openMobileThumbnailTray();
+      }
+
+      if (
+        direction === "close" &&
+        deltaY > 0
+      ) {
+        mobileTrayGestureMoved =
+          true;
+
+        closeMobileThumbnailTray();
+      }
+
+      if (
+        mobileTrayGestureMoved
+      ) {
+        window.setTimeout(
+          () => {
+            mobileTrayGestureMoved =
+              false;
+          },
+          350
+        );
+      }
+    },
+    {
+      passive: true
+    }
+  );
+}
+
+function initialiseMobileThumbnailTray() {
+  if (
+    !isMobileViewer ||
+    !mobileThumbnailContainer ||
+    !mobileThumbnailHandle ||
+    !mobileThumbnailTrayHandle
+  ) {
+    return;
+  }
+
+  updateMobileTrayText();
+
+  unloadAllMobileThumbnailImages();
+
+  mobileThumbnailContainer.addEventListener(
+    "scroll",
+    () => {
+      if (
+        !mobileThumbnailTrayOpen
+      ) {
+        return;
+      }
+
+      window.requestAnimationFrame(
+        () => {
+          trimThumbnailMemory(
+            mobileThumbnailContainer,
+            ".mobile-thumbnail-button"
+          );
+        }
+      );
+    },
+    {
+      passive: true
+    }
+  );
+
+  attachVerticalTrayGesture(
+    mobileThumbnailHandle,
+    "open"
+  );
+
+  attachVerticalTrayGesture(
+    mobileThumbnailTrayHandle,
+    "close"
+  );
+
+  mobileThumbnailHandle.addEventListener(
+    "click",
+    () => {
+      if (
+        !mobileTrayGestureMoved
+      ) {
+        openMobileThumbnailTray();
+      }
+    }
+  );
+
+  mobileThumbnailTrayHandle.addEventListener(
+    "click",
+    () => {
+      if (
+        !mobileTrayGestureMoved
+      ) {
+        closeMobileThumbnailTray();
+      }
+    }
+  );
+}
+
+
+/* =========================================================
+   CONTENTS
+   ========================================================= */
+
+function createContentsButton(
+  pageNumber,
+  extraClass = ""
+) {
+  const button =
+    document.createElement(
+      "button"
+    );
+
+  button.type =
+    "button";
+
+  button.className =
+    `contents-button ${extraClass}`.trim();
+
+  button.dataset.pageIndex =
+    String(
+      pageNumber - 1
+    );
+
+  button.setAttribute(
+    "aria-label",
+    `Go to ${getPageTitle(pageNumber)}, page ${pageNumber}`
+  );
+
+  const copy =
+    document.createElement(
+      "span"
+    );
+
+  copy.className =
+    "contents-item-copy";
+
+  const title =
+    document.createElement(
+      "strong"
+    );
+
+  title.textContent =
+    getPageTitle(
+      pageNumber
+    );
+
+  const pageLabel =
+    document.createElement(
+      "small"
+    );
+
+  pageLabel.textContent =
+    `Page ${pageNumber}`;
+
+  copy.append(
+    title,
+    pageLabel
+  );
+
+  const arrow =
+    document.createElement(
+      "span"
+    );
+
+  arrow.className =
+    "contents-item-arrow";
+
+  arrow.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+  arrow.textContent =
+    "›";
+
+  button.append(
+    copy,
+    arrow
+  );
+
+  button.addEventListener(
+    "click",
+    async () => {
+      await goToPage(
+        pageNumber
+      );
+
+      closeAllPanels();
+
+      closeMobileThumbnailTray();
+    }
+  );
+
+  return button;
+}
+
+function buildContents() {
+  if (!contentsList) {
+    return;
+  }
+
+  contentsList.innerHTML =
+    "";
+
+  const home =
+    document.createElement(
+      "div"
+    );
+
+  home.className =
+    "contents-home";
+
+  home.appendChild(
+    createContentsButton(
+      1,
+      "contents-cover-button"
+    )
+  );
+
+  contentsList.appendChild(
+    home
+  );
+
+  contentsSections.forEach(
+    (section) => {
+      const sectionElement =
+        document.createElement(
+          "section"
+        );
+
+      sectionElement.className =
+        "contents-section";
+
+      const heading =
+        document.createElement(
+          "div"
+        );
+
+      heading.className =
+        "contents-section-heading";
+
+      const title =
+        document.createElement(
+          "h3"
+        );
+
+      title.className =
+        "contents-section-title";
+
+      title.textContent =
+        section.title;
+
+      const range =
+        document.createElement(
+          "span"
+        );
+
+      range.className =
+        "contents-section-range";
+
+      const firstPage =
+        section.pages[0];
+
+      const lastPage =
+        section.pages[
+          section.pages.length - 1
+        ];
+
+      range.textContent =
+        firstPage === lastPage
+          ? `Page ${firstPage}`
+          : `Pages ${firstPage}–${lastPage}`;
+
+      heading.append(
+        title,
+        range
+      );
+
+      const grid =
+        document.createElement(
+          "div"
+        );
+
+      grid.className =
+        "contents-section-grid";
+
+      section.pages.forEach(
+        (page) => {
+          grid.appendChild(
+            createContentsButton(
+              page
+            )
+          );
+        }
+      );
+
+      sectionElement.append(
+        heading,
+        grid
+      );
+
+      contentsList.appendChild(
+        sectionElement
+      );
+    }
+  );
+}
+
+
+
+/* =========================================================
+   WEDDING PACKAGE CREATOR
+   ========================================================= */
+
+const PACKAGE_BUILDER_STORAGE_KEY =
+  "keswickDiscosWeddingPackage";
+
+let packageBuilderReturnFocus =
+  null;
+
+function formatPackagePrice(
+  price
+) {
+  return `£${Number(price).toLocaleString("en-GB")}`;
+}
+
+function getSelectedWeddingDayBandInput() {
+  return packageBuilderForm?.querySelector(
+    'input[name="weddingDayBand"]:checked'
+  ) || null;
+}
+
+function getWeddingDayBandLabel() {
+  const selected =
+    getSelectedWeddingDayBandInput();
+
+  return selected?.dataset.label ||
+    "";
+}
+
+function getWeddingDayPackagePrice(
+  packageInput
+) {
+  const selected =
+    getSelectedWeddingDayBandInput();
+
+  if (
+    !selected ||
+    !packageInput
+  ) {
+    return null;
+  }
+
+  const rawPrice =
+    selected.value ===
+    "midweek"
+      ? packageInput.dataset.priceMidweek
+      : packageInput.dataset.priceThursdaySunday;
+
+  if (
+    rawPrice === undefined ||
+    rawPrice === ""
+  ) {
+    return null;
+  }
+
+  const price =
+    Number(
+      rawPrice
+    );
+
+  return Number.isFinite(
+    price
+  )
+    ? price
+    : null;
+}
+
+function syncMainPackagePriceDisplays() {
+  const selected =
+    getSelectedWeddingDayBandInput();
+
+  const packageDisplays = [
+    {
+      value: "evening",
+      priceElement:
+        eveningPackagePrice,
+      noteElement:
+        eveningPackagePriceNote,
+      range: "£425–£475",
+      note: "7pm–midnight"
+    },
+    {
+      value: "all-day",
+      priceElement:
+        allDayPackagePrice,
+      noteElement:
+        allDayPackagePriceNote,
+      range: "£599–£649",
+      note: "Entertainment throughout your day"
+    },
+    {
+      value: "ceremony",
+      priceElement:
+        ceremonyPackagePrice,
+      noteElement:
+        ceremonyPackagePriceNote,
+      range: "£645–£695",
+      note: "Ceremony music package"
+    }
+  ];
+
+  packageDisplays.forEach(
+    (display) => {
+      if (
+        !display.priceElement ||
+        !display.noteElement
+      ) {
+        return;
+      }
+
+      const packageInput =
+        packageBuilderForm?.querySelector(
+          `input[name="mainPackage"][value="${display.value}"]`
+        ) || null;
+
+      if (!selected) {
+        display.priceElement.textContent =
+          display.range;
+
+        display.noteElement.textContent =
+          `${display.note} • choose your wedding day above`;
+
+        return;
+      }
+
+      const price =
+        getWeddingDayPackagePrice(
+          packageInput
+        );
+
+      display.priceElement.textContent =
+        price === null
+          ? "Choose day"
+          : formatPackagePrice(
+              price
+            );
+
+      display.noteElement.textContent =
+        `${display.note} • ${getWeddingDayBandLabel()}`;
+    }
+  );
+}
+
+function getSelectedFoamSticksColourInput() {
+  return packageBuilderForm?.querySelector(
+    'input[name="foamSticksColour"]:checked'
+  ) || null;
+}
+
+function getFoamSticksColourLabel() {
+  const selected =
+    getSelectedFoamSticksColourInput();
+
+  return selected?.dataset.label ||
+    selected?.value ||
+    "";
+}
+
+function getSelectedPackageItems() {
+  if (!packageBuilderForm) {
+    return {
+      items: [],
+      total: 0,
+      hasPoa: false,
+      needsDaySelection: false,
+      weddingDayLabel: ""
+    };
+  }
+
+  const items = [];
+  let total = 0;
+  let hasPoa = false;
+  let needsDaySelection = false;
+
+  const weddingDayLabel =
+    getWeddingDayBandLabel();
+
+  const main =
+    packageBuilderForm.querySelector(
+      'input[name="mainPackage"]:checked'
+    );
+
+  if (main) {
+    let price =
+      Number(
+        main.dataset.price ||
+        0
+      );
+
+    let pricePending =
+      false;
+
+    const dayPrice =
+      getWeddingDayPackagePrice(
+        main
+      );
+
+    if (
+      dayPrice ===
+      null
+    ) {
+      price =
+        null;
+
+      pricePending =
+        true;
+
+      needsDaySelection =
+        true;
+
+    } else {
+      price =
+        dayPrice;
+    }
+
+    items.push({
+      label:
+        main.dataset.label ||
+        main.value,
+      price,
+      poa: false,
+      pricePending
+    });
+
+    if (
+      !pricePending &&
+      typeof price ===
+        "number"
+    ) {
+      total +=
+        price;
+    }
+  }
+
+  packageBuilderForm
+    .querySelectorAll(
+      'input[name="extras"]:checked'
+    )
+    .forEach(
+      (input) => {
+        const price =
+          Number(
+            input.dataset.price ||
+            0
+          );
+
+        items.push({
+          label:
+            input.dataset.label ||
+            input.value,
+          price,
+          poa: false
+        });
+
+        total +=
+          price;
+      }
+    );
+
+  if (
+    foamSticksSelect &&
+    foamSticksSelect.value
+  ) {
+    const option =
+      foamSticksSelect.options[
+        foamSticksSelect.selectedIndex
+      ];
+
+    const price =
+      Number(
+        option.dataset.price ||
+        0
+      );
+
+    const colourLabel =
+      getFoamSticksColourLabel();
+
+    const baseLabel =
+      option.dataset.label ||
+      option.textContent.trim();
+
+    items.push({
+      label:
+        colourLabel
+          ? `${baseLabel} — ${colourLabel}`
+          : `${baseLabel} — colour to be chosen`,
+      price,
+      poa: false
+    });
+
+    total +=
+      price;
+  }
+
+  packageBuilderForm
+    .querySelectorAll(
+      'input[name="poaExtras"]:checked'
+    )
+    .forEach(
+      (input) => {
+        items.push({
+          label:
+            input.dataset.label ||
+            input.value,
+          price: null,
+          poa: true
+        });
+
+        hasPoa =
+          true;
+      }
+    );
+
+  return {
+    items,
+    total,
+    hasPoa,
+    needsDaySelection,
+    weddingDayLabel
+  };
+}
+
+function buildPackageCopyText() {
+  const selection =
+    getSelectedPackageItems();
+
+  const lines = [
+    "Keswick Discos — Wedding Package",
+    "",
+    `Wedding day pricing: ${selection.weddingDayLabel || "Not selected"}`,
+    ""
+  ];
+
+  if (
+    selection.items.length ===
+    0
+  ) {
+    lines.push(
+      "No package options selected yet."
+    );
+
+  } else {
+    selection.items.forEach(
+      (item) => {
+        lines.push(
+          item.poa
+            ? `• ${item.label} — Price on request`
+            : item.pricePending
+              ? `• ${item.label} — Choose wedding day for price`
+              : `• ${item.label} — ${formatPackagePrice(item.price)}`
+        );
+      }
+    );
+  }
+
+  lines.push(
+    ""
+  );
+
+  if (
+    selection.needsDaySelection
+  ) {
+    lines.push(
+      "Current fixed-price total: Choose wedding day to calculate"
+    );
+
+  } else {
+    lines.push(
+      `Current fixed-price total: ${formatPackagePrice(selection.total)}`
+    );
+  }
+
+  if (selection.hasPoa) {
+    lines.push(
+      "Plus selected items priced on request."
+    );
+  }
+
+  lines.push(
+    "",
+    "A £50 non-refundable deposit is required to secure the wedding date.",
+    "",
+    "Travel is included within 30 miles of Keswick. Venues further afield may incur a travel supplement.",
+    "",
+    "Please confirm availability and final pricing for my wedding date."
+  );
+
+  return lines.join(
+    "\n"
+  );
+}
+
+function savePackageBuilderState() {
+  if (!packageBuilderForm) {
+    return;
+  }
+
+  try {
+    const main =
+      packageBuilderForm.querySelector(
+        'input[name="mainPackage"]:checked'
+      );
+
+    const extras =
+      [...packageBuilderForm.querySelectorAll(
+        'input[name="extras"]:checked'
+      )].map(
+        (input) => input.value
+      );
+
+    const poaExtras =
+      [...packageBuilderForm.querySelectorAll(
+        'input[name="poaExtras"]:checked'
+      )].map(
+        (input) => input.value
+      );
+
+    window.sessionStorage.setItem(
+      PACKAGE_BUILDER_STORAGE_KEY,
+      JSON.stringify({
+        main:
+          main?.value ||
+          "",
+        weddingDayBand:
+          getSelectedWeddingDayBandInput()?.value ||
+          "",
+        extras,
+        poaExtras,
+        foamSticks:
+          foamSticksSelect?.value ||
+          "",
+        foamSticksColour:
+          getSelectedFoamSticksColourInput()?.value ||
+          ""
+      })
+    );
+
+  } catch (error) {
+    console.warn(
+      "Unable to save package creator choices:",
+      error
+    );
+  }
+}
+
+function restorePackageBuilderState() {
+  if (!packageBuilderForm) {
+    return;
+  }
+
+  try {
+    const raw =
+      window.sessionStorage.getItem(
+        PACKAGE_BUILDER_STORAGE_KEY
+      );
+
+    if (!raw) {
+      return;
+    }
+
+    const saved =
+      JSON.parse(
+        raw
+      );
+
+    if (saved.main) {
+      const main =
+        packageBuilderForm.querySelector(
+          `input[name="mainPackage"][value="${saved.main}"]`
+        );
+
+      if (main) {
+        main.checked =
+          true;
+      }
+    }
+
+    if (saved.weddingDayBand) {
+      const weddingDayBand =
+        packageBuilderForm.querySelector(
+          `input[name="weddingDayBand"][value="${saved.weddingDayBand}"]`
+        );
+
+      if (weddingDayBand) {
+        weddingDayBand.checked =
+          true;
+      }
+    }
+
+    const extras =
+      new Set(
+        Array.isArray(saved.extras)
+          ? saved.extras
+          : []
+      );
+
+    packageBuilderForm
+      .querySelectorAll(
+        'input[name="extras"]'
+      )
+      .forEach(
+        (input) => {
+          input.checked =
+            extras.has(
+              input.value
+            );
+        }
+      );
+
+    const poaExtras =
+      new Set(
+        Array.isArray(saved.poaExtras)
+          ? saved.poaExtras
+          : []
+      );
+
+    packageBuilderForm
+      .querySelectorAll(
+        'input[name="poaExtras"]'
+      )
+      .forEach(
+        (input) => {
+          input.checked =
+            poaExtras.has(
+              input.value
+            );
+        }
+      );
+
+    if (
+      foamSticksSelect &&
+      typeof saved.foamSticks ===
+        "string"
+    ) {
+      foamSticksSelect.value =
+        saved.foamSticks;
+    }
+
+    if (
+      typeof saved.foamSticksColour ===
+        "string"
+    ) {
+      const savedColour =
+        packageBuilderForm.querySelector(
+          `input[name="foamSticksColour"][value="${saved.foamSticksColour}"]`
+        );
+
+      if (savedColour) {
+        savedColour.checked =
+          true;
+      }
+    }
+
+  } catch (error) {
+    console.warn(
+      "Unable to restore package creator choices:",
+      error
+    );
+  }
+}
+
+function updatePackageBuilderSummary() {
+  if (
+    !packageSummaryItems ||
+    !packageSummaryTotal
+  ) {
+    return;
+  }
+
+  const selection =
+    getSelectedPackageItems();
+
+  packageSummaryItems.innerHTML =
+    "";
+
+  selection.items.forEach(
+    (item) => {
+      const row =
+        document.createElement(
+          "li"
+        );
+
+      const label =
+        document.createElement(
+          "span"
+        );
+
+      const price =
+        document.createElement(
+          "strong"
+        );
+
+      label.textContent =
+        item.label;
+
+      price.textContent =
+        item.poa
+          ? "POA"
+          : item.pricePending
+            ? "Choose day"
+            : formatPackagePrice(
+                item.price
+              );
+
+      row.append(
+        label,
+        price
+      );
+
+      packageSummaryItems.appendChild(
+        row
+      );
+    }
+  );
+
+  if (packageSummaryEmpty) {
+    packageSummaryEmpty.hidden =
+      selection.items.length >
+      0;
+  }
+
+  if (packageSummaryDay) {
+    packageSummaryDay.textContent =
+      selection.weddingDayLabel
+        ? `Wedding day pricing: ${selection.weddingDayLabel}`
+        : "Wedding day pricing: not selected";
+  }
+
+  packageSummaryTotal.textContent =
+    selection.needsDaySelection
+      ? "Choose day"
+      : formatPackagePrice(
+          selection.total
+        );
+
+  syncMainPackagePriceDisplays();
+
+  if (packageSummaryPoa) {
+    packageSummaryPoa.hidden =
+      !selection.hasPoa;
+  }
+
+  savePackageBuilderState();
+}
+
+function openPackageBuilder() {
+  if (!packageBuilder) {
+    return;
+  }
+
+  packageBuilderReturnFocus =
+    document.activeElement;
+
+  closeAllPanels();
+  closeMobileThumbnailTray();
+
+  restorePackageBuilderState();
+  updatePackageBuilderSummary();
+
+  packageBuilder.hidden =
+    false;
+
+  document.body.classList.add(
+    "package-builder-open"
+  );
+
+  window.requestAnimationFrame(
+    () => {
+      if (
+        packageBuilderPanel &&
+        window.matchMedia(
+          "(max-width: 850px)"
+        ).matches
+      ) {
+        packageBuilderPanel.scrollTop =
+          0;
+      }
+
+      closePackageBuilderButton?.focus();
+    }
+  );
+}
+
+function closePackageBuilder() {
+  if (!packageBuilder) {
+    return;
+  }
+
+  packageBuilder.hidden =
+    true;
+
+  document.body.classList.remove(
+    "package-builder-open"
+  );
+
+  if (
+    packageBuilderReturnFocus &&
+    typeof packageBuilderReturnFocus.focus ===
+      "function"
+  ) {
+    packageBuilderReturnFocus.focus();
+  }
+
+  packageBuilderReturnFocus =
+    null;
+}
+
+function resetPackageBuilder() {
+  if (!packageBuilderForm) {
+    return;
+  }
+
+  packageBuilderForm.reset();
+
+  try {
+    window.sessionStorage.removeItem(
+      PACKAGE_BUILDER_STORAGE_KEY
+    );
+  } catch (error) {}
+
+  if (packageCopyStatus) {
+    packageCopyStatus.textContent =
+      "Choices reset.";
+  }
+
+  updatePackageBuilderSummary();
+}
+
+async function copyPackageBuilderSummary() {
+  const text =
+    buildPackageCopyText();
+
+  let copied =
+    false;
+
+  try {
+    if (
+      navigator.clipboard &&
+      window.isSecureContext
+    ) {
+      await navigator.clipboard.writeText(
+        text
+      );
+
+      copied =
+        true;
+    }
+  } catch (error) {}
+
+  if (!copied) {
+    const textarea =
+      document.createElement(
+        "textarea"
+      );
+
+    textarea.value =
+      text;
+
+    textarea.setAttribute(
+      "readonly",
+      ""
+    );
+
+    textarea.style.position =
+      "fixed";
+
+    textarea.style.opacity =
+      "0";
+
+    document.body.appendChild(
+      textarea
+    );
+
+    textarea.select();
+
+    try {
+      copied =
+        document.execCommand(
+          "copy"
+        );
+    } catch (error) {}
+
+    textarea.remove();
+  }
+
+  if (packageCopyStatus) {
+    packageCopyStatus.textContent =
+      copied
+        ? "Package copied — ready to paste into your enquiry."
+        : "Unable to copy automatically. Please try again.";
+  }
+}
+
+function initialisePackageBuilder() {
+  if (
+    !packageBuilder ||
+    !packageBuilderForm
+  ) {
+    return;
+  }
+
+  restorePackageBuilderState();
+  updatePackageBuilderSummary();
+
+  packageBuilderForm.addEventListener(
+    "change",
+    () => {
+      if (packageCopyStatus) {
+        packageCopyStatus.textContent =
+          "";
+      }
+
+      updatePackageBuilderSummary();
+    }
+  );
+
+  closePackageBuilderButton?.addEventListener(
+    "click",
+    closePackageBuilder
+  );
+
+  packageBuilder
+    .querySelectorAll(
+      "[data-package-close]"
+    )
+    .forEach(
+      (element) => {
+        element.addEventListener(
+          "click",
+          closePackageBuilder
+        );
+      }
+    );
+
+  resetPackageButton?.addEventListener(
+    "click",
+    resetPackageBuilder
+  );
+
+  copyPackageButton?.addEventListener(
+    "click",
+    () => {
+      void copyPackageBuilderSummary();
+    }
+  );
+}
+
+/* =========================================================
+   SOUND
+   ========================================================= */
+
+function playPageTurnSound() {
+  if (
+    !soundEnabled ||
+    !pageSound
+  ) {
+    return;
+  }
+
+  try {
+    pageSound.pause();
+
+    pageSound.currentTime =
+      0;
+
+    pageSound.volume =
+      0.28;
+
+    const promise =
+      pageSound.play();
+
+    if (
+      promise &&
+      typeof promise.catch ===
+      "function"
+    ) {
+      promise.catch(
+        () => {}
+      );
+    }
+
+  } catch (error) {
+    console.warn(
+      "Page sound unavailable:",
+      error
+    );
+  }
+}
+
+
+/* =========================================================
+   DESKTOP FLIPBOOK
+   ========================================================= */
+
+function createDesktopPages() {
+  if (!bookElement) {
+    return;
+  }
+
+  bookElement.innerHTML =
+    "";
+
+  desktopPageImages.clear();
+
+  for (
+    let pageNumber = 1;
+    pageNumber <= totalPages;
+    pageNumber += 1
+  ) {
+    const page =
+      document.createElement(
+        "div"
+      );
+
+    page.className =
+      "page";
+
+    page.dataset.pageNumber =
+      String(
+        pageNumber
+      );
+
+    if (
+      pageNumber === 1 ||
+      pageNumber === totalPages
+    ) {
+      page.classList.add(
+        "page-cover"
+      );
+
+      page.dataset.density =
+        "hard";
+    }
+
+    const image =
+      document.createElement(
+        "img"
+      );
+
+    image.alt =
+      `${getPageTitle(pageNumber)} — Keswick Discos Wedding Brochure`;
+
+    image.decoding =
+      "async";
+
+    image.loading =
+      pageNumber <= 4
+        ? "eager"
+        : "lazy";
+
+    image.fetchPriority =
+      pageNumber === 1
+        ? "high"
+        : "auto";
+
+    image.dataset.src =
+      imagePath(
+        pageNumber
+      );
+
+    image.dataset.loadState =
+      "waiting";
+
+    image.src =
+      image.dataset.src;
+
+    desktopPageImages.set(
+      pageNumber,
+      image
+    );
+
+    page.appendChild(
+      image
+    );
+
+    appendPageHotspots(
+      page,
+      pageNumber
+    );
+
+    bookElement.appendChild(
+      page
+    );
+  }
+}
+
+function ensureDesktopPageLoaded(
+  pageNumber
+) {
+  if (
+    !validPageNumber(
+      pageNumber
+    )
+  ) {
+    return Promise.resolve();
+  }
+
+  const image =
+    desktopPageImages.get(
+      pageNumber
+    );
+
+  if (!image) {
+    return Promise.resolve();
+  }
+
+  if (
+    image.dataset.loadState ===
+    "loaded"
+  ) {
+    return Promise.resolve();
+  }
+
+  if (
+    desktopPageLoadPromises.has(
+      pageNumber
+    )
+  ) {
+    return desktopPageLoadPromises.get(
+      pageNumber
+    );
+  }
+
+  const promise =
+    new Promise(
+      (resolve) => {
+        let settled =
+          false;
+
+        const finish =
+          (state) => {
+            if (settled) {
+              return;
+            }
+
+            settled =
+              true;
+
+            image.dataset.loadState =
+              state;
+
+            desktopPageLoadPromises.delete(
+              pageNumber
+            );
+
+            resolve();
+          };
+
+        const loaded =
+          async () => {
+            try {
+              if (
+                typeof image.decode ===
+                "function"
+              ) {
+                await image.decode();
+              }
+            } catch (error) {}
+
+            finish(
+              "loaded"
+            );
+          };
+
+        image.dataset.loadState =
+          "loading";
+
+        image.loading =
+          "eager";
+
+        if (
+          !image.getAttribute(
+            "src"
+          )
+        ) {
+          image.src =
+            image.dataset.src;
+        }
+
+        if (
+          image.complete
+        ) {
+          if (
+            image.naturalWidth >
+            0
+          ) {
+            void loaded();
+
+          } else {
+            finish(
+              "error"
+            );
+          }
+
+          return;
+        }
+
+        image.addEventListener(
+          "load",
+          loaded,
+          {
+            once: true
+          }
+        );
+
+        image.addEventListener(
+          "error",
+          () => {
+            finish(
+              "error"
+            );
+          },
+          {
+            once: true
+          }
+        );
+      }
+    );
+
+  desktopPageLoadPromises.set(
+    pageNumber,
+    promise
+  );
+
+  return promise;
+}
+
+function preloadDesktopAround(
+  pageNumber
+) {
+  const current =
+    clampPageNumber(
+      pageNumber
+    );
+
+  for (
+    let offset = -2;
+    offset <= 6;
+    offset += 1
+  ) {
+    const candidate =
+      current +
+      offset;
+
+    if (
+      validPageNumber(
+        candidate
+      )
+    ) {
+      void ensureDesktopPageLoaded(
+        candidate
+      );
+    }
+  }
+}
+
+async function loadDesktopStartupPages(
+  startingPage
+) {
+  const pages =
+    new Set([
+      startingPage,
+      startingPage - 1,
+      startingPage + 1,
+      startingPage + 2
+    ]);
+
+  if (
+    startingPage === 1
+  ) {
+    pages.add(
+      3
+    );
+  }
+
+  const criticalPages =
+    [...pages].filter(
+      validPageNumber
+    );
+
+  let complete =
+    0;
+
+  if (loadingProgress) {
+    loadingProgress.style.width =
+      "8%";
+  }
+
+  await Promise.all(
+    criticalPages.map(
+      async (
+        pageNumber
+      ) => {
+        await ensureDesktopPageLoaded(
+          pageNumber
+        );
+
+        complete +=
+          1;
+
+        if (
+          loadingProgress
+        ) {
+          loadingProgress.style.width =
+            `${Math.round(
+              8 +
+              (
+                complete /
+                criticalPages.length
+              ) *
+              92
+            )}%`;
+        }
+      }
+    )
+  );
+}
+
+function initialiseDesktopFlipbook(
+  startingPage
+) {
+  if (
+    !window.St ||
+    !window.St.PageFlip
+  ) {
+    throw new Error(
+      "StPageFlip did not load."
+    );
+  }
+
+  pageFlip =
+    new St.PageFlip(
+      bookElement,
+      {
+        width:
+          pageWidth,
+
+        height:
+          pageHeight,
+
+        size:
+          "stretch",
+
+        minWidth:
+          280,
+
+        maxWidth:
+          pageWidth,
+
+        minHeight:
+          396,
+
+        maxHeight:
+          pageHeight,
+
+        showCover:
+          true,
+
+        usePortrait:
+          true,
+
+        autoSize:
+          true,
+
+        drawShadow:
+          true,
+
+        maxShadowOpacity:
+          0.45,
+
+        flippingTime:
+          850,
+
+        mobileScrollSupport:
+          false,
+
+        clickEventForward:
+          true,
+
+        useMouseEvents:
+          !isTouchDevice,
+
+        swipeDistance:
+          30,
+
+        showPageCorners:
+          true,
+
+        disableFlipByClick:
+          false
+      }
+    );
+
+  pageFlip.loadFromHTML(
+    document.querySelectorAll(
+      ".page"
+    )
+  );
+
+  pageFlip.on(
+    "init",
+    () => {
+      if (
+        zoomContainer
+      ) {
+        zoomContainer.style.transform =
+          "none";
+      }
+
+      if (
+        startingPage >
+        1
+      ) {
+        pageFlip.turnToPage(
+          startingPage -
+          1
+        );
+      }
+
+      window.setTimeout(
+        () => {
+          const index =
+            pageFlip.getCurrentPageIndex();
+
+          const page =
+            clampPageNumber(
+              index + 1
+            );
+
+          updateInterface(
+            index
+          );
+
+          updateUrlPage(
+            page
+          );
+
+          preloadDesktopAround(
+            page
+          );
+
+          hideLoadingScreen();
+        },
+        startingPage > 1
+          ? 100
+          : 30
+      );
+    }
+  );
+
+  pageFlip.on(
+    "flip",
+    (event) => {
+      const index =
+        event.data;
+
+      const page =
+        clampPageNumber(
+          index + 1
+        );
+
+      updateInterface(
+        index
+      );
+
+      updateUrlPage(
+        page
+      );
+
+      playPageTurnSound();
+
+      preloadDesktopAround(
+        page
+      );
+    }
+  );
+
+  pageFlip.on(
+    "changeOrientation",
+    () => {
+      window.setTimeout(
+        () => {
+          const index =
+            pageFlip.getCurrentPageIndex();
+
+          updateInterface(
+            index
+          );
+
+          preloadDesktopAround(
+            index + 1
+          );
+        },
+        120
+      );
+    }
+  );
+}
+
+
+/* =========================================================
+   PDF.JS MOBILE READER
+   ========================================================= */
+
+async function ensurePdfJs() {
+  if (!pdfjsLibPromise) {
+    pdfjsLibPromise =
+      Promise.resolve()
+        .then(
+          () => {
+            const pdfjsLib =
+              window.pdfjsLib;
+
+            if (
+              !pdfjsLib ||
+              typeof pdfjsLib.getDocument !==
+              "function"
+            ) {
+              throw new Error(
+                "PDF.js did not load."
+              );
+            }
+
+            pdfjsLib
+              .GlobalWorkerOptions
+              .workerSrc =
+                PDFJS_WORKER_URL;
+
+            return pdfjsLib;
+          }
+        );
+  }
+
+  return pdfjsLibPromise;
+}
+
+async function ensureMobilePdfDocument() {
+  if (
+    mobilePdfDocument
+  ) {
+    return mobilePdfDocument;
+  }
+
+  if (
+    !mobilePdfDocumentPromise
+  ) {
+    mobilePdfDocumentPromise =
+      ensurePdfJs()
+        .then(
+          (pdfjsLib) => {
+            const loadingTask =
+              pdfjsLib.getDocument({
+                url:
+                  combinedPdfPath(),
+
+                disableAutoFetch:
+                  false,
+
+                disableStream:
+                  false,
+
+                disableRange:
+                  false
+              });
+
+            mobilePdfLoadingTask =
+              loadingTask;
+
+            return loadingTask.promise;
+          }
+        )
+        .then(
+          (pdfDocument) => {
+            mobilePdfDocument =
+              pdfDocument;
+
+            mobilePdfLoadingTask =
+              null;
+
+            if (
+              pdfDocument.numPages !==
+              totalPages - 1
+            ) {
+              console.warn(
+                `Combined mobile PDF has ${pdfDocument.numPages} pages; expected ${totalPages - 1}.`
+              );
+            }
+
+            return pdfDocument;
+          }
+        )
+        .catch(
+          (error) => {
+            mobilePdfLoadingTask =
+              null;
+
+            mobilePdfDocumentPromise =
+              null;
+
+            throw error;
+          }
+        );
+  }
+
+  return mobilePdfDocumentPromise;
+}
+
+function brochurePageToPdfPage(
+  pageNumber
+) {
+  return pageNumber - 1;
+}
+
+function getCachedMobileCanvas(
+  pageNumber
+) {
+  const canvas =
+    mobileRenderedPageCache.get(
+      pageNumber
+    );
+
+  if (!canvas) {
+    return null;
+  }
+
+  mobileRenderedPageCache.delete(
+    pageNumber
+  );
+
+  mobileRenderedPageCache.set(
+    pageNumber,
+    canvas
+  );
+
+  return canvas;
+}
+
+function trimMobileRenderedCache() {
+  while (
+    mobileRenderedPageCache.size >
+    MOBILE_PDF_CACHE_LIMIT
+  ) {
+    let removableKey =
+      null;
+
+    for (
+      const key of
+      mobileRenderedPageCache.keys()
+    ) {
+      if (
+        key !== mobileCurrentPage &&
+        key !== mobileRequestedPage
+      ) {
+        removableKey =
+          key;
+
+        break;
+      }
+    }
+
+    if (
+      removableKey ===
+      null
+    ) {
+      break;
+    }
+
+    const canvas =
+      mobileRenderedPageCache.get(
+        removableKey
+      );
+
+    mobileRenderedPageCache.delete(
+      removableKey
+    );
+
+    if (
+      canvas &&
+      !canvas.isConnected
+    ) {
+      canvas.width =
+        1;
+
+      canvas.height =
+        1;
+    }
+  }
+}
+
+function cacheMobileCanvas(
+  pageNumber,
+  canvas
+) {
+  if (!canvas) {
+    return;
+  }
+
+  const previous =
+    mobileRenderedPageCache.get(
+      pageNumber
+    );
+
+  if (
+    previous &&
+    previous !== canvas &&
+    !previous.isConnected
+  ) {
+    previous.width =
+      1;
+
+    previous.height =
+      1;
+  }
+
+  mobileRenderedPageCache.delete(
+    pageNumber
+  );
+
+  mobileRenderedPageCache.set(
+    pageNumber,
+    canvas
+  );
+
+  trimMobileRenderedCache();
+}
+
+function clearMobileRenderedCache() {
+  for (
+    const canvas of
+    mobileRenderedPageCache.values()
+  ) {
+    if (
+      canvas &&
+      !canvas.isConnected
+    ) {
+      canvas.width =
+        1;
+
+      canvas.height =
+        1;
+    }
+  }
+
+  mobileRenderedPageCache.clear();
+}
+
+function cancelMobileWarm() {
+  mobileWarmGeneration +=
+    1;
+
+  if (
+    mobileWarmTimer
+  ) {
+    window.clearTimeout(
+      mobileWarmTimer
+    );
+
+    mobileWarmTimer =
+      null;
+  }
+}
+
+function cancelActiveMobilePdfWork() {
+  if (
+    mobilePdfRenderTask
+  ) {
+    try {
+      mobilePdfRenderTask.cancel();
+    } catch (error) {}
+
+    mobilePdfRenderTask =
+      null;
+
+    mobilePdfRenderPage =
+      null;
+  }
+}
+
+
+/* =========================================================
+   INSTANT THUMBNAIL NAVIGATION
+   ========================================================= */
+
+function createMobileThumbnailPreview(
+  pageNumber
+) {
+  const image =
+    new Image();
+
+  image.className =
+    "mobile-page-image mobile-page-preview";
+
+  image.alt =
+    `${getPageTitle(pageNumber)} — Keswick Discos Wedding Brochure`;
+
+  image.decoding =
+    "async";
+
+  image.loading =
+    "eager";
+
+  image.fetchPriority =
+    "high";
+
+  image.draggable =
+    false;
+
+  image.src =
+    thumbnailPath(
+      pageNumber
+    );
+
+  return image;
+}
+
+function primeMobileThumbnailPage(
+  pageNumber
+) {
+  const safePage =
+    clampPageNumber(
+      pageNumber
+    );
+
+  if (
+    !isMobileViewer ||
+    safePage === 1
+  ) {
+    return Promise.resolve(
+      null
+    );
+  }
+
+  const cached =
+    getCachedMobileCanvas(
+      safePage
+    );
+
+  if (cached) {
+    return Promise.resolve(
+      cached
+    );
+  }
+
+  if (
+    mobileThumbnailPrimePromises.has(
+      safePage
+    )
+  ) {
+    return mobileThumbnailPrimePromises.get(
+      safePage
+    );
+  }
+
+  if (
+    mobilePdfRenderTask &&
+    mobilePdfRenderPage !== safePage
+  ) {
+    return Promise.resolve(
+      null
+    );
+  }
+
+  const promise =
+    renderMobilePdfCanvas(
+      safePage
+    )
+      .catch(
+        (error) => {
+          if (
+            error?.name !==
+            "RenderingCancelledException"
+          ) {
+            console.warn(
+              `Unable to prime thumbnail destination page ${safePage}:`,
+              error
+            );
+          }
+
+          return null;
+        }
+      )
+      .finally(
+        () => {
+          if (
+            mobileThumbnailPrimePromises.get(
+              safePage
+            ) === promise
+          ) {
+            mobileThumbnailPrimePromises.delete(
+              safePage
+            );
+          }
+        }
+      );
+
+  mobileThumbnailPrimePromises.set(
+    safePage,
+    promise
+  );
+
+  return promise;
+}
+
+async function navigateMobileThumbnailPage(
+  pageNumber
+) {
+  if (
+    !isMobileViewer ||
+    !mobilePageHost ||
+    isImageZoomOpen()
+  ) {
+    return false;
+  }
+
+  const safePage =
+    clampPageNumber(
+      pageNumber
+    );
+
+  if (
+    safePage === mobileCurrentPage &&
+    safePage === mobileRequestedPage
+  ) {
+    closeMobileThumbnailTray(
+      false
+    );
+
+    return true;
+  }
+
+  if (
+    mobileNavigationTimer
+  ) {
+    window.clearTimeout(
+      mobileNavigationTimer
+    );
+
+    mobileNavigationTimer =
+      null;
+  }
+
+  cancelMobileWarm();
+
+  const existingPrime =
+    mobileThumbnailPrimePromises.get(
+      safePage
+    ) ||
+    null;
+
+  if (
+    !existingPrime
+  ) {
+    cancelActiveMobilePdfWork();
+  }
+
+  mobileLastDirection =
+    safePage >= mobileCurrentPage
+      ? 1
+      : -1;
+
+  mobileRequestedPage =
+    safePage;
+
+  const requestId =
+    ++mobileNavigationRequestId;
+
+  closeMobileThumbnailTray(
+    false
+  );
+
+  const cached =
+    safePage === 1
+      ? null
+      : getCachedMobileCanvas(
+          safePage
+        );
+
+  if (cached) {
+    mountMobilePageNode(
+      safePage,
+      cached
+    );
+
+  } else {
+    mobilePageHost.replaceChildren(
+      createMobileThumbnailPreview(
+        safePage
+      )
+    );
+  }
+
+  mobileCurrentPage =
+    safePage;
+
+  updateInterface(
+    safePage - 1
+  );
+
+  updateUrlPage(
+    safePage
+  );
+
+  playPageTurnSound();
+
+  if (cached) {
+    scheduleMobileWarmAround(
+      safePage,
+      mobileLastDirection
+    );
+
+    return true;
+  }
+
+  let preparedNode =
+    null;
+
+  try {
+    if (
+      safePage === 1
+    ) {
+      preparedNode =
+        await prepareMobileCover();
+
+    } else {
+      if (
+        existingPrime
+      ) {
+        preparedNode =
+          await existingPrime;
+      }
+
+      if (
+        !preparedNode &&
+        requestId ===
+          mobileNavigationRequestId &&
+        safePage ===
+          mobileRequestedPage
+      ) {
+        preparedNode =
+          await prepareMobilePdfWithFallback(
+            safePage,
+            requestId
+          );
+      }
+    }
+
+  } catch (error) {
+    if (
+      requestId ===
+      mobileNavigationRequestId
+    ) {
+      console.warn(
+        `Unable to sharpen thumbnail destination page ${safePage}:`,
+        error
+      );
+    }
+
+    return false;
+  }
+
+  if (
+    !preparedNode ||
+    requestId !==
+      mobileNavigationRequestId ||
+    safePage !==
+      mobileRequestedPage
+  ) {
+    return false;
+  }
+
+  mountMobilePageNode(
+    safePage,
+    preparedNode
+  );
+
+  scheduleMobileWarmAround(
+    safePage,
+    mobileLastDirection
+  );
+
+  return true;
+}
+
+
+/* =========================================================
+   MOBILE VIEWER
+   ========================================================= */
+
+function createMobileViewer() {
+  if (!bookElement) {
+    return;
+  }
+
+  bookElement.innerHTML =
+    "";
+
+  bookElement.classList.add(
+    "mobile-book"
+  );
+
+  mobilePageFrame =
+    document.createElement(
+      "div"
+    );
+
+  mobilePageFrame.className =
+    "mobile-page-frame";
+
+  mobilePageHost =
+    document.createElement(
+      "div"
+    );
+
+  mobilePageHost.className =
+    "mobile-page-host";
+
+  mobilePageFrame.appendChild(
+    mobilePageHost
+  );
+
+  bookElement.appendChild(
+    mobilePageFrame
+  );
+}
+
+async function prepareMobileCover() {
+  const image =
+    new Image();
+
+  image.className =
+    "mobile-page-image";
+
+  image.alt =
+    `${getPageTitle(1)} — Keswick Discos Wedding Brochure`;
+
+  image.decoding =
+    "async";
+
+  image.loading =
+    "eager";
+
+  image.fetchPriority =
+    "high";
+
+  image.draggable =
+    false;
+
+  await waitForReadyImage(
+    image,
+    imagePath(1)
+  );
+
+  return image;
+}
+
+function mobileRenderStillWanted(
+  requestId = null,
+  warmGeneration = null
+) {
+  if (
+    requestId !== null &&
+    requestId !==
+      mobileNavigationRequestId
+  ) {
+    return false;
+  }
+
+  if (
+    warmGeneration !== null &&
+    warmGeneration !==
+      mobileWarmGeneration
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+async function renderMobilePdfCanvas(
+  pageNumber,
+  {
+    requestId = null,
+    warmGeneration = null
+  } = {}
+) {
+  const cached =
+    getCachedMobileCanvas(
+      pageNumber
+    );
+
+  if (cached) {
+    return cached;
+  }
+
+  const pdfDocument =
+    await ensureMobilePdfDocument();
+
+  if (
+    !mobileRenderStillWanted(
+      requestId,
+      warmGeneration
+    )
+  ) {
+    return null;
+  }
+
+  const pdfPageNumber =
+    brochurePageToPdfPage(
+      pageNumber
+    );
+
+  if (
+    pdfPageNumber < 1 ||
+    pdfPageNumber >
+      pdfDocument.numPages
+  ) {
+    throw new Error(
+      `PDF page ${pdfPageNumber} is unavailable.`
+    );
+  }
+
+  const pdfPage =
+    await pdfDocument.getPage(
+      pdfPageNumber
+    );
+
+  if (
+    !mobileRenderStillWanted(
+      requestId,
+      warmGeneration
+    )
+  ) {
+    try {
+      pdfPage.cleanup();
+    } catch (error) {}
+
+    return null;
+  }
+
+  try {
+    const rect =
+      mobilePageFrame
+        ?.getBoundingClientRect();
+
+    const availableWidth =
+      Math.max(
+        1,
+        rect?.width ||
+        bookElement?.clientWidth ||
+        window.innerWidth
+      );
+
+    const availableHeight =
+      Math.max(
+        1,
+        rect?.height ||
+        bookElement?.clientHeight ||
+        window.innerHeight
+      );
+
+    const baseViewport =
+      pdfPage.getViewport({
+        scale: 1
+      });
+
+    const fitScale =
+      Math.min(
+        availableWidth /
+          baseViewport.width,
+
+        availableHeight /
+          baseViewport.height
+      );
+
+    const outputScale =
+      Math.min(
+        window.devicePixelRatio ||
+        1,
+        2
+      );
+
+    const viewport =
+      pdfPage.getViewport({
+        scale:
+          fitScale *
+          outputScale
+      });
+
+    const canvas =
+      document.createElement(
+        "canvas"
+      );
+
+    canvas.className =
+      "mobile-pdf-canvas";
+
+    canvas.setAttribute(
+      "role",
+      "img"
+    );
+
+    canvas.setAttribute(
+      "aria-label",
+      `${getPageTitle(pageNumber)} — Keswick Discos Wedding Brochure`
+    );
+
+    canvas.width =
+      Math.max(
+        1,
+        Math.ceil(
+          viewport.width
+        )
+      );
+
+    canvas.height =
+      Math.max(
+        1,
+        Math.ceil(
+          viewport.height
+        )
+      );
+
+    canvas.style.width =
+      `${viewport.width / outputScale}px`;
+
+    canvas.style.height =
+      `${viewport.height / outputScale}px`;
+
+    const context =
+      canvas.getContext(
+        "2d",
+        {
+          alpha: false
+        }
+      );
+
+    if (!context) {
+      throw new Error(
+        "Canvas rendering is not available."
+      );
+    }
+
+    context.imageSmoothingEnabled =
+      true;
+
+    context.imageSmoothingQuality =
+      "high";
+
+    const renderTask =
+      pdfPage.render({
+        canvasContext:
+          context,
+
+        viewport,
+
+        background:
+          "rgb(255,255,255)"
+      });
+
+    mobilePdfRenderTask =
+      renderTask;
+
+    mobilePdfRenderPage =
+      pageNumber;
+
+    await renderTask.promise;
+
+    if (
+      !mobileRenderStillWanted(
+        requestId,
+        warmGeneration
+      )
+    ) {
+      canvas.width =
+        1;
+
+      canvas.height =
+        1;
+
+      return null;
+    }
+
+    cacheMobileCanvas(
+      pageNumber,
+      canvas
+    );
+
+    return canvas;
+
+  } catch (error) {
+    if (
+      !mobileRenderStillWanted(
+        requestId,
+        warmGeneration
+      ) ||
+      error?.name ===
+        "RenderingCancelledException"
+    ) {
+      return null;
+    }
+
+    throw error;
+
+  } finally {
+    try {
+      pdfPage.cleanup();
+    } catch (error) {}
+
+    if (
+      mobilePdfRenderPage ===
+      pageNumber
+    ) {
+      mobilePdfRenderTask =
+        null;
+
+      mobilePdfRenderPage =
+        null;
+    }
+  }
+}
+
+async function prepareMobileFallbackImage(
+  pageNumber
+) {
+  const image =
+    new Image();
+
+  image.className =
+    "mobile-page-image";
+
+  image.alt =
+    `${getPageTitle(pageNumber)} — Keswick Discos Wedding Brochure`;
+
+  image.decoding =
+    "async";
+
+  image.loading =
+    "eager";
+
+  image.fetchPriority =
+    "high";
+
+  image.draggable =
+    false;
+
+  await waitForReadyImage(
+    image,
+    imagePath(
+      pageNumber
+    )
+  );
+
+  return image;
+}
+
+async function prepareMobilePdfWithFallback(
+  pageNumber,
+  requestId
+) {
+  const cached =
+    getCachedMobileCanvas(
+      pageNumber
+    );
+
+  if (cached) {
+    return cached;
+  }
+
+  let timeoutId =
+    null;
+
+  try {
+    const timeout =
+      new Promise(
+        (
+          resolve,
+          reject
+        ) => {
+          timeoutId =
+            window.setTimeout(
+              () => {
+                cancelActiveMobilePdfWork();
+
+                reject(
+                  new Error(
+                    `PDF page ${pageNumber} took too long to render.`
+                  )
+                );
+              },
+              MOBILE_PDF_TIMEOUT_MS
+            );
+        }
+      );
+
+    return await Promise.race([
+      renderMobilePdfCanvas(
+        pageNumber,
+        {
+          requestId
+        }
+      ),
+      timeout
+    ]);
+
+  } catch (error) {
+    if (
+      requestId !==
+      mobileNavigationRequestId
+    ) {
+      return null;
+    }
+
+    console.warn(
+      `PDF.js fallback used for page ${pageNumber}:`,
+      error
+    );
+
+    cancelActiveMobilePdfWork();
+
+    return prepareMobileFallbackImage(
+      pageNumber
+    );
+
+  } finally {
+    if (
+      timeoutId !==
+      null
+    ) {
+      window.clearTimeout(
+        timeoutId
+      );
+    }
+  }
+}
+
+async function warmMobilePdfPage(
+  pageNumber,
+  generation
+) {
+  if (
+    !validPageNumber(
+      pageNumber
+    ) ||
+    pageNumber === 1 ||
+    generation !==
+      mobileWarmGeneration ||
+    getCachedMobileCanvas(
+      pageNumber
+    )
+  ) {
+    return;
+  }
+
+  try {
+    await renderMobilePdfCanvas(
+      pageNumber,
+      {
+        warmGeneration:
+          generation
+      }
+    );
+
+  } catch (error) {
+    if (
+      generation ===
+      mobileWarmGeneration
+    ) {
+      console.warn(
+        `Unable to warm PDF page ${pageNumber}:`,
+        error
+      );
+    }
+  }
+}
+
+function scheduleMobileWarmAround(
+  pageNumber,
+  direction =
+    mobileLastDirection
+) {
+  cancelMobileWarm();
+
+  const generation =
+    mobileWarmGeneration;
+
+  const candidates =
+    direction >= 0
+      ? [
+          pageNumber + 1,
+          pageNumber - 1,
+          pageNumber + 2
+        ]
+      : [
+          pageNumber - 1,
+          pageNumber + 1,
+          pageNumber - 2
+        ];
+
+  mobileWarmTimer =
+    window.setTimeout(
+      async () => {
+        mobileWarmTimer =
+          null;
+
+        for (
+          const candidate of
+          candidates
+        ) {
+          if (
+            generation !==
+            mobileWarmGeneration
+          ) {
+            return;
+          }
+
+          if (
+            !validPageNumber(
+              candidate
+            ) ||
+            candidate === 1
+          ) {
+            continue;
+          }
+
+          if (
+            getCachedMobileCanvas(
+              candidate
+            )
+          ) {
+            continue;
+          }
+
+          if (
+            mobilePdfRenderTask
+          ) {
+            return;
+          }
+
+          await warmMobilePdfPage(
+            candidate,
+            generation
+          );
+
+          if (
+            generation !==
+            mobileWarmGeneration
+          ) {
+            return;
+          }
+
+          await wait(
+            20
+          );
+        }
+      },
+      140
+    );
+}
+
+async function primeMobilePdfPage(
+  pageNumber
+) {
+  try {
+    await ensureMobilePdfDocument();
+
+    if (
+      !getCachedMobileCanvas(
+        pageNumber
+      )
+    ) {
+      await renderMobilePdfCanvas(
+        pageNumber
+      );
+    }
+
+    return true;
+
+  } catch (error) {
+    console.warn(
+      "Unable to prime mobile PDF reader:",
+      error
+    );
+
+    return false;
+  }
+}
+
+async function commitMobilePageRequest(
+  pageNumber,
+  requestId,
+  {
+    initial = false,
+    playSound = false
+  } = {}
+) {
+  if (!mobilePageHost) {
+    return false;
+  }
+
+  const safePage =
+    clampPageNumber(
+      pageNumber
+    );
+
+  if (
+    pageStatus &&
+    !initial
+  ) {
+    pageStatus.textContent =
+      `Loading page ${safePage}…`;
+  }
+
+  let preparedNode =
+    null;
+
+  try {
+    preparedNode =
+      safePage === 1
+        ? await prepareMobileCover()
+        : await prepareMobilePdfWithFallback(
+            safePage,
+            requestId
+          );
+
+  } catch (error) {
+    console.error(
+      `Unable to prepare page ${safePage}:`,
+      error
+    );
+
+    if (
+      requestId ===
+        mobileNavigationRequestId &&
+      pageStatus
+    ) {
+      pageStatus.textContent =
+        `Page ${mobileCurrentPage} of ${totalPages}`;
+    }
+
+    if (
+      initial
+    ) {
+      throw error;
+    }
+
+    return false;
+  }
+
+  if (
+    !preparedNode ||
+    requestId !==
+      mobileNavigationRequestId ||
+    safePage !==
+      mobileRequestedPage
+  ) {
+    return false;
+  }
+
+  mountMobilePageNode(
+    safePage,
+    preparedNode
+  );
+
+  mobileCurrentPage =
+    safePage;
+
+  updateInterface(
+    safePage - 1
+  );
+
+  updateUrlPage(
+    safePage
+  );
+
+  scheduleMobileWarmAround(
+    safePage,
+    mobileLastDirection
+  );
+
+  if (
+    mobileThumbnailTrayOpen
+  ) {
+    trimThumbnailMemory(
+      mobileThumbnailContainer,
+      ".mobile-thumbnail-button"
+    );
+
+    centreThumbnail(
+      mobileThumbnailContainer,
+      ".mobile-thumbnail-button",
+      safePage - 1,
+      initial
+        ? "auto"
+        : "smooth"
+    );
+  }
+
+  if (
+    playSound
+  ) {
+    playPageTurnSound();
+  }
+
+  return true;
+}
+
+async function showMobilePage(
+  pageNumber,
+  initial = false,
+  playSound = false
+) {
+  const safePage =
+    clampPageNumber(
+      pageNumber
+    );
+
+  if (
+    mobileNavigationTimer
+  ) {
+    window.clearTimeout(
+      mobileNavigationTimer
+    );
+
+    mobileNavigationTimer =
+      null;
+  }
+
+  cancelMobileWarm();
+
+  cancelActiveMobilePdfWork();
+
+  mobileLastDirection =
+    safePage >=
+      mobileRequestedPage
+      ? 1
+      : -1;
+
+  mobileRequestedPage =
+    safePage;
+
+  const requestId =
+    ++mobileNavigationRequestId;
+
+  return commitMobilePageRequest(
+    safePage,
+    requestId,
+    {
+      initial,
+      playSound
+    }
+  );
+}
+
+function queueMobileRelativeNavigation(
+  delta
+) {
+  if (
+    isImageZoomOpen() ||
+    mobileSwipeLocked
+  ) {
+    return;
+  }
+
+  const basePage =
+    clampPageNumber(
+      mobileRequestedPage ||
+      mobileCurrentPage
+    );
+
+  const targetPage =
+    clampPageNumber(
+      basePage +
+      delta
+    );
+
+  if (
+    targetPage ===
+    basePage
+  ) {
+    return;
+  }
+
+  mobileLastDirection =
+    delta >= 0
+      ? 1
+      : -1;
+
+  mobileRequestedPage =
+    targetPage;
+
+  const requestId =
+    ++mobileNavigationRequestId;
+
+  cancelMobileWarm();
+
+  cancelActiveMobilePdfWork();
+
+  if (
+    mobileNavigationTimer
+  ) {
+    window.clearTimeout(
+      mobileNavigationTimer
+    );
+
+    mobileNavigationTimer =
+      null;
+  }
+
+  const cached =
+    targetPage === 1
+      ? null
+      : getCachedMobileCanvas(
+          targetPage
+        );
+
+  if (cached) {
+    mountMobilePageNode(
+      targetPage,
+      cached
+    );
+
+    mobileCurrentPage =
+      targetPage;
+
+    updateInterface(
+      targetPage - 1
+    );
+
+    updateUrlPage(
+      targetPage
+    );
+
+    playPageTurnSound();
+
+    scheduleMobileWarmAround(
+      targetPage,
+      mobileLastDirection
+    );
+
+    return;
+  }
+
+  if (
+    pageStatus
+  ) {
+    pageStatus.textContent =
+      `Loading page ${targetPage}…`;
+  }
+
+  mobileNavigationTimer =
+    window.setTimeout(
+      () => {
+        mobileNavigationTimer =
+          null;
+
+        void commitMobilePageRequest(
+          targetPage,
+          requestId,
+          {
+            initial: false,
+            playSound: true
+          }
+        );
+      },
+      45
+    );
+}
+
+window.addEventListener(
+  "pagehide",
+  () => {
+    cancelMobileWarm();
+
+    cancelActiveMobilePdfWork();
+
+    cancelZoomPdfRender();
+
+    if (
+      mobilePdfDocument
+    ) {
+      try {
+        void mobilePdfDocument.destroy();
+      } catch (error) {}
+
+    } else if (
+      mobilePdfLoadingTask
+    ) {
+      try {
+        void mobilePdfLoadingTask.destroy();
+      } catch (error) {}
+    }
+
+    mobilePdfDocument =
+      null;
+
+    mobilePdfDocumentPromise =
+      null;
+
+    mobilePdfLoadingTask =
+      null;
+
+    clearMobileRenderedCache();
+
+    mobileThumbnailPrimePromises.clear();
+  }
+);
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+async function goToPage(
+  pageNumber
+) {
+  if (
+    isImageZoomOpen()
+  ) {
+    return;
+  }
+
+  const safePage =
+    clampPageNumber(
+      pageNumber
+    );
+
+  if (
+    isMobileViewer
+  ) {
+    if (
+      safePage ===
+        mobileRequestedPage &&
+      safePage ===
+        mobileCurrentPage
+    ) {
+      return;
+    }
+
+    await showMobilePage(
+      safePage,
+      false,
+      true
+    );
+
+    return;
+  }
+
+  if (
+    navigationLocked ||
+    !pageFlip
+  ) {
+    return;
+  }
+
+  navigationLocked =
+    true;
+
+  try {
+    await Promise.all([
+      ensureDesktopPageLoaded(
+        safePage
+      ),
+
+      ensureDesktopPageLoaded(
+        safePage - 1
+      ),
+
+      ensureDesktopPageLoaded(
+        safePage + 1
+      )
+    ]);
+
+    pageFlip.turnToPage(
+      safePage - 1
+    );
+
+    preloadDesktopAround(
+      safePage
+    );
+
+  } finally {
+    window.setTimeout(
+      () => {
+        navigationLocked =
+          false;
+      },
+      180
+    );
+  }
+}
+
+async function goPrevious() {
+  if (
+    isImageZoomOpen()
+  ) {
+    return;
+  }
+
+  if (
+    isMobileViewer
+  ) {
+    queueMobileRelativeNavigation(
+      -1
+    );
+
+    return;
+  }
+
+  if (
+    navigationLocked ||
+    !pageFlip
+  ) {
+    return;
+  }
+
+  const current =
+    getCurrentPageNumber();
+
+  const target =
+    clampPageNumber(
+      current - 1
+    );
+
+  if (
+    target ===
+    current
+  ) {
+    return;
+  }
+
+  navigationLocked =
+    true;
+
+  try {
+    await ensureDesktopPageLoaded(
+      target
+    );
+
+    pageFlip.flipPrev();
+
+    preloadDesktopAround(
+      target
+    );
+
+  } finally {
+    window.setTimeout(
+      () => {
+        navigationLocked =
+          false;
+      },
+      pageTurnLockTime
+    );
+  }
+}
+
+async function goNext() {
+  if (
+    isImageZoomOpen()
+  ) {
+    return;
+  }
+
+  if (
+    isMobileViewer
+  ) {
+    queueMobileRelativeNavigation(
+      1
+    );
+
+    return;
+  }
+
+  if (
+    navigationLocked ||
+    !pageFlip
+  ) {
+    return;
+  }
+
+  const current =
+    getCurrentPageNumber();
+
+  const target =
+    clampPageNumber(
+      current + 1
+    );
+
+  if (
+    target ===
+    current
+  ) {
+    return;
+  }
+
+  navigationLocked =
+    true;
+
+  try {
+    await ensureDesktopPageLoaded(
+      target
+    );
+
+    pageFlip.flipNext();
+
+    preloadDesktopAround(
+      target
+    );
+
+  } finally {
+    window.setTimeout(
+      () => {
+        navigationLocked =
+          false;
+      },
+      pageTurnLockTime
+    );
+  }
+}
+
+
+/* =========================================================
+   INTERFACE
+   ========================================================= */
+
+function updateInterface(
+  pageIndex
+) {
+  const page =
+    clampPageNumber(
+      pageIndex + 1
+    );
+
+  if (
+    pageStatus
+  ) {
+    pageStatus.textContent =
+      `Page ${page} of ${totalPages}`;
+  }
+
+  if (
+    pageProgress
+  ) {
+    pageProgress.style.width =
+      `${(page / totalPages) * 100}%`;
+  }
+
+  if (
+    previousButton
+  ) {
+    previousButton.disabled =
+      pageIndex <= 0;
+  }
+
+  if (
+    nextButton
+  ) {
+    nextButton.disabled =
+      pageIndex >=
+      totalPages - 1;
+  }
+
+  if (
+    edgePrevious
+  ) {
+    edgePrevious.disabled =
+      pageIndex <= 0;
+  }
+
+  if (
+    edgeNext
+  ) {
+    edgeNext.disabled =
+      pageIndex >=
+      totalPages - 1;
+  }
+
+  document
+    .querySelectorAll(
+      ".thumbnail-button, .mobile-thumbnail-button, .contents-button"
+    )
+    .forEach(
+      (button) => {
+        button.classList.toggle(
+          "active",
+          Number(
+            button.dataset.pageIndex
+          ) === pageIndex
+        );
+      }
+    );
+}
+
+
+/* =========================================================
+   DEDICATED ZOOM READER
+   ========================================================= */
+
+const ZOOM_MIN =
+  1;
+
+const ZOOM_MAX =
+  4;
+
+const ZOOM_STEP =
+  0.5;
+
+const ZOOM_PDF_OUTPUT_SCALE =
+  4;
+
+let zoomScale =
+  1;
+
+let zoomBaseWidth =
+  0;
+
+let zoomBaseHeight =
+  0;
+
+let zoomGeometry =
+  null;
+
+let pinchStartDistance =
+  0;
+
+let pinchStartScale =
+  1;
+
+let pinchActive =
+  false;
+
+let imageZoomRequestId =
+  0;
+
+let imageZoomPageNumber =
+  1;
+
+let zoomContentKind =
+  "none";
+
+let zoomSourceWidth =
+  0;
+
+let zoomSourceHeight =
+  0;
+
+let zoomPdfRenderTask =
+  null;
+
+let zoomPdfRenderPage =
+  null;
+
+function touchDistance(
+  touches
+) {
+  const first =
+    touches[0];
+
+  const second =
+    touches[1];
+
+  return Math.hypot(
+    second.clientX -
+      first.clientX,
+
+    second.clientY -
+      first.clientY
+  );
+}
+
+function touchMidpoint(
+  touches,
+  rect
+) {
+  return {
+    x:
+      (
+        touches[0].clientX +
+        touches[1].clientX
+      ) /
+      2 -
+      rect.left,
+
+    y:
+      (
+        touches[0].clientY +
+        touches[1].clientY
+      ) /
+      2 -
+      rect.top
+  };
+}
+
+function waitForReadyImage(
+  image,
+  source
+) {
+  return new Promise(
+    (
+      resolve,
+      reject
+    ) => {
+      let settled =
+        false;
+
+      const cleanup =
+        () => {
+          image.removeEventListener(
+            "load",
+            loaded
+          );
+
+          image.removeEventListener(
+            "error",
+            failed
+          );
+        };
+
+      const loaded =
+        async () => {
+          if (
+            settled
+          ) {
+            return;
+          }
+
+          settled =
+            true;
+
+          cleanup();
+
+          try {
+            if (
+              typeof image.decode ===
+              "function"
+            ) {
+              await image.decode();
+            }
+          } catch (error) {}
+
+          if (
+            image.naturalWidth >
+            0
+          ) {
+            resolve(
+              image
+            );
+
+          } else {
+            reject(
+              new Error(
+                "Image loaded without usable dimensions."
+              )
+            );
+          }
+        };
+
+      const failed =
+        () => {
+          if (
+            settled
+          ) {
+            return;
+          }
+
+          settled =
+            true;
+
+          cleanup();
+
+          reject(
+            new Error(
+              `Unable to load ${source}`
+            )
+          );
+        };
+
+      image.addEventListener(
+        "load",
+        loaded
+      );
+
+      image.addEventListener(
+        "error",
+        failed
+      );
+
+      image.src =
+        source;
+
+      if (
+        image.complete
+      ) {
+        window.queueMicrotask(
+          () => {
+            if (
+              image.naturalWidth >
+              0
+            ) {
+              void loaded();
+
+            } else {
+              failed();
+            }
+          }
+        );
+      }
+    }
+  );
+}
+
+function getActiveZoomElement() {
+  if (
+    zoomContentKind === "pdf"
+  ) {
+    return zoomPdfCanvas;
+  }
+
+  if (
+    zoomContentKind === "image"
+  ) {
+    return zoomPageImage;
+  }
+
+  return null;
+}
+
+function setZoomContentKind(
+  kind
+) {
+  zoomContentKind =
+    kind;
+
+  if (
+    zoomPageImage
+  ) {
+    zoomPageImage.hidden =
+      kind !== "image";
+  }
+
+  if (
+    zoomPdfCanvas
+  ) {
+    zoomPdfCanvas.hidden =
+      kind !== "pdf";
+  }
+}
+
+function cancelZoomPdfRender() {
+  if (
+    zoomPdfRenderTask
+  ) {
+    try {
+      zoomPdfRenderTask.cancel();
+    } catch (error) {}
+
+    zoomPdfRenderTask =
+      null;
+
+    zoomPdfRenderPage =
+      null;
+  }
+}
+
+function clearZoomPdfCanvas() {
+  if (
+    !zoomPdfCanvas
+  ) {
+    return;
+  }
+
+  zoomPdfCanvas.removeAttribute(
+    "style"
+  );
+
+  zoomPdfCanvas.width =
+    1;
+
+  zoomPdfCanvas.height =
+    1;
+
+  zoomPdfCanvas.setAttribute(
+    "aria-label",
+    ""
+  );
+
+  zoomPdfCanvas.hidden =
+    true;
+}
+
+function calculateZoomBaseSize() {
+  if (
+    !imageZoomScroll ||
+    !zoomSourceWidth ||
+    !zoomSourceHeight
+  ) {
+    return;
+  }
+
+  const viewportWidth =
+    imageZoomScroll.clientWidth;
+
+  const viewportHeight =
+    imageZoomScroll.clientHeight;
+
+  const fit =
+    Math.min(
+      viewportWidth /
+        zoomSourceWidth,
+
+      viewportHeight /
+        zoomSourceHeight
+    );
+
+  zoomBaseWidth =
+    Math.max(
+      1,
+      zoomSourceWidth *
+      fit
+    );
+
+  zoomBaseHeight =
+    Math.max(
+      1,
+      zoomSourceHeight *
+      fit
+    );
+}
+
+function getGeometryForScale(
+  scale
+) {
+  const viewportWidth =
+    imageZoomScroll.clientWidth;
+
+  const viewportHeight =
+    imageZoomScroll.clientHeight;
+
+  const imageWidth =
+    zoomBaseWidth *
+    scale;
+
+  const imageHeight =
+    zoomBaseHeight *
+    scale;
+
+  const canvasWidth =
+    Math.max(
+      viewportWidth,
+      imageWidth
+    );
+
+  const canvasHeight =
+    Math.max(
+      viewportHeight,
+      imageHeight
+    );
+
+  const imageLeft =
+    Math.max(
+      0,
+      (
+        canvasWidth -
+        imageWidth
+      ) /
+      2
+    );
+
+  const imageTop =
+    Math.max(
+      0,
+      (
+        canvasHeight -
+        imageHeight
+      ) /
+      2
+    );
+
+  return {
+    viewportWidth,
+    viewportHeight,
+    imageWidth,
+    imageHeight,
+    canvasWidth,
+    canvasHeight,
+    imageLeft,
+    imageTop
+  };
+}
+
+function renderZoomScale(
+  scale,
+  focalX = null,
+  focalY = null
+) {
+  const activeElement =
+    getActiveZoomElement();
+
+  if (
+    !imageZoomScroll ||
+    !imageZoomCanvas ||
+    !activeElement ||
+    !zoomBaseWidth ||
+    !zoomBaseHeight
+  ) {
+    return;
+  }
+
+  const oldGeometry =
+    zoomGeometry ||
+    getGeometryForScale(
+      zoomScale
+    );
+
+  const oldScrollLeft =
+    imageZoomScroll.scrollLeft;
+
+  const oldScrollTop =
+    imageZoomScroll.scrollTop;
+
+  const focusX =
+    focalX ??
+    oldGeometry.viewportWidth /
+    2;
+
+  const focusY =
+    focalY ??
+    oldGeometry.viewportHeight /
+    2;
+
+  const ratioX =
+    clamp(
+      (
+        oldScrollLeft +
+        focusX -
+        oldGeometry.imageLeft
+      ) /
+      Math.max(
+        1,
+        oldGeometry.imageWidth
+      ),
+      0,
+      1
+    );
+
+  const ratioY =
+    clamp(
+      (
+        oldScrollTop +
+        focusY -
+        oldGeometry.imageTop
+      ) /
+      Math.max(
+        1,
+        oldGeometry.imageHeight
+      ),
+      0,
+      1
+    );
+
+  zoomScale =
+    clamp(
+      scale,
+      ZOOM_MIN,
+      ZOOM_MAX
+    );
+
+  const next =
+    getGeometryForScale(
+      zoomScale
+    );
+
+  zoomGeometry =
+    next;
+
+  imageZoomCanvas.style.width =
+    `${next.canvasWidth}px`;
+
+  imageZoomCanvas.style.height =
+    `${next.canvasHeight}px`;
+
+  activeElement.style.width =
+    `${next.imageWidth}px`;
+
+  activeElement.style.height =
+    `${next.imageHeight}px`;
+
+  activeElement.style.left =
+    `${next.imageLeft}px`;
+
+  activeElement.style.top =
+    `${next.imageTop}px`;
+
+  window.requestAnimationFrame(
+    () => {
+      imageZoomScroll.scrollLeft =
+        next.imageLeft +
+        ratioX *
+        next.imageWidth -
+        focusX;
+
+      imageZoomScroll.scrollTop =
+        next.imageTop +
+        ratioY *
+        next.imageHeight -
+        focusY;
+    }
+  );
+
+  imageZoomScroll.classList.toggle(
+    "is-zoomed",
+    zoomScale > 1.01
+  );
+
+  if (
+    zoomOutButton
+  ) {
+    zoomOutButton.disabled =
+      zoomScale <=
+      ZOOM_MIN +
+      0.01;
+  }
+
+  if (
+    zoomInButton
+  ) {
+    zoomInButton.disabled =
+      zoomScale >=
+      ZOOM_MAX -
+      0.01;
+  }
+}
+
+function resetImageZoom() {
+  if (
+    !imageZoomScroll
+  ) {
+    return;
+  }
+
+  zoomScale =
+    1;
+
+  calculateZoomBaseSize();
+
+  zoomGeometry =
+    null;
+
+  renderZoomScale(
+    1
+  );
+
+  window.requestAnimationFrame(
+    () => {
+      imageZoomScroll.scrollLeft =
+        0;
+
+      imageZoomScroll.scrollTop =
+        0;
+    }
+  );
+}
+
+function zoomIn() {
+  renderZoomScale(
+    zoomScale +
+    ZOOM_STEP
+  );
+}
+
+function zoomOut() {
+  renderZoomScale(
+    zoomScale -
+    ZOOM_STEP
+  );
+}
+
+function initialiseNativeZoomGestures() {
+  if (
+    !imageZoomScroll ||
+    imageZoomScroll.dataset.zoomGesturesReady ===
+      "true"
+  ) {
+    return;
+  }
+
+  imageZoomScroll.dataset.zoomGesturesReady =
+    "true";
+
+  imageZoomScroll.addEventListener(
+    "touchstart",
+    (event) => {
+      if (
+        !isImageZoomOpen() ||
+        event.touches.length !==
+        2
+      ) {
+        return;
+      }
+
+      pinchActive =
+        true;
+
+      pinchStartDistance =
+        Math.max(
+          1,
+          touchDistance(
+            event.touches
+          )
+        );
+
+      pinchStartScale =
+        zoomScale;
+    },
+    {
+      passive: true
+    }
+  );
+
+  imageZoomScroll.addEventListener(
+    "touchmove",
+    (event) => {
+      if (
+        !isImageZoomOpen() ||
+        !pinchActive ||
+        event.touches.length !==
+        2
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const rect =
+        imageZoomScroll.getBoundingClientRect();
+
+      const midpoint =
+        touchMidpoint(
+          event.touches,
+          rect
+        );
+
+      const distance =
+        Math.max(
+          1,
+          touchDistance(
+            event.touches
+          )
+        );
+
+      const targetScale =
+        pinchStartScale *
+        (
+          distance /
+          pinchStartDistance
+        );
+
+      renderZoomScale(
+        targetScale,
+        midpoint.x,
+        midpoint.y
+      );
+    },
+    {
+      passive: false
+    }
+  );
+
+  imageZoomScroll.addEventListener(
+    "touchend",
+    (event) => {
+      if (
+        event.touches.length <
+        2
+      ) {
+        pinchActive =
+          false;
+      }
+    },
+    {
+      passive: true
+    }
+  );
+
+  imageZoomScroll.addEventListener(
+    "touchcancel",
+    () => {
+      pinchActive =
+        false;
+    },
+    {
+      passive: true
+    }
+  );
+
+  imageZoomScroll.addEventListener(
+    "wheel",
+    (event) => {
+      if (
+        !isImageZoomOpen()
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const rect =
+        imageZoomScroll.getBoundingClientRect();
+
+      const focalX =
+        event.clientX -
+        rect.left;
+
+      const focalY =
+        event.clientY -
+        rect.top;
+
+      const direction =
+        event.deltaY < 0
+          ? 1
+          : -1;
+
+      renderZoomScale(
+        zoomScale +
+        direction *
+        0.25,
+        focalX,
+        focalY
+      );
+    },
+    {
+      passive: false
+    }
+  );
+}
+
+async function renderZoomCover(
+  pageNumber,
+  requestId
+) {
+  if (
+    !zoomPageImage
+  ) {
+    return false;
+  }
+
+  setZoomContentKind(
+    "image"
+  );
+
+  zoomPageImage.onload =
+    null;
+
+  zoomPageImage.onerror =
+    null;
+
+  zoomPageImage.removeAttribute(
+    "src"
+  );
+
+  zoomPageImage.removeAttribute(
+    "style"
+  );
+
+  zoomPageImage.alt =
+    "";
+
+  zoomPageImage.decoding =
+    "async";
+
+  zoomPageImage.loading =
+    "eager";
+
+  zoomPageImage.fetchPriority =
+    "high";
+
+  return new Promise(
+    (resolve) => {
+      zoomPageImage.onload =
+        async () => {
+          if (
+            requestId !==
+              imageZoomRequestId ||
+            !isImageZoomOpen() ||
+            imageZoomPageNumber !==
+              pageNumber
+          ) {
+            resolve(
+              false
+            );
+
+            return;
+          }
+
+          zoomSourceWidth =
+            zoomPageImage.naturalWidth;
+
+          zoomSourceHeight =
+            zoomPageImage.naturalHeight;
+
+          zoomPageImage.alt =
+            `${getPageTitle(pageNumber)} — enlarged brochure page`;
+
+          if (
+            zoomViewerStatus
+          ) {
+            zoomViewerStatus.textContent =
+              `Page ${pageNumber} of ${totalPages}`;
+          }
+
+          await waitForTwoFrames();
+
+          if (
+            requestId !==
+              imageZoomRequestId ||
+            !isImageZoomOpen()
+          ) {
+            resolve(
+              false
+            );
+
+            return;
+          }
+
+          resetImageZoom();
+
+          resolve(
+            true
+          );
+        };
+
+      zoomPageImage.onerror =
+        () => {
+          if (
+            requestId ===
+              imageZoomRequestId &&
+            isImageZoomOpen()
+          ) {
+            if (
+              zoomViewerStatus
+            ) {
+              zoomViewerStatus.textContent =
+                `Unable to load page ${pageNumber}`;
+            }
+          }
+
+          resolve(
+            false
+          );
+        };
+
+      zoomPageImage.src =
+        imagePath(
+          pageNumber
+        );
+    }
+  );
+}
+
+async function renderZoomPdf(
+  pageNumber,
+  requestId
+) {
+  if (
+    !zoomPdfCanvas ||
+    !imageZoomScroll
+  ) {
+    return false;
+  }
+
+  cancelZoomPdfRender();
+
+  setZoomContentKind(
+    "none"
+  );
+
+  clearZoomPdfCanvas();
+
+  const pdfDocument =
+    await ensureMobilePdfDocument();
+
+  if (
+    requestId !==
+      imageZoomRequestId ||
+    !isImageZoomOpen() ||
+    imageZoomPageNumber !==
+      pageNumber
+  ) {
+    return false;
+  }
+
+  const pdfPageNumber =
+    brochurePageToPdfPage(
+      pageNumber
+    );
+
+  if (
+    pdfPageNumber < 1 ||
+    pdfPageNumber >
+      pdfDocument.numPages
+  ) {
+    throw new Error(
+      `PDF page ${pdfPageNumber} is unavailable.`
+    );
+  }
+
+  const pdfPage =
+    await pdfDocument.getPage(
+      pdfPageNumber
+    );
+
+  try {
+    await waitForTwoFrames();
+
+    if (
+      requestId !==
+        imageZoomRequestId ||
+      !isImageZoomOpen() ||
+      imageZoomPageNumber !==
+        pageNumber
+    ) {
+      return false;
+    }
+
+    const viewportWidth =
+      Math.max(
+        1,
+        imageZoomScroll.clientWidth
+      );
+
+    const viewportHeight =
+      Math.max(
+        1,
+        imageZoomScroll.clientHeight
+      );
+
+    const baseViewport =
+      pdfPage.getViewport({
+        scale: 1
+      });
+
+    const fitScale =
+      Math.min(
+        viewportWidth /
+          baseViewport.width,
+
+        viewportHeight /
+          baseViewport.height
+      );
+
+    const renderViewport =
+      pdfPage.getViewport({
+        scale:
+          fitScale *
+          ZOOM_PDF_OUTPUT_SCALE
+      });
+
+    zoomPdfCanvas.width =
+      Math.max(
+        1,
+        Math.ceil(
+          renderViewport.width
+        )
+      );
+
+    zoomPdfCanvas.height =
+      Math.max(
+        1,
+        Math.ceil(
+          renderViewport.height
+        )
+      );
+
+    zoomPdfCanvas.removeAttribute(
+      "style"
+    );
+
+    zoomPdfCanvas.setAttribute(
+      "role",
+      "img"
+    );
+
+    zoomPdfCanvas.setAttribute(
+      "aria-label",
+      `${getPageTitle(pageNumber)} — enlarged brochure page`
+    );
+
+    const context =
+      zoomPdfCanvas.getContext(
+        "2d",
+        {
+          alpha: false
+        }
+      );
+
+    if (
+      !context
+    ) {
+      throw new Error(
+        "Zoom canvas rendering is not available."
+      );
+    }
+
+    context.imageSmoothingEnabled =
+      true;
+
+    context.imageSmoothingQuality =
+      "high";
+
+    const renderTask =
+      pdfPage.render({
+        canvasContext:
+          context,
+
+        viewport:
+          renderViewport,
+
+        background:
+          "rgb(255,255,255)"
+      });
+
+    zoomPdfRenderTask =
+      renderTask;
+
+    zoomPdfRenderPage =
+      pageNumber;
+
+    await renderTask.promise;
+
+    if (
+      requestId !==
+        imageZoomRequestId ||
+      !isImageZoomOpen() ||
+      imageZoomPageNumber !==
+        pageNumber
+    ) {
+      clearZoomPdfCanvas();
+
+      return false;
+    }
+
+    zoomSourceWidth =
+      zoomPdfCanvas.width;
+
+    zoomSourceHeight =
+      zoomPdfCanvas.height;
+
+    setZoomContentKind(
+      "pdf"
+    );
+
+    if (
+      zoomViewerStatus
+    ) {
+      zoomViewerStatus.textContent =
+        `Page ${pageNumber} of ${totalPages}`;
+    }
+
+    resetImageZoom();
+
+    return true;
+
+  } catch (error) {
+    if (
+      error?.name ===
+        "RenderingCancelledException"
+    ) {
+      return false;
+    }
+
+    throw error;
+
+  } finally {
+    try {
+      pdfPage.cleanup();
+    } catch (error) {}
+
+    if (
+      zoomPdfRenderPage ===
+        pageNumber
+    ) {
+      zoomPdfRenderTask =
+        null;
+
+      zoomPdfRenderPage =
+        null;
+    }
+  }
+}
+
+async function openImageZoomViewer() {
+  if (
+    !imageZoomViewer ||
+    !zoomPageImage ||
+    !zoomPdfCanvas ||
+    isImageZoomOpen()
+  ) {
+    return;
+  }
+
+  closeMobileThumbnailTray(
+    true
+  );
+
+  closeAllPanels();
+
+  const currentPage =
+    isMobileViewer
+      ? clampPageNumber(
+          mobileRequestedPage ||
+          mobileCurrentPage
+        )
+      : getCurrentPageNumber();
+
+  const requestId =
+    ++imageZoomRequestId;
+
+  imageZoomPageNumber =
+    currentPage;
+
+  mobileSwipeLocked =
+    true;
+
+  pinchActive =
+    false;
+
+  zoomScale =
+    1;
+
+  zoomGeometry =
+    null;
+
+  zoomBaseWidth =
+    0;
+
+  zoomBaseHeight =
+    0;
+
+  zoomSourceWidth =
+    0;
+
+  zoomSourceHeight =
+    0;
+
+  cancelMobileWarm();
+
+  if (
+    mobilePdfRenderTask &&
+    mobilePdfRenderPage !==
+      currentPage
+  ) {
+    cancelActiveMobilePdfWork();
+  }
+
+  cancelZoomPdfRender();
+
+  clearZoomPdfCanvas();
+
+  if (
+    zoomPageImage
+  ) {
+    zoomPageImage.onload =
+      null;
+
+    zoomPageImage.onerror =
+      null;
+
+    zoomPageImage.removeAttribute(
+      "src"
+    );
+
+    zoomPageImage.removeAttribute(
+      "style"
+    );
+
+    zoomPageImage.alt =
+      "";
+
+    zoomPageImage.hidden =
+      true;
+  }
+
+  setZoomContentKind(
+    "none"
+  );
+
+  imageZoomCanvas?.removeAttribute(
+    "style"
+  );
+
+  if (
+    imageZoomScroll
+  ) {
+    imageZoomScroll.classList.remove(
+      "is-zoomed"
+    );
+
+    imageZoomScroll.scrollLeft =
+      0;
+
+    imageZoomScroll.scrollTop =
+      0;
+  }
+
+  if (
+    zoomViewerStatus
+  ) {
+    zoomViewerStatus.textContent =
+      `Loading page ${currentPage}…`;
+  }
+
+  imageZoomViewer.hidden =
+    false;
+
+  document.body.classList.add(
+    "zoom-viewer-open"
+  );
+
+  initialiseNativeZoomGestures();
+
+  try {
+    if (
+      currentPage === 1
+    ) {
+      await renderZoomCover(
+        currentPage,
+        requestId
+      );
+
+    } else {
+      await renderZoomPdf(
+        currentPage,
+        requestId
+      );
+    }
+
+  } catch (error) {
+    if (
+      requestId !==
+        imageZoomRequestId ||
+      !isImageZoomOpen()
+    ) {
+      return;
+    }
+
+    console.error(
+      `Unable to open enlarged page ${currentPage}:`,
+      error
+    );
+
+    setZoomContentKind(
+      "none"
+    );
+
+    if (
+      zoomViewerStatus
+    ) {
+      zoomViewerStatus.textContent =
+        `Unable to load page ${currentPage}`;
+    }
+  }
+}
+
+function closeImageZoomViewer() {
+  if (
+    !imageZoomViewer
+  ) {
+    return;
+  }
+
+  imageZoomRequestId +=
+    1;
+
+  imageZoomPageNumber =
+    1;
+
+  pinchActive =
+    false;
+
+  zoomScale =
+    1;
+
+  zoomGeometry =
+    null;
+
+  zoomBaseWidth =
+    0;
+
+  zoomBaseHeight =
+    0;
+
+  zoomSourceWidth =
+    0;
+
+  zoomSourceHeight =
+    0;
+
+  cancelZoomPdfRender();
+
+  clearZoomPdfCanvas();
+
+  if (
+    zoomPageImage
+  ) {
+    zoomPageImage.onload =
+      null;
+
+    zoomPageImage.onerror =
+      null;
+
+    zoomPageImage.removeAttribute(
+      "src"
+    );
+
+    zoomPageImage.removeAttribute(
+      "style"
+    );
+
+    zoomPageImage.alt =
+      "";
+
+    zoomPageImage.hidden =
+      true;
+  }
+
+  setZoomContentKind(
+    "none"
+  );
+
+  imageZoomViewer.hidden =
+    true;
+
+  document.body.classList.remove(
+    "zoom-viewer-open"
+  );
+
+  imageZoomCanvas?.removeAttribute(
+    "style"
+  );
+
+  if (
+    imageZoomScroll
+  ) {
+    imageZoomScroll.classList.remove(
+      "is-zoomed"
+    );
+
+    imageZoomScroll.scrollLeft =
+      0;
+
+    imageZoomScroll.scrollTop =
+      0;
+  }
+
+  mobileSwipeLocked =
+    false;
+}
+
+
+/* =========================================================
+   ZOOM TOOLBAR INPUT SHIELD
+   ========================================================= */
+
+function bindZoomToolbarButton(
+  button,
+  handler
+) {
+  if (!button) {
+    return;
+  }
+
+  let suppressClickUntil =
+    0;
+
+  button.addEventListener(
+    "pointerdown",
+    (event) => {
+      if (
+        event.pointerType ===
+          "mouse" &&
+        event.button !==
+          0
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+
+      event.stopPropagation();
+
+      suppressClickUntil =
+        Date.now() +
+        750;
+
+      handler();
+    },
+    {
+      passive: false
+    }
+  );
+
+  button.addEventListener(
+    "click",
+    (event) => {
+      event.preventDefault();
+
+      event.stopPropagation();
+
+      if (
+        Date.now() <
+        suppressClickUntil
+      ) {
+        return;
+      }
+
+      handler();
+    }
+  );
+}
+
+if (
+  imageZoomToolbar
+) {
+  [
+    "pointerdown",
+    "pointermove",
+    "pointerup",
+    "click"
+  ].forEach(
+    (eventName) => {
+      imageZoomToolbar.addEventListener(
+        eventName,
+        (event) => {
+          event.stopPropagation();
+        }
+      );
+    }
+  );
+}
+
+
+/* =========================================================
+   CONTROLS
+   ========================================================= */
+
+previousButton?.addEventListener(
+  "click",
+  goPrevious
+);
+
+nextButton?.addEventListener(
+  "click",
+  goNext
+);
+
+edgePrevious?.addEventListener(
+  "click",
+  goPrevious
+);
+
+edgeNext?.addEventListener(
+  "click",
+  goNext
+);
+
+firstButton?.addEventListener(
+  "click",
+  async () => {
+    await goToPage(
+      1
+    );
+
+    closeAllPanels();
+
+    closeMobileThumbnailTray();
+  }
+);
+
+zoomButton?.addEventListener(
+  "click",
+  openImageZoomViewer
+);
+
+bindZoomToolbarButton(
+  closeImageZoomButton,
+  closeImageZoomViewer
+);
+
+bindZoomToolbarButton(
+  resetImageZoomButton,
+  resetImageZoom
+);
+
+bindZoomToolbarButton(
+  zoomInButton,
+  zoomIn
+);
+
+bindZoomToolbarButton(
+  zoomOutButton,
+  zoomOut
+);
+
+window.addEventListener(
+  "resize",
+  () => {
+    if (
+      isImageZoomOpen()
+    ) {
+      const previousScale =
+        zoomScale;
+
+      calculateZoomBaseSize();
+
+      zoomGeometry =
+        null;
+
+      renderZoomScale(
+        previousScale
+      );
+
+      return;
+    }
+
+    if (
+      isMobileViewer &&
+      mobileCurrentPage >=
+      2
+    ) {
+      void showMobilePage(
+        mobileCurrentPage,
+        true,
+        false
+      );
+    }
+  }
+);
+
+fullscreenButton?.addEventListener(
+  "click",
+  async () => {
+    try {
+      if (
+        !document.fullscreenElement
+      ) {
+        await document
+          .documentElement
+          .requestFullscreen();
+
+      } else {
+        await document
+          .exitFullscreen();
+      }
+
+    } catch (error) {
+      console.error(
+        "Fullscreen failed:",
+        error
+      );
+    }
+  }
+);
+
+document.addEventListener(
+  "fullscreenchange",
+  () => {
+    const active =
+      Boolean(
+        document.fullscreenElement
+      );
+
+    document.body.classList.toggle(
+      "fullscreen-mode",
+      active
+    );
+
+    if (
+      fullscreenButton
+    ) {
+      fullscreenButton.textContent =
+        active
+          ? "Exit full screen"
+          : "Full screen";
+    }
+  }
+);
+
+shareButton?.addEventListener(
+  "click",
+  async () => {
+    const currentPage =
+      getCurrentPageNumber();
+
+    const shareData = {
+      title:
+        document.title,
+
+      text:
+        currentPage ===
+        1
+          ? "View the Keswick Discos Wedding Brochure."
+          : `View page ${currentPage} of the Keswick Discos Wedding Brochure.`,
+
+      url:
+        getShareUrl()
+    };
+
+    try {
+      if (
+        navigator.share
+      ) {
+        await navigator.share(
+          shareData
+        );
+
+      } else {
+        await navigator
+          .clipboard
+          .writeText(
+            shareData.url
+          );
+
+        shareButton.textContent =
+          "Link copied";
+
+        window.setTimeout(
+          () => {
+            shareButton.textContent =
+              "Share this page";
+          },
+          1800
+        );
+      }
+
+    } catch (error) {
+      if (
+        error.name !==
+        "AbortError"
+      ) {
+        console.error(
+          "Sharing failed:",
+          error
+        );
+      }
+    }
+  }
+);
+
+pagesButton?.addEventListener(
+  "click",
+  () => {
+    if (
+      isMobileViewer
+    ) {
+      toggleMobileThumbnailTray();
+
+      return;
+    }
+
+    togglePanel(
+      thumbnailPanel
+    );
+
+    if (
+      thumbnailPanel &&
+      !thumbnailPanel.hidden
+    ) {
+      trimThumbnailMemory(
+        thumbnailContainer,
+        ".thumbnail-button"
+      );
+
+      window.setTimeout(
+        () => {
+          centreThumbnail(
+            thumbnailContainer,
+            ".thumbnail-button",
+            getCurrentPageNumber() - 1
+          );
+        },
+        60
+      );
+    }
+  }
+);
+
+moreButton?.addEventListener(
+  "click",
+  () => {
+    togglePanel(
+      morePanel
+    );
+  }
+);
+
+contentsButton?.addEventListener(
+  "click",
+  () => {
+    togglePanel(
+      contentsPanel
+    );
+  }
+);
+
+floatingEnquire?.addEventListener(
+  "click",
+  openContactModal
+);
+
+document
+  .querySelectorAll(
+    "[data-close]"
+  )
+  .forEach(
+    (button) => {
+      button.addEventListener(
+        "click",
+        () => {
+          const targetId =
+            button.dataset.close;
+
+          const target =
+            $(
+              targetId
+            );
+
+          if (
+            targetId ===
+            "contactModal"
+          ) {
+            closeContactModal();
+
+          } else if (
+            target
+          ) {
+            target.hidden =
+              true;
+          }
+        }
+      );
+    }
+  );
+
+copyLinkButton?.addEventListener(
+  "click",
+  async () => {
+    try {
+      await navigator
+        .clipboard
+        .writeText(
+          getShareUrl()
+        );
+
+      copyLinkButton.textContent =
+        "Link copied";
+
+      window.setTimeout(
+        () => {
+          copyLinkButton.textContent =
+            "Copy this brochure page";
+        },
+        1600
+      );
+
+    } catch (error) {
+      console.error(
+        "Copy failed:",
+        error
+      );
+    }
+  }
+);
+
+soundButton?.addEventListener(
+  "click",
+  () => {
+    soundEnabled =
+      !soundEnabled;
+
+    soundButton.textContent =
+      `Sound: ${
+        soundEnabled
+          ? "on"
+          : "off"
+      }`;
+  }
+);
+
+resetReadingButton?.addEventListener(
+  "click",
+  () => {
+    try {
+      localStorage.removeItem(
+        "keswickLastPage"
+      );
+    } catch (error) {}
+
+    resetReadingButton.textContent =
+      "Saved page cleared";
+
+    window.setTimeout(
+      () => {
+        resetReadingButton.textContent =
+          "Forget saved page";
+      },
+      1800
+    );
+  }
+);
+
+
+/* =========================================================
+   KEYBOARD
+   ========================================================= */
+
+document.addEventListener(
+  "keydown",
+  async (event) => {
+    if (
+      packageBuilder &&
+      !packageBuilder.hidden
+    ) {
+      if (
+        event.key ===
+        "Escape"
+      ) {
+        closePackageBuilder();
+      }
+
+      return;
+    }
+
+    if (
+      event.key ===
+        "Escape" &&
+      isImageZoomOpen()
+    ) {
+      closeImageZoomViewer();
+
+      return;
+    }
+
+    if (
+      event.key ===
+      "Escape"
+    ) {
+      closeMobileThumbnailTray();
+
+      closeAllPanels();
+
+      closeContactModal();
+
+      return;
+    }
+
+    if (
+      isImageZoomOpen()
+    ) {
+      if (
+        event.key === "+" ||
+        event.key === "="
+      ) {
+        zoomIn();
+      }
+
+      if (
+        event.key === "-"
+      ) {
+        zoomOut();
+      }
+
+      return;
+    }
+
+    if (
+      event.key ===
+      "ArrowLeft"
+    ) {
+      await goPrevious();
+    }
+
+    if (
+      event.key ===
+      "ArrowRight"
+    ) {
+      await goNext();
+    }
+
+    if (
+      event.key ===
+      "Home"
+    ) {
+      await goToPage(
+        1
+      );
+    }
+
+    if (
+      event.key === "+" ||
+      event.key === "="
+    ) {
+      await openImageZoomViewer();
+    }
+  }
+);
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
+async function startMobileBrochure(
+  startingPage
+) {
+  createMobileViewer();
+
+  createMobileThumbnails();
+
+  initialiseMobileThumbnailTray();
+
+  mobileRequestedPage =
+    startingPage;
+
+  if (
+    loadingProgress
+  ) {
+    loadingProgress.style.width =
+      "24%";
+  }
+
+  if (
+    startingPage ===
+    1
+  ) {
+    await showMobilePage(
+      1,
+      true,
+      false
+    );
+
+    if (
+      loadingProgress
+    ) {
+      loadingProgress.style.width =
+        "52%";
+    }
+
+    const prime =
+      primeMobilePdfPage(
+        2
+      );
+
+    await Promise.race([
+      prime,
+      wait(
+        1400
+      )
+    ]);
+
+    if (
+      loadingProgress
+    ) {
+      loadingProgress.style.width =
+        "92%";
+    }
+
+    scheduleMobileWarmAround(
+      1,
+      1
+    );
+
+  } else {
+    await showMobilePage(
+      startingPage,
+      true,
+      false
+    );
+
+    if (
+      loadingProgress
+    ) {
+      loadingProgress.style.width =
+        "92%";
+    }
+  }
+
+  if (
+    loadingProgress
+  ) {
+    loadingProgress.style.width =
+      "100%";
+  }
+
+  hideLoadingScreen();
+}
+
+async function startDesktopBrochure(
+  startingPage
+) {
+  createDesktopPages();
+
+  await loadDesktopStartupPages(
+    startingPage
+  );
+
+  initialiseDesktopFlipbook(
+    startingPage
+  );
+}
+
+async function startBrochure() {
+  try {
+    const startingPage =
+      getStartingPage();
+
+    buildContents();
+
+    initialisePackageBuilder();
+
+    if (
+      isMobileViewer
+    ) {
+      document.body.classList.add(
+        "mobile-viewer-mode"
+      );
+
+      await startMobileBrochure(
+        startingPage
+      );
+
+    } else {
+      createDrawerThumbnails();
+
+      document.body.classList.add(
+        "desktop-viewer-mode"
+      );
+
+      await startDesktopBrochure(
+        startingPage
+      );
+    }
+
+  } catch (error) {
+    console.error(
+      error
+    );
+
+    hideLoadingScreen();
+
+    if (
+      bookStage
+    ) {
+      bookStage.style.display =
+        "none";
+    }
+
+    if (
+      errorMessage
+    ) {
+      errorMessage.hidden =
+        false;
+    }
+  }
+}
+
+startBrochure();
