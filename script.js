@@ -131,6 +131,7 @@ const zoomViewerStatus = $("zoomViewerStatus");
 const zoomButton = $("zoomButton");
 
 const packageBuilder = $("packageBuilder");
+const packageBuilderPanel = packageBuilder?.querySelector(".package-builder-panel");
 const packageBuilderForm = $("packageBuilderForm");
 const closePackageBuilderButton = $("closePackageBuilder");
 const packageSummaryEmpty = $("packageSummaryEmpty");
@@ -2068,6 +2069,16 @@ function openPackageBuilder() {
 
   window.requestAnimationFrame(
     () => {
+      if (
+        packageBuilderPanel &&
+        window.matchMedia(
+          "(max-width: 850px)"
+        ).matches
+      ) {
+        packageBuilderPanel.scrollTop =
+          0;
+      }
+
       closePackageBuilderButton?.focus();
     }
   );
