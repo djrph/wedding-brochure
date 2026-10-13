@@ -142,6 +142,10 @@ const resetPackageButton = $("resetPackageButton");
 const packageCopyStatus = $("packageCopyStatus");
 const foamSticksSelect = $("foamSticksSelect");
 const foamSticksColourInputs = [...document.querySelectorAll('input[name="foamSticksColour"]')];
+const weddingDayBandInputs = [...document.querySelectorAll('input[name="weddingDayBand"]')];
+const eveningPackagePrice = $("eveningPackagePrice");
+const eveningPackagePriceNote = $("eveningPackagePriceNote");
+const packageSummaryDay = $("packageSummaryDay");
 
 let pageFlip = null;
 let navigationLocked = false;
@@ -1468,6 +1472,74 @@ function formatPackagePrice(
   return `£${Number(price).toLocaleString("en-GB")}`;
 }
 
+function getSelectedWeddingDayBandInput() {
+  return packageBuilderForm?.querySelector(
+    'input[name="weddingDayBand"]:checked'
+  ) || null;
+}
+
+function getWeddingDayBandLabel() {
+  const selected =
+    getSelectedWeddingDayBandInput();
+
+  return selected?.dataset.label ||
+    "";
+}
+
+function getWeddingDayEveningPrice() {
+  const selected =
+    getSelectedWeddingDayBandInput();
+
+  if (!selected) {
+    return null;
+  }
+
+  const price =
+    Number(
+      selected.dataset.eveningPrice ||
+      0
+    );
+
+  return Number.isFinite(price)
+    ? price
+    : null;
+}
+
+function syncEveningPackagePriceDisplay() {
+  const selected =
+    getSelectedWeddingDayBandInput();
+
+  if (
+    !eveningPackagePrice ||
+    !eveningPackagePriceNote
+  ) {
+    return;
+  }
+
+  if (!selected) {
+    eveningPackagePrice.textContent =
+      "£425–£475";
+
+    eveningPackagePriceNote.textContent =
+      "7pm–midnight • choose your wedding day above";
+
+    return;
+  }
+
+  const price =
+    getWeddingDayEveningPrice();
+
+  eveningPackagePrice.textContent =
+    price === null
+      ? "Choose day"
+      : formatPackagePrice(
+          price
+        );
+
+  eveningPackagePriceNote.textContent =
+    `7pm–midnight • ${getWeddingDayBandLabel()}`;
+}
+
 function getSelectedFoamSticksColourInput() {
   return packageBuilderForm?.querySelector(
     'input[name="foamSticksColour"]:checked'
@@ -1488,13 +1560,19 @@ function getSelectedPackageItems() {
     return {
       items: [],
       total: 0,
-      hasPoa: false
+      hasPoa: false,
+      needsDaySelection: false,
+      weddingDayLabel: ""
     };
   }
 
   const items = [];
   let total = 0;
   let hasPoa = false;
+  let needsDaySelection = false;
+
+  const weddingDayLabel =
+    getWeddingDayBandLabel();
 
   const main =
     packageBuilderForm.querySelector(
@@ -1502,22 +1580,58 @@ function getSelectedPackageItems() {
     );
 
   if (main) {
-    const price =
+    let price =
       Number(
         main.dataset.price ||
         0
       );
+
+    let pricePending =
+      false;
+
+    if (
+      main.value ===
+      "evening"
+    ) {
+      const dayPrice =
+        getWeddingDayEveningPrice();
+
+      if (
+        dayPrice ===
+        null
+      ) {
+        price =
+          null;
+
+        pricePending =
+          true;
+
+        needsDaySelection =
+          true;
+
+      } else {
+        price =
+          dayPrice;
+      }
+    }
 
     items.push({
       label:
         main.dataset.label ||
         main.value,
       price,
-      poa: false
+      poa: false,
+      pricePending
     });
 
-    total +=
-      price;
+    if (
+      !pricePending &&
+      typeof price ===
+        "number"
+    ) {
+      total +=
+        price;
+    }
   }
 
   packageBuilderForm
@@ -1602,7 +1716,9 @@ function getSelectedPackageItems() {
   return {
     items,
     total,
-    hasPoa
+    hasPoa,
+    needsDaySelection,
+    weddingDayLabel
   };
 }
 
@@ -1612,6 +1728,8 @@ function buildPackageCopyText() {
 
   const lines = [
     "Keswick Discos — Wedding Package",
+    "",
+    `Wedding day pricing: ${selection.weddingDayLabel || "Not selected"}`,
     ""
   ];
 
@@ -1629,16 +1747,30 @@ function buildPackageCopyText() {
         lines.push(
           item.poa
             ? `• ${item.label} — Price on request`
-            : `• ${item.label} — ${formatPackagePrice(item.price)}`
+            : item.pricePending
+              ? `• ${item.label} — Choose wedding day for price`
+              : `• ${item.label} — ${formatPackagePrice(item.price)}`
         );
       }
     );
   }
 
   lines.push(
-    "",
-    `Current fixed-price total: ${formatPackagePrice(selection.total)}`
+    ""
   );
+
+  if (
+    selection.needsDaySelection
+  ) {
+    lines.push(
+      "Current fixed-price total: Choose wedding day to calculate"
+    );
+
+  } else {
+    lines.push(
+      `Current fixed-price total: ${formatPackagePrice(selection.total)}`
+    );
+  }
 
   if (selection.hasPoa) {
     lines.push(
@@ -1647,6 +1779,8 @@ function buildPackageCopyText() {
   }
 
   lines.push(
+    "",
+    "Travel is included within 30 miles of Keswick. Venues further afield may incur a travel supplement.",
     "",
     "Please confirm availability and final pricing for my wedding date."
   );
@@ -1686,6 +1820,9 @@ function savePackageBuilderState() {
       JSON.stringify({
         main:
           main?.value ||
+          "",
+        weddingDayBand:
+          getSelectedWeddingDayBandInput()?.value ||
           "",
         extras,
         poaExtras,
@@ -1734,6 +1871,18 @@ function restorePackageBuilderState() {
 
       if (main) {
         main.checked =
+          true;
+      }
+    }
+
+    if (saved.weddingDayBand) {
+      const weddingDayBand =
+        packageBuilderForm.querySelector(
+          `input[name="weddingDayBand"][value="${saved.weddingDayBand}"]`
+        );
+
+      if (weddingDayBand) {
+        weddingDayBand.checked =
           true;
       }
     }
@@ -1847,9 +1996,11 @@ function updatePackageBuilderSummary() {
       price.textContent =
         item.poa
           ? "POA"
-          : formatPackagePrice(
-              item.price
-            );
+          : item.pricePending
+            ? "Choose day"
+            : formatPackagePrice(
+                item.price
+              );
 
       row.append(
         label,
@@ -1868,10 +2019,21 @@ function updatePackageBuilderSummary() {
       0;
   }
 
+  if (packageSummaryDay) {
+    packageSummaryDay.textContent =
+      selection.weddingDayLabel
+        ? `Wedding day pricing: ${selection.weddingDayLabel}`
+        : "Wedding day pricing: not selected";
+  }
+
   packageSummaryTotal.textContent =
-    formatPackagePrice(
-      selection.total
-    );
+    selection.needsDaySelection
+      ? "Choose day"
+      : formatPackagePrice(
+          selection.total
+        );
+
+  syncEveningPackagePriceDisplay();
 
   if (packageSummaryPoa) {
     packageSummaryPoa.hidden =
