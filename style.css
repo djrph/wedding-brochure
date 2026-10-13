@@ -1562,6 +1562,10 @@ body.package-builder-open {
     );
 }
 
+.package-mobile-pricing-strip {
+  display: none;
+}
+
 .package-travel-note {
   margin:
     13px 2px 0;
@@ -2278,6 +2282,95 @@ body.package-builder-open {
   .package-choice-grid-main {
     grid-template-columns:
       1fr;
+  }
+
+  .package-mobile-pricing-strip {
+    display: grid;
+
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+    gap: 8px;
+
+    margin:
+      0 0 12px;
+  }
+
+  .package-mobile-pricing-strip > span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 68px;
+
+    padding: 10px 8px;
+
+    border:
+      1px solid
+      rgba(241,217,155,.28);
+
+    border-radius: 14px;
+
+    background:
+      rgba(215,182,111,.08);
+
+    text-align: center;
+  }
+
+  .package-mobile-pricing-strip small {
+    color: #bdb7aa;
+
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .package-mobile-pricing-strip strong {
+    margin-top: 4px;
+
+    color:
+      var(--gold-light);
+
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .package-day-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+    gap: 8px;
+  }
+
+  .package-day-grid
+  .package-choice-card-body {
+    min-height: 106px;
+
+    padding: 12px 10px;
+  }
+
+  .package-day-grid
+  .package-choice-card-body strong {
+    font-size: 12px;
+  }
+
+  .package-day-grid
+  .package-choice-card-body small {
+    font-size: 10px;
+  }
+
+  .package-day-grid
+  .package-choice-price {
+    padding-top: 9px;
+
+    font-size: 15px;
   }
 
   .package-choice-card-body,
