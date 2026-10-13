@@ -2303,11 +2303,11 @@ body.package-builder-open {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
 
-    min-height: 68px;
+    min-height: 132px;
 
-    padding: 10px 8px;
+    padding: 11px 8px;
 
     border:
       1px solid
@@ -2330,13 +2330,37 @@ body.package-builder-open {
   }
 
   .package-mobile-pricing-strip strong {
-    margin-top: 4px;
+    margin-top: 5px;
 
     color:
       var(--gold-light);
 
-    font-size: 20px;
-    line-height: 1;
+    font-size: 14px;
+    line-height: 1.15;
+  }
+
+  .package-pricing-lines {
+    display: grid;
+
+    gap: 4px;
+
+    width: 100%;
+
+    margin-top: 9px;
+
+    padding-top: 8px;
+
+    border-top:
+      1px solid
+      rgba(241,217,155,.14);
+  }
+
+  .package-pricing-lines b {
+    color: #fff;
+
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.2;
   }
 
   .package-day-grid {
