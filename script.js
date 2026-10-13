@@ -1780,6 +1780,8 @@ function buildPackageCopyText() {
 
   lines.push(
     "",
+    "A £50 non-refundable deposit is required to secure the wedding date.",
+    "",
     "Travel is included within 30 miles of Keswick. Venues further afield may incur a travel supplement.",
     "",
     "Please confirm availability and final pricing for my wedding date."
