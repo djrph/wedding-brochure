@@ -78,17 +78,16 @@ const pageHotspots = {
     {
       action: "package-builder",
       label: "Open the wedding package creator",
-      left: 34.5,
-      top: 35.5,
-      width: 31,
-      height: 21.5,
+      left: 36.29,
+      top: 33.71,
+      width: 27.48,
+      height: 19.43,
       pulse: true,
       pulseShape: "circle",
-      intrinsicPulse: {
-        cx: 724.64,
-        cy: 889.46,
-        r: 199.5
-      }
+      pulseX: 50,
+      pulseY: 50,
+      pulseWidth: 110,
+      pulseHeight: 110
     }
   ]
 };
