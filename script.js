@@ -88,8 +88,8 @@ const pageHotspots = {
       pulseY: 49.77,
       pulseWidth: 86.3,
       pulseHeight: 88.1,
-      desktopPulseX: 50,
-      desktopPulseY: 37.12,
+      desktopPulseX: 49.73,
+      desktopPulseY: 36.60,
       desktopPulseWidth: 76.4,
       desktopPulseHeight: 77.9
     }
