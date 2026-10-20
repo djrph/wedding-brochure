@@ -4,9 +4,9 @@ const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
 const isMobileViewer = window.matchMedia("(max-width: 700px)").matches;
 
 const totalPages = 26;
-const brochureVersion = "20261003-1";
+const brochureVersion = "20261020-1";
 const pdfVersion = "20261007-3";
-const thumbnailVersion = "20261007-4";
+const thumbnailVersion = "20261020-1";
 const pageWidth = 600;
 const pageHeight = 848;
 const pageTurnLockTime = 950;
@@ -16,6 +16,7 @@ const PDFJS_BASE_URL = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}
 const PDFJS_WORKER_URL = `${PDFJS_BASE_URL}build/pdf.worker.min.js`;
 const MOBILE_PDF_TIMEOUT_MS = 5000;
 const MOBILE_PDF_CACHE_LIMIT = 6;
+const directImagePages = new Set([11, 12, 14, 16]);
 
 const pageTitles = {
   1: "Cover",
@@ -59,10 +60,16 @@ const pageHotspots = {
     {
       href: "https://youtube.com/shorts/O7Pyok7M7Do",
       label: "Watch the DJ & Sax reel on YouTube",
-      left: 67.5,
-      top: 59.4,
-      width: 32.5,
-      height: 10.5
+      left: 68.2,
+      top: 55.0,
+      width: 30.8,
+      height: 25.5,
+      pulse: true,
+      pulseShape: "circle",
+      pulseX: 58,
+      pulseY: 66,
+      pulseWidth: 73,
+      pulseHeight: 73
     }
   ],
 
@@ -73,7 +80,13 @@ const pageHotspots = {
       left: 34.5,
       top: 35.5,
       width: 31,
-      height: 21.5
+      height: 21.5,
+      pulse: true,
+      pulseShape: "circle",
+      pulseX: 50,
+      pulseY: 27,
+      pulseWidth: 68,
+      pulseHeight: 68
     }
   ]
 };
@@ -209,6 +222,12 @@ function validPageNumber(pageNumber) {
   );
 }
 
+function isDirectImagePage(pageNumber) {
+  return directImagePages.has(
+    pageNumber
+  );
+}
+
 function imagePath(pageNumber) {
   return `pages/page${pageNumber}.jpg?v=${brochureVersion}`;
 }
@@ -252,6 +271,22 @@ function createPageHotspot(
   control.className =
     "page-hotspot";
 
+  if (
+    hotspot.pulse
+  ) {
+    control.classList.add(
+      "page-hotspot--pulse"
+    );
+  }
+
+  if (
+    hotspot.pulseShape
+  ) {
+    control.classList.add(
+      `page-hotspot--${hotspot.pulseShape}`
+    );
+  }
+
   if (isAction) {
     control.type =
       "button";
@@ -294,6 +329,46 @@ function createPageHotspot(
     "--hotspot-height",
     `${hotspot.height}%`
   );
+
+  if (
+    hotspot.pulseX !==
+    undefined
+  ) {
+    control.style.setProperty(
+      "--hotspot-pulse-x",
+      `${hotspot.pulseX}%`
+    );
+  }
+
+  if (
+    hotspot.pulseY !==
+    undefined
+  ) {
+    control.style.setProperty(
+      "--hotspot-pulse-y",
+      `${hotspot.pulseY}%`
+    );
+  }
+
+  if (
+    hotspot.pulseWidth !==
+    undefined
+  ) {
+    control.style.setProperty(
+      "--hotspot-pulse-width",
+      `${hotspot.pulseWidth}%`
+    );
+  }
+
+  if (
+    hotspot.pulseHeight !==
+    undefined
+  ) {
+    control.style.setProperty(
+      "--hotspot-pulse-height",
+      `${hotspot.pulseHeight}%`
+    );
+  }
 
   const stopGesture =
     (event) => {
@@ -3187,7 +3262,10 @@ function primeMobileThumbnailPage(
 
   if (
     !isMobileViewer ||
-    safePage === 1
+    safePage === 1 ||
+    isDirectImagePage(
+      safePage
+    )
   ) {
     return Promise.resolve(
       null
@@ -3384,6 +3462,16 @@ async function navigateMobileThumbnailPage(
     ) {
       preparedNode =
         await prepareMobileCover();
+
+    } else if (
+      isDirectImagePage(
+        safePage
+      )
+    ) {
+      preparedNode =
+        await prepareMobileFallbackImage(
+          safePage
+        );
 
     } else {
       if (
@@ -3906,6 +3994,9 @@ async function warmMobilePdfPage(
       pageNumber
     ) ||
     pageNumber === 1 ||
+    isDirectImagePage(
+      pageNumber
+    ) ||
     generation !==
       mobileWarmGeneration ||
     getCachedMobileCanvas(
@@ -3981,7 +4072,10 @@ function scheduleMobileWarmAround(
             !validPageNumber(
               candidate
             ) ||
-            candidate === 1
+            candidate === 1 ||
+            isDirectImagePage(
+              candidate
+            )
           ) {
             continue;
           }
@@ -4081,10 +4175,16 @@ async function commitMobilePageRequest(
     preparedNode =
       safePage === 1
         ? await prepareMobileCover()
-        : await prepareMobilePdfWithFallback(
-            safePage,
-            requestId
-          );
+        : isDirectImagePage(
+            safePage
+          )
+          ? await prepareMobileFallbackImage(
+              safePage
+            )
+          : await prepareMobilePdfWithFallback(
+              safePage,
+              requestId
+            );
 
   } catch (error) {
     console.error(
@@ -5883,7 +5983,10 @@ async function openImageZoomViewer() {
 
   try {
     if (
-      currentPage === 1
+      currentPage === 1 ||
+      isDirectImagePage(
+        currentPage
+      )
     ) {
       await renderZoomCover(
         currentPage,
