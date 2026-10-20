@@ -4,9 +4,9 @@ const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
 const isMobileViewer = window.matchMedia("(max-width: 700px)").matches;
 
 const totalPages = 26;
-const brochureVersion = "20261020-2";
+const brochureVersion = "20261020-3";
 const pdfVersion = "20261007-3";
-const thumbnailVersion = "20261020-2";
+const thumbnailVersion = "20261020-3";
 const pageWidth = 600;
 const pageHeight = 848;
 const pageTurnLockTime = 950;
@@ -555,17 +555,89 @@ function createMobilePageSurface(
     "mobile-page-surface";
 
   if (
-    node.style?.width
+    isDirectImagePage(
+      pageNumber
+    ) &&
+    node instanceof
+      HTMLImageElement &&
+    node.naturalWidth > 0 &&
+    node.naturalHeight > 0
   ) {
-    surface.style.width =
-      node.style.width;
-  }
+    const frameRect =
+      mobilePageFrame
+        ?.getBoundingClientRect();
 
-  if (
-    node.style?.height
-  ) {
+    const availableWidth =
+      Math.max(
+        1,
+        frameRect?.width ||
+        bookElement?.clientWidth ||
+        window.innerWidth
+      );
+
+    const availableHeight =
+      Math.max(
+        1,
+        frameRect?.height ||
+        bookElement?.clientHeight ||
+        window.innerHeight
+      );
+
+    const fitScale =
+      Math.min(
+        availableWidth /
+          node.naturalWidth,
+
+        availableHeight /
+          node.naturalHeight
+      );
+
+    const displayWidth =
+      Math.max(
+        1,
+        node.naturalWidth *
+        fitScale
+      );
+
+    const displayHeight =
+      Math.max(
+        1,
+        node.naturalHeight *
+        fitScale
+      );
+
+    surface.style.width =
+      `${displayWidth}px`;
+
     surface.style.height =
-      node.style.height;
+      `${displayHeight}px`;
+
+    node.style.width =
+      "100%";
+
+    node.style.height =
+      "100%";
+
+    node.style.maxWidth =
+      "none";
+
+    node.style.maxHeight =
+      "none";
+
+  } else {
+    if (
+      node.style?.width
+    ) {
+      surface.style.width =
+        node.style.width;
+    }
+
+    if (
+      node.style?.height
+    ) {
+      surface.style.height =
+        node.style.height;
+    }
   }
 
   surface.appendChild(
