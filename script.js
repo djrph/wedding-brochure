@@ -67,9 +67,9 @@ const pageHotspots = {
       pulse: true,
       pulseShape: "circle",
       pulseX: 58,
-      pulseY: 66,
-      pulseWidth: 73,
-      pulseHeight: 73
+      pulseY: 59,
+      pulseWidth: 86,
+      pulseHeight: 72
     }
   ],
 
@@ -84,9 +84,9 @@ const pageHotspots = {
       pulse: true,
       pulseShape: "circle",
       pulseX: 50,
-      pulseY: 27,
-      pulseWidth: 68,
-      pulseHeight: 68
+      pulseY: 35,
+      pulseWidth: 86,
+      pulseHeight: 86
     }
   ]
 };
@@ -276,6 +276,23 @@ function createPageHotspot(
   ) {
     control.classList.add(
       "page-hotspot--pulse"
+    );
+
+    const pulseVisual =
+      document.createElement(
+        "span"
+      );
+
+    pulseVisual.className =
+      "page-hotspot-pulse-visual";
+
+    pulseVisual.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    control.appendChild(
+      pulseVisual
     );
   }
 
