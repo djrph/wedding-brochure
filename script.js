@@ -4,9 +4,9 @@ const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
 const isMobileViewer = window.matchMedia("(max-width: 700px)").matches;
 
 const totalPages = 26;
-const brochureVersion = "20261020-1";
+const brochureVersion = "20261020-2";
 const pdfVersion = "20261007-3";
-const thumbnailVersion = "20261020-1";
+const thumbnailVersion = "20261020-2";
 const pageWidth = 600;
 const pageHeight = 848;
 const pageTurnLockTime = 950;
@@ -66,10 +66,11 @@ const pageHotspots = {
       height: 25.5,
       pulse: true,
       pulseShape: "circle",
-      pulseX: 52.54,
-      pulseY: 58.69,
-      pulseWidth: 91.8,
-      pulseHeight: 78.1
+      pulseX: 52.65,
+      pulseY: 58.59,
+      pulseWidth: 83.8,
+      pulseHeight: 71.4,
+      pulseAnimation: "fixed-glow"
     }
   ],
 
@@ -86,7 +87,11 @@ const pageHotspots = {
       pulseX: 49.32,
       pulseY: 49.77,
       pulseWidth: 86.3,
-      pulseHeight: 88.1
+      pulseHeight: 88.1,
+      desktopPulseX: 50,
+      desktopPulseY: 37.12,
+      desktopPulseWidth: 76.4,
+      desktopPulseHeight: 77.9
     }
   ]
 };
@@ -294,6 +299,53 @@ function createPageHotspot(
     control.appendChild(
       pulseVisual
     );
+
+    if (
+      hotspot.pulseAnimation ===
+      "fixed-glow"
+    ) {
+      pulseVisual.style.animation =
+        "none";
+
+      pulseVisual.style.transform =
+        "translate(-50%, -50%) scale(1)";
+
+      const prefersReducedMotion =
+        window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+      if (
+        !prefersReducedMotion &&
+        typeof pulseVisual.animate ===
+          "function"
+      ) {
+        pulseVisual.animate(
+          [
+            {
+              opacity: 0.92,
+              boxShadow:
+                "0 0 0 0 rgba(213,90,255,.58), 0 0 16px 5px rgba(195,49,255,.42)"
+            },
+            {
+              opacity: 1,
+              boxShadow:
+                "0 0 0 7px rgba(213,90,255,.22), 0 0 30px 12px rgba(195,49,255,.62)"
+            },
+            {
+              opacity: 0.92,
+              boxShadow:
+                "0 0 0 0 rgba(213,90,255,.58), 0 0 16px 5px rgba(195,49,255,.42)"
+            }
+          ],
+          {
+            duration: 1650,
+            iterations: Infinity,
+            easing: "ease-in-out"
+          }
+        );
+      }
+    }
   }
 
   if (
@@ -347,43 +399,71 @@ function createPageHotspot(
     `${hotspot.height}%`
   );
 
+  const pulseX =
+    !isMobileViewer &&
+    hotspot.desktopPulseX !==
+      undefined
+      ? hotspot.desktopPulseX
+      : hotspot.pulseX;
+
+  const pulseY =
+    !isMobileViewer &&
+    hotspot.desktopPulseY !==
+      undefined
+      ? hotspot.desktopPulseY
+      : hotspot.pulseY;
+
+  const pulseWidth =
+    !isMobileViewer &&
+    hotspot.desktopPulseWidth !==
+      undefined
+      ? hotspot.desktopPulseWidth
+      : hotspot.pulseWidth;
+
+  const pulseHeight =
+    !isMobileViewer &&
+    hotspot.desktopPulseHeight !==
+      undefined
+      ? hotspot.desktopPulseHeight
+      : hotspot.pulseHeight;
+
   if (
-    hotspot.pulseX !==
+    pulseX !==
     undefined
   ) {
     control.style.setProperty(
       "--hotspot-pulse-x",
-      `${hotspot.pulseX}%`
+      `${pulseX}%`
     );
   }
 
   if (
-    hotspot.pulseY !==
+    pulseY !==
     undefined
   ) {
     control.style.setProperty(
       "--hotspot-pulse-y",
-      `${hotspot.pulseY}%`
+      `${pulseY}%`
     );
   }
 
   if (
-    hotspot.pulseWidth !==
+    pulseWidth !==
     undefined
   ) {
     control.style.setProperty(
       "--hotspot-pulse-width",
-      `${hotspot.pulseWidth}%`
+      `${pulseWidth}%`
     );
   }
 
   if (
-    hotspot.pulseHeight !==
+    pulseHeight !==
     undefined
   ) {
     control.style.setProperty(
       "--hotspot-pulse-height",
-      `${hotspot.pulseHeight}%`
+      `${pulseHeight}%`
     );
   }
 
