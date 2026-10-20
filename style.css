@@ -374,10 +374,7 @@ a:focus-visible {
     rgba(215,182,111,.2);
 }
 
-.page-hotspot--pulse::before,
-.page-hotspot--pulse::after {
-  content: "";
-
+.page-hotspot-pulse-visual {
   position: absolute;
 
   left:
@@ -387,95 +384,75 @@ a:focus-visible {
     var(--hotspot-pulse-y, 50%);
 
   width:
-    var(--hotspot-pulse-width, 70%);
+    var(--hotspot-pulse-width, 80%);
 
   height:
-    var(--hotspot-pulse-height, 70%);
+    var(--hotspot-pulse-height, 80%);
 
-  border-radius:
-    999px;
+  box-sizing: border-box;
+
+  border:
+    3px solid
+    rgba(255,255,255,.96);
+
+  border-radius: 999px;
+
+  background:
+    rgba(184,55,255,.06);
+
+  box-shadow:
+    0 0 0 0
+    rgba(213,90,255,.82),
+    0 0 20px 7px
+    rgba(195,49,255,.54);
 
   transform:
     translate(-50%, -50%)
-    scale(.92);
+    scale(.91);
+
+  transform-origin:
+    center;
+
+  opacity: .98;
 
   pointer-events: none;
-}
-
-.page-hotspot--pulse::before {
-  background:
-    radial-gradient(
-      circle,
-      rgba(255,255,255,.22) 0,
-      rgba(255,255,255,.12) 22%,
-      rgba(206,78,255,.18) 42%,
-      rgba(206,78,255,.10) 58%,
-      rgba(206,78,255,0) 74%
-    );
-
-  filter:
-    drop-shadow(
-      0 0 16px
-      rgba(206,78,255,.42)
-    );
 
   animation:
-    hotspotPulseCore 2.2s ease-in-out infinite;
+    hotspotIconPulse 1.65s ease-out infinite;
 }
 
-.page-hotspot--pulse::after {
-  border:
-    2px solid
-    rgba(255,255,255,.70);
-
-  box-shadow:
-    0 0 0 1px rgba(210,87,255,.38),
-    0 0 14px rgba(210,87,255,.50),
-    0 0 28px rgba(210,87,255,.32);
-
-  animation:
-    hotspotPulseRing 2.2s ease-out infinite;
-}
-
-.page-hotspot--circle::before,
-.page-hotspot--circle::after {
+.page-hotspot--circle
+.page-hotspot-pulse-visual {
   border-radius: 999px;
 }
 
-@keyframes hotspotPulseCore {
-  0%,
-  100% {
-    opacity: .90;
-
-    transform:
-      translate(-50%, -50%)
-      scale(.97);
-  }
-
-  50% {
-    opacity: 1;
-
-    transform:
-      translate(-50%, -50%)
-      scale(1.06);
-  }
-}
-
-@keyframes hotspotPulseRing {
+@keyframes hotspotIconPulse {
   0% {
-    opacity: .82;
+    opacity: .98;
 
     transform:
       translate(-50%, -50%)
-      scale(.88);
+      scale(.91);
+
+    box-shadow:
+      0 0 0 0
+      rgba(213,90,255,.85),
+      0 0 18px 6px
+      rgba(195,49,255,.58);
   }
 
-  70% {
-    opacity: .12;
+  55% {
+    opacity: .78;
 
     transform:
       translate(-50%, -50%)
-      scale(1.16);
+      scale(1.03);
+
+    box-shadow:
+      0 0 0 12px
+      rgba(213,90,255,.30),
+      0 0 28px 11px
+      rgba(195,49,255,.44);
   }
 
   100% {
@@ -483,22 +460,45 @@ a:focus-visible {
 
     transform:
       translate(-50%, -50%)
-      scale(1.22);
+      scale(1.16);
+
+    box-shadow:
+      0 0 0 26px
+      rgba(213,90,255,0),
+      0 0 38px 16px
+      rgba(195,49,255,0);
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .page-hotspot--pulse::before,
-  .page-hotspot--pulse::after {
-    animation: none;
+@media
+  (prefers-reduced-motion: reduce) {
+
+  .page-hotspot-pulse-visual {
+    animation:
+      hotspotIconGlow 2.2s ease-in-out infinite;
   }
 
-  .page-hotspot--pulse::after {
-    opacity: .65;
+  @keyframes hotspotIconGlow {
+    0%,
+    100% {
+      opacity: .82;
 
-    transform:
-      translate(-50%, -50%)
-      scale(1);
+      box-shadow:
+        0 0 0 2px
+        rgba(213,90,255,.34),
+        0 0 16px 5px
+        rgba(195,49,255,.35);
+    }
+
+    50% {
+      opacity: 1;
+
+      box-shadow:
+        0 0 0 5px
+        rgba(213,90,255,.42),
+        0 0 22px 8px
+        rgba(195,49,255,.46);
+    }
   }
 }
 
@@ -533,12 +533,16 @@ a:focus-visible {
       rgba(241,217,155,.48);
   }
 
-  .page-hotspot--pulse:hover::before {
-    filter:
-      drop-shadow(
-        0 0 20px
-        rgba(220,124,255,.55)
-      );
+  .page-hotspot--pulse:hover
+  .page-hotspot-pulse-visual {
+    border-color:
+      #fff;
+
+    box-shadow:
+      0 0 0 8px
+      rgba(213,90,255,.28),
+      0 0 30px 12px
+      rgba(195,49,255,.52);
   }
 }
 
