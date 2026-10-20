@@ -84,9 +84,7 @@ const pageHotspots = {
       height: 21.5,
       pulse: true,
       pulseShape: "circle",
-      artworkPulse: {
-        viewBoxWidth: 1448,
-        viewBoxHeight: 2048,
+      intrinsicPulse: {
         cx: 724.64,
         cy: 889.46,
         r: 199.5
@@ -278,7 +276,8 @@ function createPageHotspot(
   const useNestedPulse =
     hotspot.pulse &&
     !hotspot.pagePulse &&
-    !hotspot.artworkPulse;
+    !hotspot.artworkPulse &&
+    !hotspot.intrinsicPulse;
 
   if (
     useNestedPulse
@@ -515,220 +514,187 @@ function createPageHotspot(
   return control;
 }
 
-function appendArtworkPulse(
+function appendIntrinsicPulse(
   container,
   hotspot
 ) {
   if (
     !container ||
-    !hotspot?.artworkPulse
+    !hotspot?.intrinsicPulse
   ) {
     return;
   }
 
-  const pulse =
-    hotspot.artworkPulse;
-
-  const svgNamespace =
-    "http://www.w3.org/2000/svg";
-
-  const svg =
-    document.createElementNS(
-      svgNamespace,
-      "svg"
+  const image =
+    container.querySelector(
+      "img"
     );
 
-  svg.setAttribute(
-    "viewBox",
-    `0 0 ${pulse.viewBoxWidth} ${pulse.viewBoxHeight}`
-  );
+  if (!image) {
+    return;
+  }
 
-  svg.setAttribute(
-    "preserveAspectRatio",
-    "none"
-  );
+  const pulse =
+    hotspot.intrinsicPulse;
 
-  svg.setAttribute(
+  const visual =
+    document.createElement(
+      "span"
+    );
+
+  visual.className =
+    "page-hotspot-pulse-visual";
+
+  visual.setAttribute(
     "aria-hidden",
     "true"
   );
 
-  svg.style.position =
-    "absolute";
-
-  svg.style.inset =
-    "0";
-
-  svg.style.width =
-    "100%";
-
-  svg.style.height =
-    "100%";
-
-  svg.style.zIndex =
+  visual.style.zIndex =
     "39";
 
-  svg.style.overflow =
-    "visible";
-
-  svg.style.pointerEvents =
+  visual.style.pointerEvents =
     "none";
 
-  const outerGlow =
-    document.createElementNS(
-      svgNamespace,
-      "circle"
-    );
-
-  outerGlow.setAttribute(
-    "cx",
-    String(
-      pulse.cx
-    )
+  container.appendChild(
+    visual
   );
 
-  outerGlow.setAttribute(
-    "cy",
-    String(
-      pulse.cy
-    )
-  );
+  const positionPulse =
+    () => {
+      if (
+        !image.naturalWidth ||
+        !image.naturalHeight
+      ) {
+        return;
+      }
 
-  outerGlow.setAttribute(
-    "r",
-    String(
-      pulse.r
-    )
-  );
+      const boxWidth =
+        image.clientWidth;
 
-  outerGlow.setAttribute(
-    "fill",
-    "none"
-  );
+      const boxHeight =
+        image.clientHeight;
 
-  outerGlow.setAttribute(
-    "stroke",
-    "rgba(204,64,255,.72)"
-  );
+      if (
+        boxWidth <= 0 ||
+        boxHeight <= 0
+      ) {
+        return;
+      }
 
-  outerGlow.setAttribute(
-    "stroke-width",
-    "34"
-  );
+      const contentScale =
+        Math.min(
+          boxWidth /
+            image.naturalWidth,
 
-  outerGlow.style.filter =
-    "blur(18px)";
+          boxHeight /
+            image.naturalHeight
+        );
 
-  outerGlow.style.opacity =
-    "0.36";
+      const contentWidth =
+        image.naturalWidth *
+        contentScale;
 
-  const innerGlow =
-    document.createElementNS(
-      svgNamespace,
-      "circle"
-    );
+      const contentHeight =
+        image.naturalHeight *
+        contentScale;
 
-  innerGlow.setAttribute(
-    "cx",
-    String(
-      pulse.cx
-    )
-  );
+      const imageContentLeft =
+        image.offsetLeft +
+        (
+          boxWidth -
+          contentWidth
+        ) /
+        2;
 
-  innerGlow.setAttribute(
-    "cy",
-    String(
-      pulse.cy
-    )
-  );
+      const imageContentTop =
+        image.offsetTop +
+        (
+          boxHeight -
+          contentHeight
+        ) /
+        2;
 
-  innerGlow.setAttribute(
-    "r",
-    String(
-      pulse.r
-    )
-  );
+      const centreX =
+        imageContentLeft +
+        pulse.cx *
+        contentScale;
 
-  innerGlow.setAttribute(
-    "fill",
-    "none"
-  );
+      const centreY =
+        imageContentTop +
+        pulse.cy *
+        contentScale;
 
-  innerGlow.setAttribute(
-    "stroke",
-    "rgba(255,255,255,.72)"
-  );
+      /*
+       * The original pulse animation starts at scale(.91).
+       * Making the base diameter 1/.91 larger means the ring
+       * sits exactly on the printed circle at the start of
+       * each pulse, then expands outwards as before.
+       */
+      const baseRadius =
+        (
+          pulse.r /
+          0.91
+        ) *
+        contentScale;
 
-  innerGlow.setAttribute(
-    "stroke-width",
-    "7"
-  );
+      visual.style.left =
+        `${centreX}px`;
 
-  innerGlow.style.filter =
-    "blur(3px)";
+      visual.style.top =
+        `${centreY}px`;
 
-  innerGlow.style.opacity =
-    "0.48";
+      visual.style.width =
+        `${baseRadius * 2}px`;
 
-  svg.appendChild(
-    outerGlow
-  );
-
-  svg.appendChild(
-    innerGlow
-  );
-
-  const prefersReducedMotion =
-    window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
+      visual.style.height =
+        `${baseRadius * 2}px`;
+    };
 
   if (
-    !prefersReducedMotion &&
-    typeof outerGlow.animate ===
-      "function"
+    image.complete &&
+    image.naturalWidth > 0
   ) {
-    outerGlow.animate(
-      [
-        {
-          opacity: 0.24
-        },
-        {
-          opacity: 0.88
-        },
-        {
-          opacity: 0.24
-        }
-      ],
-      {
-        duration: 1700,
-        iterations: Infinity,
-        easing: "ease-in-out"
-      }
+    window.requestAnimationFrame(
+      positionPulse
     );
 
-    innerGlow.animate(
-      [
-        {
-          opacity: 0.34
-        },
-        {
-          opacity: 0.82
-        },
-        {
-          opacity: 0.34
-        }
-      ],
+  } else {
+    image.addEventListener(
+      "load",
+      () => {
+        window.requestAnimationFrame(
+          positionPulse
+        );
+      },
       {
-        duration: 1700,
-        iterations: Infinity,
-        easing: "ease-in-out"
+        once: true
       }
     );
   }
 
-  container.appendChild(
-    svg
+  if (
+    typeof ResizeObserver ===
+    "function"
+  ) {
+    const observer =
+      new ResizeObserver(
+        () => {
+          positionPulse();
+        }
+      );
+
+    observer.observe(
+      image
+    );
+
+    observer.observe(
+      container
+    );
+  }
+
+  window.requestAnimationFrame(
+    positionPulse
   );
 }
 
@@ -751,7 +717,7 @@ function appendPageHotspots(
         )
       );
 
-      appendArtworkPulse(
+      appendIntrinsicPulse(
         container,
         hotspot
       );
