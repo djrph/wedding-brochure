@@ -84,10 +84,7 @@ const pageHotspots = {
       height: 19.43,
       pulse: true,
       pulseShape: "circle",
-      pulseX: 50,
-      pulseY: 50,
-      pulseWidth: 110,
-      pulseHeight: 110
+      pulseStyle: "classic-centered"
     }
   ]
 };
@@ -272,11 +269,182 @@ function createPageHotspot(
   control.className =
     "page-hotspot";
 
+  const useClassicCenteredPulse =
+    hotspot.pulse &&
+    hotspot.pulseStyle ===
+      "classic-centered";
+
   const useNestedPulse =
     hotspot.pulse &&
+    !useClassicCenteredPulse &&
     !hotspot.pagePulse &&
     !hotspot.artworkPulse &&
     !hotspot.intrinsicPulse;
+
+  if (
+    useClassicCenteredPulse
+  ) {
+    const pulseWrapper =
+      document.createElement(
+        "span"
+      );
+
+    pulseWrapper.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    pulseWrapper.style.position =
+      "absolute";
+
+    pulseWrapper.style.inset =
+      "0";
+
+    pulseWrapper.style.borderRadius =
+      "50%";
+
+    pulseWrapper.style.overflow =
+      "visible";
+
+    pulseWrapper.style.pointerEvents =
+      "none";
+
+    const pulseCore =
+      document.createElement(
+        "span"
+      );
+
+    pulseCore.style.position =
+      "absolute";
+
+    pulseCore.style.inset =
+      "0";
+
+    pulseCore.style.borderRadius =
+      "50%";
+
+    pulseCore.style.background =
+      "radial-gradient(circle, rgba(255,255,255,.22) 0%, rgba(255,255,255,.12) 22%, rgba(206,78,255,.18) 42%, rgba(206,78,255,.10) 58%, rgba(206,78,255,0) 74%)";
+
+    pulseCore.style.filter =
+      "drop-shadow(0 0 16px rgba(206,78,255,.42))";
+
+    pulseCore.style.transformOrigin =
+      "50% 50%";
+
+    const pulseRing =
+      document.createElement(
+        "span"
+      );
+
+    pulseRing.style.position =
+      "absolute";
+
+    pulseRing.style.inset =
+      "0";
+
+    pulseRing.style.boxSizing =
+      "border-box";
+
+    pulseRing.style.border =
+      "2px solid rgba(255,255,255,.70)";
+
+    pulseRing.style.borderRadius =
+      "50%";
+
+    pulseRing.style.boxShadow =
+      "0 0 0 1px rgba(210,87,255,.38), 0 0 14px rgba(210,87,255,.50), 0 0 28px rgba(210,87,255,.32)";
+
+    pulseRing.style.transformOrigin =
+      "50% 50%";
+
+    pulseWrapper.appendChild(
+      pulseCore
+    );
+
+    pulseWrapper.appendChild(
+      pulseRing
+    );
+
+    control.appendChild(
+      pulseWrapper
+    );
+
+    const prefersReducedMotion =
+      window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+
+    if (
+      !prefersReducedMotion &&
+      typeof pulseCore.animate ===
+        "function"
+    ) {
+      pulseCore.animate(
+        [
+          {
+            opacity: 0.90,
+            transform:
+              "scale(.97)"
+          },
+          {
+            opacity: 1,
+            transform:
+              "scale(1.06)"
+          },
+          {
+            opacity: 0.90,
+            transform:
+              "scale(.97)"
+          }
+        ],
+        {
+          duration: 2200,
+          iterations: Infinity,
+          easing: "ease-in-out"
+        }
+      );
+
+      pulseRing.animate(
+        [
+          {
+            opacity: 0.82,
+            transform:
+              "scale(.88)"
+          },
+          {
+            opacity: 0.12,
+            transform:
+              "scale(1.16)",
+            offset: 0.70
+          },
+          {
+            opacity: 0,
+            transform:
+              "scale(1.22)"
+          }
+        ],
+        {
+          duration: 2200,
+          iterations: Infinity,
+          easing: "ease-out"
+        }
+      );
+
+    } else {
+      pulseCore.style.opacity =
+        ".92";
+
+      pulseCore.style.transform =
+        "scale(1)";
+
+      pulseRing.style.opacity =
+        ".55";
+
+      pulseRing.style.transform =
+        "scale(1)";
+    }
+  }
 
   if (
     useNestedPulse
