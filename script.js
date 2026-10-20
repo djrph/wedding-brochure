@@ -84,11 +84,12 @@ const pageHotspots = {
       height: 21.5,
       pulse: true,
       pulseShape: "circle",
-      pagePulse: {
-        x: 50.014,
-        y: 43.428,
-        width: 27.497,
-        height: 19.441
+      artworkPulse: {
+        viewBoxWidth: 1448,
+        viewBoxHeight: 2048,
+        cx: 724.64,
+        cy: 889.46,
+        r: 199.5
       }
     }
   ]
@@ -276,7 +277,8 @@ function createPageHotspot(
 
   const useNestedPulse =
     hotspot.pulse &&
-    !hotspot.pagePulse;
+    !hotspot.pagePulse &&
+    !hotspot.artworkPulse;
 
   if (
     useNestedPulse
@@ -513,71 +515,168 @@ function createPageHotspot(
   return control;
 }
 
-function appendPagePulse(
+function appendArtworkPulse(
   container,
   hotspot
 ) {
   if (
     !container ||
-    !hotspot?.pagePulse
+    !hotspot?.artworkPulse
   ) {
     return;
   }
 
   const pulse =
-    hotspot.pagePulse;
+    hotspot.artworkPulse;
 
-  const visual =
-    document.createElement(
-      "span"
+  const svgNamespace =
+    "http://www.w3.org/2000/svg";
+
+  const svg =
+    document.createElementNS(
+      svgNamespace,
+      "svg"
     );
 
-  visual.setAttribute(
+  svg.setAttribute(
+    "viewBox",
+    `0 0 ${pulse.viewBoxWidth} ${pulse.viewBoxHeight}`
+  );
+
+  svg.setAttribute(
+    "preserveAspectRatio",
+    "none"
+  );
+
+  svg.setAttribute(
     "aria-hidden",
     "true"
   );
 
-  visual.style.position =
+  svg.style.position =
     "absolute";
 
-  visual.style.left =
-    `${pulse.x}%`;
+  svg.style.inset =
+    "0";
 
-  visual.style.top =
-    `${pulse.y}%`;
+  svg.style.width =
+    "100%";
 
-  visual.style.width =
-    `${pulse.width}%`;
+  svg.style.height =
+    "100%";
 
-  visual.style.height =
-    `${pulse.height}%`;
-
-  visual.style.zIndex =
+  svg.style.zIndex =
     "39";
 
-  visual.style.boxSizing =
-    "border-box";
+  svg.style.overflow =
+    "visible";
 
-  visual.style.border =
-    "2px solid rgba(255,255,255,.78)";
-
-  visual.style.borderRadius =
-    "999px";
-
-  visual.style.background =
-    "rgba(184,55,255,.015)";
-
-  visual.style.boxShadow =
-    "0 0 0 0 rgba(213,90,255,.42), 0 0 17px 6px rgba(195,49,255,.38)";
-
-  visual.style.transform =
-    "translate(-50%, -50%)";
-
-  visual.style.transformOrigin =
-    "center";
-
-  visual.style.pointerEvents =
+  svg.style.pointerEvents =
     "none";
+
+  const outerGlow =
+    document.createElementNS(
+      svgNamespace,
+      "circle"
+    );
+
+  outerGlow.setAttribute(
+    "cx",
+    String(
+      pulse.cx
+    )
+  );
+
+  outerGlow.setAttribute(
+    "cy",
+    String(
+      pulse.cy
+    )
+  );
+
+  outerGlow.setAttribute(
+    "r",
+    String(
+      pulse.r
+    )
+  );
+
+  outerGlow.setAttribute(
+    "fill",
+    "none"
+  );
+
+  outerGlow.setAttribute(
+    "stroke",
+    "rgba(204,64,255,.72)"
+  );
+
+  outerGlow.setAttribute(
+    "stroke-width",
+    "34"
+  );
+
+  outerGlow.style.filter =
+    "blur(18px)";
+
+  outerGlow.style.opacity =
+    "0.36";
+
+  const innerGlow =
+    document.createElementNS(
+      svgNamespace,
+      "circle"
+    );
+
+  innerGlow.setAttribute(
+    "cx",
+    String(
+      pulse.cx
+    )
+  );
+
+  innerGlow.setAttribute(
+    "cy",
+    String(
+      pulse.cy
+    )
+  );
+
+  innerGlow.setAttribute(
+    "r",
+    String(
+      pulse.r
+    )
+  );
+
+  innerGlow.setAttribute(
+    "fill",
+    "none"
+  );
+
+  innerGlow.setAttribute(
+    "stroke",
+    "rgba(255,255,255,.72)"
+  );
+
+  innerGlow.setAttribute(
+    "stroke-width",
+    "7"
+  );
+
+  innerGlow.style.filter =
+    "blur(3px)";
+
+  innerGlow.style.opacity =
+    "0.48";
+
+  svg.appendChild(
+    outerGlow
+  );
+
+  svg.appendChild(
+    innerGlow
+  );
 
   const prefersReducedMotion =
     window.matchMedia(
@@ -586,25 +685,38 @@ function appendPagePulse(
 
   if (
     !prefersReducedMotion &&
-    typeof visual.animate ===
+    typeof outerGlow.animate ===
       "function"
   ) {
-    visual.animate(
+    outerGlow.animate(
       [
         {
-          opacity: 0.78,
-          boxShadow:
-            "0 0 0 0 rgba(213,90,255,.42), 0 0 15px 5px rgba(195,49,255,.34)"
+          opacity: 0.24
         },
         {
-          opacity: 1,
-          boxShadow:
-            "0 0 0 8px rgba(213,90,255,.18), 0 0 30px 12px rgba(195,49,255,.58)"
+          opacity: 0.88
         },
         {
-          opacity: 0.78,
-          boxShadow:
-            "0 0 0 0 rgba(213,90,255,.42), 0 0 15px 5px rgba(195,49,255,.34)"
+          opacity: 0.24
+        }
+      ],
+      {
+        duration: 1700,
+        iterations: Infinity,
+        easing: "ease-in-out"
+      }
+    );
+
+    innerGlow.animate(
+      [
+        {
+          opacity: 0.34
+        },
+        {
+          opacity: 0.82
+        },
+        {
+          opacity: 0.34
         }
       ],
       {
@@ -616,7 +728,7 @@ function appendPagePulse(
   }
 
   container.appendChild(
-    visual
+    svg
   );
 }
 
@@ -639,7 +751,7 @@ function appendPageHotspots(
         )
       );
 
-      appendPagePulse(
+      appendArtworkPulse(
         container,
         hotspot
       );
