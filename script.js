@@ -91,7 +91,13 @@ const pageHotspots = {
       desktopPulseX: 49.73,
       desktopPulseY: 36.60,
       desktopPulseWidth: 76.4,
-      desktopPulseHeight: 77.9
+      desktopPulseHeight: 77.9,
+      desktopPagePulse: {
+        x: 50.05,
+        y: 43.42,
+        width: 26.66,
+        height: 18.85
+      }
     }
   ]
 };
@@ -276,8 +282,15 @@ function createPageHotspot(
   control.className =
     "page-hotspot";
 
+  const useNestedPulse =
+    hotspot.pulse &&
+    !(
+      !isMobileViewer &&
+      hotspot.desktopPagePulse
+    );
+
   if (
-    hotspot.pulse
+    useNestedPulse
   ) {
     control.classList.add(
       "page-hotspot--pulse"
@@ -511,6 +524,114 @@ function createPageHotspot(
   return control;
 }
 
+function appendDesktopPagePulse(
+  container,
+  hotspot
+) {
+  if (
+    !container ||
+    isMobileViewer ||
+    !hotspot?.desktopPagePulse
+  ) {
+    return;
+  }
+
+  const pulse =
+    hotspot.desktopPagePulse;
+
+  const visual =
+    document.createElement(
+      "span"
+    );
+
+  visual.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+  visual.style.position =
+    "absolute";
+
+  visual.style.left =
+    `${pulse.x}%`;
+
+  visual.style.top =
+    `${pulse.y}%`;
+
+  visual.style.width =
+    `${pulse.width}%`;
+
+  visual.style.height =
+    `${pulse.height}%`;
+
+  visual.style.zIndex =
+    "39";
+
+  visual.style.boxSizing =
+    "border-box";
+
+  visual.style.border =
+    "2px solid rgba(255,255,255,.88)";
+
+  visual.style.borderRadius =
+    "999px";
+
+  visual.style.background =
+    "rgba(184,55,255,.035)";
+
+  visual.style.boxShadow =
+    "0 0 0 0 rgba(213,90,255,.50), 0 0 18px 6px rgba(195,49,255,.42)";
+
+  visual.style.transform =
+    "translate(-50%, -50%)";
+
+  visual.style.transformOrigin =
+    "center";
+
+  visual.style.pointerEvents =
+    "none";
+
+  const prefersReducedMotion =
+    window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+  if (
+    !prefersReducedMotion &&
+    typeof visual.animate ===
+      "function"
+  ) {
+    visual.animate(
+      [
+        {
+          opacity: 0.82,
+          boxShadow:
+            "0 0 0 0 rgba(213,90,255,.50), 0 0 16px 5px rgba(195,49,255,.38)"
+        },
+        {
+          opacity: 1,
+          boxShadow:
+            "0 0 0 9px rgba(213,90,255,.20), 0 0 28px 11px rgba(195,49,255,.58)"
+        },
+        {
+          opacity: 0.82,
+          boxShadow:
+            "0 0 0 0 rgba(213,90,255,.50), 0 0 16px 5px rgba(195,49,255,.38)"
+        }
+      ],
+      {
+        duration: 1650,
+        iterations: Infinity,
+        easing: "ease-in-out"
+      }
+    );
+  }
+
+  container.appendChild(
+    visual
+  );
+}
+
 function appendPageHotspots(
   container,
   pageNumber
@@ -528,6 +649,11 @@ function appendPageHotspots(
           pageNumber,
           hotspot
         )
+      );
+
+      appendDesktopPagePulse(
+        container,
+        hotspot
       );
     }
   );
