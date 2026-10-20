@@ -358,6 +358,8 @@ a:focus-visible {
   height:
     var(--hotspot-height);
 
+  overflow: visible;
+
   border-radius: 10px;
 
   background:
@@ -370,6 +372,134 @@ a:focus-visible {
 
   -webkit-tap-highlight-color:
     rgba(215,182,111,.2);
+}
+
+.page-hotspot--pulse::before,
+.page-hotspot--pulse::after {
+  content: "";
+
+  position: absolute;
+
+  left:
+    var(--hotspot-pulse-x, 50%);
+
+  top:
+    var(--hotspot-pulse-y, 50%);
+
+  width:
+    var(--hotspot-pulse-width, 70%);
+
+  height:
+    var(--hotspot-pulse-height, 70%);
+
+  border-radius:
+    999px;
+
+  transform:
+    translate(-50%, -50%)
+    scale(.92);
+
+  pointer-events: none;
+}
+
+.page-hotspot--pulse::before {
+  background:
+    radial-gradient(
+      circle,
+      rgba(255,255,255,.22) 0,
+      rgba(255,255,255,.12) 22%,
+      rgba(206,78,255,.18) 42%,
+      rgba(206,78,255,.10) 58%,
+      rgba(206,78,255,0) 74%
+    );
+
+  filter:
+    drop-shadow(
+      0 0 16px
+      rgba(206,78,255,.42)
+    );
+
+  animation:
+    hotspotPulseCore 2.2s ease-in-out infinite;
+}
+
+.page-hotspot--pulse::after {
+  border:
+    2px solid
+    rgba(255,255,255,.70);
+
+  box-shadow:
+    0 0 0 1px rgba(210,87,255,.38),
+    0 0 14px rgba(210,87,255,.50),
+    0 0 28px rgba(210,87,255,.32);
+
+  animation:
+    hotspotPulseRing 2.2s ease-out infinite;
+}
+
+.page-hotspot--circle::before,
+.page-hotspot--circle::after {
+  border-radius: 999px;
+}
+
+@keyframes hotspotPulseCore {
+  0%,
+  100% {
+    opacity: .90;
+
+    transform:
+      translate(-50%, -50%)
+      scale(.97);
+  }
+
+  50% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      scale(1.06);
+  }
+}
+
+@keyframes hotspotPulseRing {
+  0% {
+    opacity: .82;
+
+    transform:
+      translate(-50%, -50%)
+      scale(.88);
+  }
+
+  70% {
+    opacity: .12;
+
+    transform:
+      translate(-50%, -50%)
+      scale(1.16);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(1.22);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-hotspot--pulse::before,
+  .page-hotspot--pulse::after {
+    animation: none;
+  }
+
+  .page-hotspot--pulse::after {
+    opacity: .65;
+
+    transform:
+      translate(-50%, -50%)
+      scale(1);
+  }
 }
 
 .page-hotspot:focus-visible {
@@ -401,6 +531,14 @@ a:focus-visible {
     box-shadow:
       inset 0 0 0 1px
       rgba(241,217,155,.48);
+  }
+
+  .page-hotspot--pulse:hover::before {
+    filter:
+      drop-shadow(
+        0 0 20px
+        rgba(220,124,255,.55)
+      );
   }
 }
 
