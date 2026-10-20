@@ -66,10 +66,10 @@ const pageHotspots = {
       height: 25.5,
       pulse: true,
       pulseShape: "circle",
-      pulseX: 58,
-      pulseY: 59,
-      pulseWidth: 86,
-      pulseHeight: 72
+      pulseX: 52.35,
+      pulseY: 58.33,
+      pulseWidth: 75,
+      pulseHeight: 64
     }
   ],
 
@@ -84,9 +84,9 @@ const pageHotspots = {
       pulse: true,
       pulseShape: "circle",
       pulseX: 50,
-      pulseY: 35,
-      pulseWidth: 86,
-      pulseHeight: 86
+      pulseY: 36.78,
+      pulseWidth: 76.6,
+      pulseHeight: 78.1
     }
   ]
 };
