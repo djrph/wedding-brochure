@@ -4,9 +4,9 @@ const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
 const isMobileViewer = window.matchMedia("(max-width: 700px)").matches;
 
 const totalPages = 26;
-const brochureVersion = "20261020-3";
+const brochureVersion = "20261020-4";
 const pdfVersion = "20261007-3";
-const thumbnailVersion = "20261020-3";
+const thumbnailVersion = "20261020-4";
 const pageWidth = 600;
 const pageHeight = 848;
 const pageTurnLockTime = 950;
@@ -16,7 +16,7 @@ const PDFJS_BASE_URL = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}
 const PDFJS_WORKER_URL = `${PDFJS_BASE_URL}build/pdf.worker.min.js`;
 const MOBILE_PDF_TIMEOUT_MS = 5000;
 const MOBILE_PDF_CACHE_LIMIT = 6;
-const directImagePages = new Set([11, 12, 14, 16]);
+const directImagePages = new Set([11, 12, 14, 16, 25]);
 
 const pageTitles = {
   1: "Cover",
@@ -84,19 +84,11 @@ const pageHotspots = {
       height: 21.5,
       pulse: true,
       pulseShape: "circle",
-      pulseX: 49.32,
-      pulseY: 49.77,
-      pulseWidth: 86.3,
-      pulseHeight: 88.1,
-      desktopPulseX: 49.73,
-      desktopPulseY: 36.60,
-      desktopPulseWidth: 76.4,
-      desktopPulseHeight: 77.9,
-      desktopPagePulse: {
-        x: 50.05,
-        y: 43.42,
-        width: 26.66,
-        height: 18.85
+      pagePulse: {
+        x: 50.014,
+        y: 43.428,
+        width: 27.497,
+        height: 19.441
       }
     }
   ]
@@ -284,10 +276,7 @@ function createPageHotspot(
 
   const useNestedPulse =
     hotspot.pulse &&
-    !(
-      !isMobileViewer &&
-      hotspot.desktopPagePulse
-    );
+    !hotspot.pagePulse;
 
   if (
     useNestedPulse
@@ -524,20 +513,19 @@ function createPageHotspot(
   return control;
 }
 
-function appendDesktopPagePulse(
+function appendPagePulse(
   container,
   hotspot
 ) {
   if (
     !container ||
-    isMobileViewer ||
-    !hotspot?.desktopPagePulse
+    !hotspot?.pagePulse
   ) {
     return;
   }
 
   const pulse =
-    hotspot.desktopPagePulse;
+    hotspot.pagePulse;
 
   const visual =
     document.createElement(
@@ -571,16 +559,16 @@ function appendDesktopPagePulse(
     "border-box";
 
   visual.style.border =
-    "2px solid rgba(255,255,255,.88)";
+    "2px solid rgba(255,255,255,.78)";
 
   visual.style.borderRadius =
     "999px";
 
   visual.style.background =
-    "rgba(184,55,255,.035)";
+    "rgba(184,55,255,.015)";
 
   visual.style.boxShadow =
-    "0 0 0 0 rgba(213,90,255,.50), 0 0 18px 6px rgba(195,49,255,.42)";
+    "0 0 0 0 rgba(213,90,255,.42), 0 0 17px 6px rgba(195,49,255,.38)";
 
   visual.style.transform =
     "translate(-50%, -50%)";
@@ -604,23 +592,23 @@ function appendDesktopPagePulse(
     visual.animate(
       [
         {
-          opacity: 0.82,
+          opacity: 0.78,
           boxShadow:
-            "0 0 0 0 rgba(213,90,255,.50), 0 0 16px 5px rgba(195,49,255,.38)"
+            "0 0 0 0 rgba(213,90,255,.42), 0 0 15px 5px rgba(195,49,255,.34)"
         },
         {
           opacity: 1,
           boxShadow:
-            "0 0 0 9px rgba(213,90,255,.20), 0 0 28px 11px rgba(195,49,255,.58)"
+            "0 0 0 8px rgba(213,90,255,.18), 0 0 30px 12px rgba(195,49,255,.58)"
         },
         {
-          opacity: 0.82,
+          opacity: 0.78,
           boxShadow:
-            "0 0 0 0 rgba(213,90,255,.50), 0 0 16px 5px rgba(195,49,255,.38)"
+            "0 0 0 0 rgba(213,90,255,.42), 0 0 15px 5px rgba(195,49,255,.34)"
         }
       ],
       {
-        duration: 1650,
+        duration: 1700,
         iterations: Infinity,
         easing: "ease-in-out"
       }
@@ -651,7 +639,7 @@ function appendPageHotspots(
         )
       );
 
-      appendDesktopPagePulse(
+      appendPagePulse(
         container,
         hotspot
       );
