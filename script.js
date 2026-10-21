@@ -78,8 +78,8 @@ const pageHotspots = {
     {
       action: "package-builder",
       label: "Open the wedding package creator",
-      left: 36.29,
-      top: 33.71,
+      left: 36.34,
+      top: 34.33,
       width: 27.48,
       height: 19.43,
       pulse: true,
