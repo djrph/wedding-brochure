@@ -4,9 +4,9 @@ const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
 const isMobileViewer = window.matchMedia("(max-width: 700px)").matches;
 
 const totalPages = 26;
-const brochureVersion = "20261020-4";
+const brochureVersion = "20261106-4";
 const pdfVersion = "20261007-3";
-const thumbnailVersion = "20261020-4";
+const thumbnailVersion = "20261106-4";
 const pageWidth = 600;
 const pageHeight = 848;
 const pageTurnLockTime = 950;
@@ -16,7 +16,7 @@ const PDFJS_BASE_URL = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}
 const PDFJS_WORKER_URL = `${PDFJS_BASE_URL}build/pdf.worker.min.js`;
 const MOBILE_PDF_TIMEOUT_MS = 5000;
 const MOBILE_PDF_CACHE_LIMIT = 6;
-const directImagePages = new Set([11, 12, 14, 16, 25]);
+const directImagePages = new Set([2, 11, 12, 14, 16, 20, 25, 26]);
 
 const pageTitles = {
   1: "Cover",
@@ -85,6 +85,25 @@ const pageHotspots = {
       pulse: true,
       pulseShape: "circle",
       pulseStyle: "classic-centered"
+    }
+  ],
+
+  26: [
+    {
+      action: "copy-package",
+      label: "Copy my wedding package",
+      left: 17.0,
+      top: 34.7,
+      width: 16.2,
+      height: 11.6
+    },
+    {
+      href: "https://www.keswickdiscos.co.uk/enquiries",
+      label: "Check your wedding date",
+      left: 29.0,
+      top: 60.3,
+      width: 42.0,
+      height: 7.1
     }
   ]
 };
@@ -674,6 +693,11 @@ function createPageHotspot(
         event.preventDefault();
 
         openPackageBuilder();
+      } else if (
+        hotspot.action === "copy-package"
+      ) {
+        event.preventDefault();
+        void copyPackageFromBrochurePage();
       }
     }
   );
@@ -2094,118 +2118,36 @@ function getWeddingDayBandLabel() {
     "";
 }
 
-function getWeddingDayPackagePrice(
-  packageInput
-) {
-  const selected =
-    getSelectedWeddingDayBandInput();
+function getWeddingDayPackagePrice(packageInput) {
+  if (!packageInput) return null;
 
-  if (
-    !selected ||
-    !packageInput
-  ) {
-    return null;
-  }
-
-  const rawPrice =
-    selected.value ===
-    "midweek"
-      ? packageInput.dataset.priceMidweek
-      : packageInput.dataset.priceThursdaySunday;
-
-  if (
-    rawPrice === undefined ||
-    rawPrice === ""
-  ) {
-    return null;
-  }
-
-  const price =
-    Number(
-      rawPrice
-    );
-
-  return Number.isFinite(
-    price
-  )
-    ? price
-    : null;
+  // Main package prices apply to every day of the week.
+  const price = Number(packageInput.dataset.price);
+  return Number.isFinite(price) ? price : null;
 }
 
 function syncMainPackagePriceDisplays() {
-  const selected =
-    getSelectedWeddingDayBandInput();
-
-  const packageDisplays = [
-    {
-      value: "evening",
-      priceElement:
-        eveningPackagePrice,
-      noteElement:
-        eveningPackagePriceNote,
-      range: "£425–£475",
-      note: "7pm–midnight"
-    },
-    {
-      value: "all-day",
-      priceElement:
-        allDayPackagePrice,
-      noteElement:
-        allDayPackagePriceNote,
-      range: "£599–£649",
-      note: "Entertainment throughout your day"
-    },
-    {
-      value: "ceremony",
-      priceElement:
-        ceremonyPackagePrice,
-      noteElement:
-        ceremonyPackagePriceNote,
-      range: "£645–£695",
-      note: "Ceremony music package"
-    }
+  const displays = [
+    { value: "evening", priceElement: eveningPackagePrice,
+      noteElement: eveningPackagePriceNote, note: "7pm–midnight" },
+    { value: "all-day", priceElement: allDayPackagePrice,
+      noteElement: allDayPackagePriceNote, note: "Up to 10 consecutive hours" },
+    { value: "ceremony", priceElement: ceremonyPackagePrice,
+      noteElement: ceremonyPackagePriceNote, note: "Ceremony + up to 10 consecutive hours" }
   ];
 
-  packageDisplays.forEach(
-    (display) => {
-      if (
-        !display.priceElement ||
-        !display.noteElement
-      ) {
-        return;
-      }
+  displays.forEach(display => {
+    if (!display.priceElement || !display.noteElement) return;
 
-      const packageInput =
-        packageBuilderForm?.querySelector(
-          `input[name="mainPackage"][value="${display.value}"]`
-        ) || null;
+    const input = packageBuilderForm?.querySelector(
+      `input[name="mainPackage"][value="${display.value}"]`
+    );
+    const price = getWeddingDayPackagePrice(input);
 
-      if (!selected) {
-        display.priceElement.textContent =
-          display.range;
-
-        display.noteElement.textContent =
-          `${display.note} • choose your wedding day above`;
-
-        return;
-      }
-
-      const price =
-        getWeddingDayPackagePrice(
-          packageInput
-        );
-
-      display.priceElement.textContent =
-        price === null
-          ? "Choose day"
-          : formatPackagePrice(
-              price
-            );
-
-      display.noteElement.textContent =
-        `${display.note} • ${getWeddingDayBandLabel()}`;
-    }
-  );
+    display.priceElement.textContent =
+      price === null ? "Price on request" : formatPackagePrice(price);
+    display.noteElement.textContent = display.note;
+  });
 }
 
 function getSelectedFoamSticksColourInput() {
@@ -2394,7 +2336,7 @@ function buildPackageCopyText() {
   const lines = [
     "Keswick Discos — Wedding Package",
     "",
-    `Wedding day pricing: ${selection.weddingDayLabel || "Not selected"}`,
+    `Wedding day range: ${selection.weddingDayLabel || "Not specified"}`,
     ""
   ];
 
@@ -2689,8 +2631,8 @@ function updatePackageBuilderSummary() {
   if (packageSummaryDay) {
     packageSummaryDay.textContent =
       selection.weddingDayLabel
-        ? `Wedding day pricing: ${selection.weddingDayLabel}`
-        : "Wedding day pricing: not selected";
+        ? `Wedding day range: ${selection.weddingDayLabel}`
+        : "Wedding day range: not specified (optional)";
   }
 
   packageSummaryTotal.textContent =
@@ -2856,6 +2798,51 @@ async function copyPackageBuilderSummary() {
         ? "Package copied — ready to paste into your enquiry."
         : "Unable to copy automatically. Please try again.";
   }
+}
+
+// The page 26 button copies the saved package without opening an extra window.
+function showBrochureCopyNotice(message) {
+  let notice = document.getElementById("brochureCopyNotice");
+  if (!notice) {
+    notice = document.createElement("div");
+    notice.id = "brochureCopyNotice";
+    notice.setAttribute("role", "status");
+    notice.setAttribute("aria-live", "polite");
+    notice.style.cssText =
+      "position:fixed;z-index:1500;left:50%;bottom:100px;" +
+      "transform:translateX(-50%);width:min(425px,90vw);" +
+      "padding:15px 18px;border:1px solid #d7b66f;" +
+      "border-radius:14px;background:#181818;color:#fff;" +
+      "font:600 14px/1.5 Arial,sans-serif;text-align:center;" +
+      "box-shadow:0 12px 38px #0009;pointer-events:none";
+    document.body.appendChild(notice);
+  }
+  notice.textContent = message;
+  notice.hidden = false;
+  window.clearTimeout(showBrochureCopyNotice.timeout);
+  showBrochureCopyNotice.timeout = window.setTimeout(() => {
+    notice.hidden = true;
+  }, 4300);
+}
+
+async function copyPackageFromBrochurePage() {
+  const selectedMain = packageBuilderForm?.querySelector(
+    'input[name="mainPackage"]:checked'
+  );
+  if (!selectedMain) {
+    openPackageBuilder();
+    showBrochureCopyNotice(
+      "Choose your wedding package first, then tap Copy My Package."
+    );
+    return;
+  }
+  await copyPackageBuilderSummary();
+  const message = packageCopyStatus?.textContent || "";
+  showBrochureCopyNotice(
+    message.startsWith("Package copied")
+      ? "Package copied! Paste your choices into your wedding enquiry."
+      : "Couldn't copy automatically. Please use Copy inside the package creator."
+  );
 }
 
 function initialisePackageBuilder() {
@@ -7239,17 +7226,16 @@ async function startMobileBrochure(
         "52%";
     }
 
-    const prime =
-      primeMobilePdfPage(
-        2
-      );
-
-    await Promise.race([
-      prime,
-      wait(
-        1400
-      )
-    ]);
+    // Page 2 is one of the optimised direct-image pages.
+    // Preload its lightweight JPEG instead of opening the old
+    // 18 MB combined mobile PDF when the brochure starts.
+    if (isDirectImagePage(2)) {
+      const nextPagePreview = new Image();
+      nextPagePreview.src = imagePath(2);
+    } else {
+      const prime = primeMobilePdfPage(2);
+      await Promise.race([prime, wait(1400)]);
+    }
 
     if (
       loadingProgress
