@@ -95,7 +95,10 @@ const pageHotspots = {
       left: 17.0,
       top: 34.7,
       width: 16.2,
-      height: 11.6
+      height: 11.6,
+      pulse: true,
+      pulseShape: "circle",
+      pulseStyle: "classic-centered"
     },
     {
       href: "https://www.keswickdiscos.co.uk/enquiries",
