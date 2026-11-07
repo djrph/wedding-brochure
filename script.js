@@ -31,7 +31,7 @@ const pageTitles = {
   10: "Wedding Entertainment Packages",
   11: "Evening Wedding Package",
   12: "All Day Wedding Package",
-  13: "Wedding Ceremony Package",
+  13: "Ceremony Package",
   14: "How Could Your Wedding Flow?",
   15: "Wedding Entertainment Extras",
   16: "DJ & Sax",
@@ -2133,7 +2133,7 @@ function syncMainPackagePriceDisplays() {
     { value: "all-day", priceElement: allDayPackagePrice,
       noteElement: allDayPackagePriceNote, note: "Up to 10 consecutive hours" },
     { value: "ceremony", priceElement: ceremonyPackagePrice,
-      noteElement: ceremonyPackagePriceNote, note: "Ceremony + up to 10 consecutive hours" }
+      noteElement: ceremonyPackagePriceNote, note: "12 hours • Includes All Day and Evening Wedding Packages" }
   ];
 
   displays.forEach(display => {
