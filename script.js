@@ -92,13 +92,19 @@ const pageHotspots = {
     {
       action: "copy-package",
       label: "Copy my wedding package",
+      // Clickable area remains unchanged. The visible pulse follows the
+      // actual artwork pixels, rather than the centre of this hit target.
       left: 17.0,
       top: 34.7,
       width: 16.2,
       height: 11.6,
       pulse: true,
       pulseShape: "circle",
-      pulseStyle: "classic-centered"
+      intrinsicPulse: {
+        cx: 356, // exact printed-circle centre in page26.jpg
+        cy: 825,
+        r: 111   // printed circular border radius
+      }
     },
     {
       href: "https://www.keswickdiscos.co.uk/enquiries",
