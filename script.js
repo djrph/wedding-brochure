@@ -278,40 +278,8 @@ function getPageHotspots(
   ] || [];
 }
 
-function createPageHotspot(
-  pageNumber,
-  hotspot
-) {
-  const isAction =
-    Boolean(
-      hotspot.action
-    );
-
-  const control =
-    document.createElement(
-      isAction
-        ? "button"
-        : "a"
-    );
-
-  control.className =
-    "page-hotspot";
-
-  const useClassicCenteredPulse =
-    hotspot.pulse &&
-    hotspot.pulseStyle ===
-      "classic-centered";
-
-  const useNestedPulse =
-    hotspot.pulse &&
-    !useClassicCenteredPulse &&
-    !hotspot.pagePulse &&
-    !hotspot.artworkPulse &&
-    !hotspot.intrinsicPulse;
-
-  if (
-    useClassicCenteredPulse
-  ) {
+// Same two-layer animation is shared by pages 25 and 26.
+function createClassicCenteredPulseGraphic() {
     const pulseWrapper =
       document.createElement(
         "span"
@@ -394,10 +362,6 @@ function createPageHotspot(
       pulseRing
     );
 
-    control.appendChild(
-      pulseWrapper
-    );
-
     const prefersReducedMotion =
       window.matchMedia(
         "(prefers-reduced-motion: reduce)"
@@ -472,6 +436,47 @@ function createPageHotspot(
       pulseRing.style.transform =
         "scale(1)";
     }
+
+    return pulseWrapper;
+}
+
+function createPageHotspot(
+  pageNumber,
+  hotspot
+) {
+  const isAction =
+    Boolean(
+      hotspot.action
+    );
+
+  const control =
+    document.createElement(
+      isAction
+        ? "button"
+        : "a"
+    );
+
+  control.className =
+    "page-hotspot";
+
+  const useClassicCenteredPulse =
+    hotspot.pulse &&
+    hotspot.pulseStyle ===
+      "classic-centered";
+
+  const useNestedPulse =
+    hotspot.pulse &&
+    !useClassicCenteredPulse &&
+    !hotspot.pagePulse &&
+    !hotspot.artworkPulse &&
+    !hotspot.intrinsicPulse;
+
+  if (
+    useClassicCenteredPulse
+  ) {
+    control.appendChild(
+      createClassicCenteredPulseGraphic()
+    );
   }
 
   if (
@@ -737,28 +742,15 @@ function appendIntrinsicPulse(
   const pulse =
     hotspot.intrinsicPulse;
 
-  const visual =
-    document.createElement(
-      "span"
-    );
+  // Exactly the same animated glow and white ring as page 25.
+  // Only the positioning differs: page 26 uses printed-image pixels.
+  const visual = createClassicCenteredPulseGraphic();
+  visual.className = "page-intrinsic-classic-pulse";
+  visual.style.inset = "auto";
+  visual.style.transform = "translate(-50%, -50%)";
+  visual.style.zIndex = "39";
 
-  visual.className =
-    "page-hotspot-pulse-visual";
-
-  visual.setAttribute(
-    "aria-hidden",
-    "true"
-  );
-
-  visual.style.zIndex =
-    "39";
-
-  visual.style.pointerEvents =
-    "none";
-
-  container.appendChild(
-    visual
-  );
+  container.appendChild(visual);
 
   const positionPulse =
     () => {
@@ -825,18 +817,9 @@ function appendIntrinsicPulse(
         pulse.cy *
         contentScale;
 
-      /*
-       * The original pulse animation starts at scale(.91).
-       * Making the base diameter 1/.91 larger means the ring
-       * sits exactly on the printed circle at the start of
-       * each pulse, then expands outwards as before.
-       */
-      const baseRadius =
-        (
-          pulse.r /
-          0.91
-        ) *
-        contentScale;
+      // Page 25 ring starts at scale(.88); compensate its
+      // starting diameter while keeping the pixel-anchored centre.
+      const baseRadius = (pulse.r / 0.88) * contentScale;
 
       visual.style.left =
         `${centreX}px`;
