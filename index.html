@@ -35,7 +35,7 @@
 
   <script defer src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-  <script defer src="script.js?v=20261111-2"></script>
+  <script defer src="script.js?v=20261116-1"></script>
 </head>
 
 <body>
@@ -334,27 +334,27 @@
               <span class="package-builder-step">1</span>
               <div>
                 <h3 id="weddingDayHeading">When is your wedding?</h3>
-                <p>Optionally select your wedding day range for your package notes. Prices are the same all week.</p>
+                <p>Select when your wedding takes place to see the correct package prices. Bank holidays are charged at standard rates.</p>
               </div>
             </div>
 
-            <div class="package-mobile-pricing-strip" aria-label="Main wedding package pricing">
+            <div class="package-mobile-pricing-strip" aria-label="Wedding package prices by day">
               <span>
                 <small>Monday–Wednesday</small>
-                <strong>Current prices</strong>
+                <strong>Midweek prices</strong>
                 <span class="package-pricing-lines">
-                  <b>Evening £469</b>
-                  <b>All Day £695</b>
-                  <b>Ceremony Package £795</b>
+                  <b>Evening £449</b>
+                  <b>All Day £675</b>
+                  <b>Ceremony Package £775</b>
                 </span>
               </span>
               <span>
                 <small>Thursday–Sunday</small>
-                <strong>Current prices</strong>
+                <strong>Standard prices</strong>
                 <span class="package-pricing-lines">
-                  <b>Evening £469</b>
-                  <b>All Day £695</b>
-                  <b>Ceremony Package £795</b>
+                  <b>Evening £479</b>
+                  <b>All Day £725</b>
+                  <b>Ceremony Package £825</b>
                 </span>
               </span>
             </div>
@@ -369,8 +369,8 @@
                 >
                 <span class="package-choice-card-body">
                   <strong>Monday–Wednesday</strong>
-                  <small>Current package prices</small>
-                  <span class="package-choice-price">Same package price all week</span>
+                  <small>Midweek wedding savings</small>
+                  <span class="package-choice-price">Evening from £449</span>
                 </span>
               </label>
 
@@ -379,12 +379,13 @@
                   type="radio"
                   name="weddingDayBand"
                   value="thursday-sunday"
-                  data-label="Thursday–Sunday"
+                  data-label="Thursday–Sunday / bank holiday"
+                  checked
                 >
                 <span class="package-choice-card-body">
                   <strong>Thursday–Sunday</strong>
-                  <small>Current package prices</small>
-                  <span class="package-choice-price">Same package price all week</span>
+                  <small>Standard prices · also applies to bank holidays</small>
+                  <span class="package-choice-price">Evening from £479</span>
                 </span>
               </label>
             </div>
@@ -414,14 +415,14 @@
                   name="mainPackage"
                   value="evening"
                   data-label="Evening Wedding Package"
-                  data-price="469"
-                  data-price-midweek="469"
-                  data-price-thursday-sunday="469"
+                  data-price="479"
+                  data-price-midweek="449"
+                  data-price-thursday-sunday="479"
                 >
                 <span class="package-choice-card-body">
                   <strong>Evening Wedding</strong>
                   <small id="eveningPackagePriceNote">7pm–midnight</small>
-                  <span id="eveningPackagePrice" class="package-choice-price">£469</span>
+                  <span id="eveningPackagePrice" class="package-choice-price">£479</span>
                 </span>
               </label>
 
@@ -431,14 +432,14 @@
                   name="mainPackage"
                   value="all-day"
                   data-label="All Day Wedding Package"
-                  data-price="695"
-                  data-price-midweek="695"
-                  data-price-thursday-sunday="695"
+                  data-price="725"
+                  data-price-midweek="675"
+                  data-price-thursday-sunday="725"
                 >
                 <span class="package-choice-card-body">
                   <strong>All Day Wedding</strong>
                   <small id="allDayPackagePriceNote">Up to 10 consecutive hours</small>
-                  <span id="allDayPackagePrice" class="package-choice-price">£695</span>
+                  <span id="allDayPackagePrice" class="package-choice-price">£725</span>
                 </span>
               </label>
 
@@ -448,14 +449,14 @@
                   name="mainPackage"
                   value="ceremony"
                   data-label="Ceremony Package — 12 hours, includes All Day and Evening Wedding Packages"
-                  data-price="795"
-                  data-price-midweek="795"
-                  data-price-thursday-sunday="795"
+                  data-price="825"
+                  data-price-midweek="775"
+                  data-price-thursday-sunday="825"
                 >
                 <span class="package-choice-card-body">
                   <strong>Ceremony Package</strong>
                   <small id="ceremonyPackagePriceNote">12 hours • Includes All Day and Evening Wedding Packages</small>
-                  <span id="ceremonyPackagePrice" class="package-choice-price">£795</span>
+                  <span id="ceremonyPackagePrice" class="package-choice-price">£825</span>
                 </span>
               </label>
             </div>
@@ -619,11 +620,12 @@
                   type="checkbox"
                   name="poaExtras"
                   value="silent-disco"
-                  data-label="Silent Disco"
+                  data-label="Silent Disco (Coming 2027)"
                   data-poa="true"
                 >
                 <span class="package-choice-card-body">
                   <strong>Silent Disco</strong>
+                  <small>Coming 2027</small>
                   <span class="package-choice-price">Price on request</span>
                 </span>
               </label>
@@ -633,11 +635,12 @@
                   type="checkbox"
                   name="poaExtras"
                   value="cold-sparks"
-                  data-label="Cold Spark Experience"
+                  data-label="Cold Spark Experience (Coming 2027)"
                   data-poa="true"
                 >
                 <span class="package-choice-card-body">
                   <strong>Cold Spark Experience</strong>
+                  <small>Coming 2027</small>
                   <span class="package-choice-price">Price on request</span>
                 </span>
               </label>
