@@ -2113,9 +2113,16 @@ function getWeddingDayBandLabel() {
 function getWeddingDayPackagePrice(packageInput) {
   if (!packageInput) return null;
 
-  // Main package prices apply to every day of the week.
-  const price = Number(packageInput.dataset.price);
-  return Number.isFinite(price) ? price : null;
+  // A Monday–Wednesday choice uses the midweek prices.
+  // Thursday–Sunday and bank holidays use standard prices.
+  // Standard prices also apply until a day range is chosen.
+  const dayBand = getSelectedWeddingDayBandInput()?.value;
+  const priceText = dayBand === "midweek"
+    ? packageInput.dataset.priceMidweek
+    : packageInput.dataset.priceThursdaySunday;
+
+  const price = Number(priceText || packageInput.dataset.price);
+  return Number.isFinite(price) && price > 0 ? price : null;
 }
 
 function syncMainPackagePriceDisplays() {
