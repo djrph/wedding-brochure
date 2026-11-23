@@ -107,7 +107,7 @@ const pageHotspots = {
       }
     },
     {
-      href: "https://www.keswickdiscos.co.uk/enquiries",
+      href: "https://www.keswickdiscos.co.uk/contact",
       label: "Check your wedding date",
       left: 29.0,
       top: 60.3,
